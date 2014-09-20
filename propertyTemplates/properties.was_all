@@ -1,0 +1,258 @@
+#!/bin/sh
+
+# Environment Name (An arbitary identifyer which will be used as a basis for DMGR, Node, Cluster and Server names)
+envName="auto"
+
+# Remote repository endpoints
+remoteImRepo=http://10.153.10.96/assets/Installs/ibm/im/ # Installation Manager repo - for WAS 8.x
+remoteRepo=http://10.153.10.96/assets/Installs/ibm/was/was-nd-8.5.5
+was8Repo=http://10.153.10.96/assets/Installs/ibm/was/was-nd-8.5.5
+was8Dist=unset ### WAS 8 distribution tarball
+was6Repo=http://10.153.10.96/assets/Installs/ibm/wps/wps-6.2
+was6Dist=wps62.tar ### WAS 6 distribution tarball
+
+# Local repo base dir 
+localRepo=~/.repo
+
+# Location of response file templates
+respDir=$(pwd)/responseTemplates
+
+# Local IM repo - For WAS 8.x
+imSrcDir=$localRepo/im
+imSelfProfile=IBM_Installation_Manager  # Can not contain white space
+imVersion=1.7.1000.20131119_2219  # No need to edit thid unless we're changing versions but FYI is found in $imSrcDir/repository.xml by searching for "offering id"
+
+# Local WAS 8 repo 
+wasSrcDir=$localRepo/repository/WAS
+wasPatchDir=$localRepo/repository/WAS
+wasImage=com.ibm.websphere.ND.v85 # This is found in $wasSrcDir/repository.xml  by searching for "offering id"
+wasProfile=IBM_WebSphere_Application_Server  # Can not contain white space
+wasVersion=8.5.2.20130327_1831  # No need to edit thid unless we're changing versions but FYI is found in $imSrcDir/repository.xml by searching for "offering id"
+
+# Local WAS/WPS 6 repo 
+was6SrcDir=${localRepo}/WBI
+was6PatchDir=${localRepo}/WBI-PATCH
+
+# Installation directories
+installDir=~
+wasInstallDir=${installDir}/was
+
+# Operating system and architecture
+os=linux
+ws=gtk
+arch=x86_64
+nl=en
+is64bit=true
+
+# Details of the host currently being built
+hostName=`hostname`
+wasHost=${hostName}
+
+# The name of the Websphere Cell
+cellName=${envName}Cell
+
+# The directory where Websphere profiles will reside
+profilePath=${wasInstallDir}/profiles
+
+# The Websphere node name of the Deployment Manager
+dmgrName=${envName}Dmgr
+
+# The hostname of the Deployment Manager
+dmgrHost=${hostName}
+
+# The Deployment Manager profile name
+dmgrProf=${envName}Dmgr
+
+# The name of the Websphere Node currently being built
+nodeName=${envName}Node1
+
+# The name of the second Websphere Node in the deployment Environment. If its not required, write NONE
+otherNodeName1=NONE
+
+# The name of the Websphere Profile currently being built
+nodeProf=${envName}Node1
+
+# The hostname of the Websphere Node currently being built
+nodeHost=${hostName}
+
+# The WebSphere primary admin credentials
+wasUser=admin
+wasPass=admin
+
+# The WebSphere keystore / truststore password
+keyStorePassword=WebAS
+
+# The operating system user under which the WebSphere JVM's will run
+wasOsUser=`id | awk '{print $1}' | sed s/.*\(// | sed s/\)//`
+
+# The operating system group under which the WebSphere JVM's will run
+wasGroup=autowas
+
+# IHS name (when federated into Cell)
+webServerName=${envName}Ihs1
+
+# The base TCP port - A further 60 consecutive ports will be required above this number 
+# To round things up the portRange make target will round this up to 100 per env when checking availability
+basePort=2000
+endPort=`echo ${basePort}+100 | bc`
+
+# Deployment Manager ports - auto generated using $basePort as a starting point
+dmgrAdminPort=${basePort}
+dmgrDefaultPort=`echo ${basePort}+1 | bc`
+dmgrAdminSecurePort=`echo ${basePort}+2 | bc`
+dmgrDefaultSecurePort=`echo ${basePort}+3 | bc`
+dmgrBootstrapPort=`echo ${basePort}+4 | bc`
+dmgrSoapPort=`echo ${basePort}+5 | bc`
+dmgrSasPort=`echo ${basePort}+6 | bc`
+dmgrCsiv1Port=`echo ${basePort}+7 | bc`
+dmgrCsiv2Port=`echo ${basePort}+8 | bc`
+dmgrDcsPort=`echo ${basePort}+9 | bc`
+dmgrSpiPort=`echo ${basePort}+10 | bc`
+dmgrSipSecurePort=`echo ${basePort}+11 | bc`
+dmgrSibPort=`echo ${basePort}+12 | bc`
+dmgrSibSecurePort=`echo ${basePort}+13 | bc`
+dmgrSibmqPort=`echo ${basePort}+14 | bc`
+dmgrSibmqSecurePort=`echo ${basePort}+15 | bc`
+dmgrOrbPort=`echo ${basePort}+16 | bc`
+dmgrCellDiscoveryPort=`echo ${basePort}+17 | bc`
+dmgrIpcPort=`echo ${basePort}+18 | bc`
+dmgrNodeDiscoveryPort=`echo ${basePort}+19 | bc`
+dmgrNodeIpv6McDiscPort=`echo ${basePort}+20 | bc`
+dmgrNodeMcDiscPort=`echo ${basePort}+21 | bc`
+dmgrDataPowerSecurePort=`echo ${basePort}+22 | bc`
+
+# Node ports
+nodeBootstrapPort=`echo ${basePort}+23 | bc`
+nodeSoapPort=`echo ${basePort}+24 | bc`
+nodeSasPort=`echo ${basePort}+25 | bc`
+nodeCsiv1Port=`echo ${basePort}+26 | bc`
+nodeCsiv2Port=`echo ${basePort}+27 | bc`
+nodeDcsPort=`echo ${basePort}+28 | bc`
+nodeOrbPort=`echo ${basePort}+29 | bc`
+nodeIpcPort=`echo ${basePort}+30 | bc`
+nodeNodeDiscoveryPort=`echo ${basePort}+31 | bc`
+nodeNodeIpv6McDiscPort=`echo ${basePort}+32 | bc`
+nodeNodeMcDiscPort=`echo ${basePort}+33 | bc`
+
+# IHS ports
+ihsHttpPort=`echo ${basePort}+34 | bc`
+ihsHttpsPort=`echo ${basePort}+35 | bc`
+ihsAdminPort=`echo ${basePort}+36 | bc`
+
+# Cluster details - reserve 50 ports
+clusterName=autowasCluster1
+clusterBasePort=`echo ${basePort}+37 | bc`
+
+# WBI Cluster Details - reserve 50 ports per cluster
+AppTargetClusterName=AppTarget
+appBasePort=`echo ${basePort}+38 | bc`
+SupportClusterName=Support
+messBasePort=`echo ${basePort}+39 | bc`
+MessagingClusterName=Messaging
+suppBasePort=`echo ${basePort}+40 | bc`
+
+# SQLPlus client env
+sqlPlusEnv=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/oracle_env.sh
+
+# Generic Database config
+dbGrants=AUTOWAS_WPS_ROLE
+xaGrants=AUTOWAS_XA_ROLE
+dbDriverPath=drivers/oracle
+dbHost=10.153.10.96
+dbPort=40521
+dbName=XE
+
+# Common Database Config
+commonUser=AUTOWAS_CMN
+commonPass=ibm123
+
+# Business Space Database Config
+bspUser=AUTOWAS_BSP
+bspPass=ibm123
+bspJndi=jdbc/bpm/BusinessSpace
+
+# CEI Database Config
+ceiUser=AUTOWAS_CEI
+ceiPass=ibm123
+ceiJndi=jdbc/cei
+
+# Process Choreographer Database Config
+bpcUser=AUTOWAS_BPE
+bpcPass=ibm123
+bpcJndi=jdbc/BPEDB
+
+# Observer Database Config
+obsUser=AUTOWAS_OBS
+obsPass=ibm123
+obsJndi=jdbc/OBSVRDB
+
+# Messaging Engine Database config
+appMsgUser=AUTOWAS_SCAAPP
+appMsgPass=ibm123
+sysMsgUser=AUTOWAS_SCASYS
+sysMsgPass=ibm123
+ceiMsgUser=AUTOWAS_CEIME
+ceiMsgPass=ibm123
+bpcMsgUser=AUTOWAS_BPEME
+bpcMsgPass=ibm123
+
+# RPC Database Config
+salsaDbUser=unset
+salsaDbPass=unset
+salsaDbHost=unset
+salsaDbPort=unset
+salsaDbName=unset
+salsaDbJndi=unset
+
+# SLR endpoint
+slrProtocol=http
+slrHost=10.245.211.251
+slrPort=22518
+slrUri=/PM_LeadServiceWeb/sca/ID_LeadServiceExport1
+
+# CIA endpoint
+ciaProtocol=http
+ciaHost=zdev3.service.test.group
+ciaPort=60928
+ciaUri=/CICS/F139/VU0015CE
+
+# RPC App Info 
+rpcWar=rpc.war
+rpcName=rpc
+rpcCr=rpc
+rpcSharedLib=rpc-shared-lib
+endPoint=${rpcCr}/PM_RetrievePromotionalCommunicationsWeb/sca/IA_RetrievePromotionalCommunicationsExport1
+rpcSharedLibCp="\
+aopalliance-1.0.jar;\
+cxf-api-2.7.7.jar;\
+cxf-bundle-jaxrs-2.7.7.jar;\
+cxf-rt-bindings-soap-2.7.7.jar;\
+cxf-rt-bindings-xml-2.7.7.jar;\
+cxf-rt-core-2.7.7.jar;\
+cxf-rt-databinding-jaxb-2.7.7.jar;\
+cxf-rt-features-clustering-2.7.7.jar;\
+cxf-rt-frontend-jaxrs-2.7.7.jar;\
+cxf-rt-frontend-jaxws-2.7.7.jar;\
+cxf-rt-frontend-simple-2.7.7.jar;\
+cxf-rt-management-2.7.7.jar;\
+cxf-rt-transports-http-2.7.7.jar;\
+cxf-rt-ws-addr-2.7.7.jar;\
+cxf-rt-ws-policy-2.7.7.jar;\
+javax.ws.rs-api-2.0-m10.jar;\
+jaxb-impl-2.2.6.jar;\
+neethi-3.0.2.jar;\
+spring-aop-3.2.4.RELEASE.jar;\
+spring-beans-3.2.4.RELEASE.jar;\
+spring-context-3.2.4.RELEASE.jar;\
+spring-core-3.2.4.RELEASE.jar;\
+spring-expression-3.2.4.RELEASE.jar;\
+spring-tx-3.2.4.RELEASE.jar;\
+spring-web-3.2.4.RELEASE.jar;\
+stax2-api-3.1.1.jar;\
+woodstox-core-asl-4.2.0.jar;\
+xmlschema-core-2.0.3.jar;"
+
+# RPC-RM App Info 
+rpcRmWar=rpc-remotemock.war
+rpcRmName=rpc-remotemocks
+rpcRmCr=rpc/rm

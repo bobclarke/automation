@@ -1,0 +1,1379 @@
+
+CREATE TABLE __obsUser__.OBSERVER_VERSION
+(
+  OBSERVER_VERSION                     NUMBER(10,0)         NOT NULL ,
+  DATA_MIGRATION                     NUMBER(5,0)          NOT NULL 
+) 
+  LOGGING;
+
+ALTER TABLE __obsUser__.OBSERVER_VERSION ADD(
+  PRIMARY KEY ( OBSERVER_VERSION )
+  USING INDEX 
+);
+
+CREATE TABLE __obsUser__.INST_PRC_T
+(
+  PIID                               RAW(16)              NOT NULL ,
+  PRC_TEMPL_NAME                     VARCHAR2(254)        NOT NULL ,
+  VALID_FROM                         TIMESTAMP            NOT NULL ,
+  PRC_DELETED                        TIMESTAMP                     ,
+  PTID                               RAW(16)              NOT NULL ,
+  PRC_STARTED                        TIMESTAMP                     ,
+  PRC_COMPLETED                      TIMESTAMP                     ,
+  PRC_EVENT_CNT                      NUMBER(10,0)         NOT NULL ,
+  PRC_WORK_TIME                      NUMBER(10,0)         NOT NULL ,
+  PRC_ACT_CNT                        NUMBER(10,0)         NOT NULL ,
+  PRC_ACT_EVENT_CNT                  NUMBER(10,0)         NOT NULL ,
+  PRC_LAST_USER                      VARCHAR2(128)                 
+) 
+  LOGGING;
+
+ALTER TABLE __obsUser__.INST_PRC_T ADD(
+  PRIMARY KEY ( PIID )
+  USING INDEX 
+);
+
+CREATE INDEX __obsUser__.INST_PRC_PTID ON __obsUser__.INST_PRC_T
+(   
+  PTID
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.INST_PRC_STARTED ON __obsUser__.INST_PRC_T
+(   
+  PRC_STARTED
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.INST_PRC_COMPLET ON __obsUser__.INST_PRC_T
+(   
+  PRC_COMPLETED
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.INST_PRC_DELETE ON __obsUser__.INST_PRC_T
+(   
+  PRC_DELETED
+) 
+  LOGGING;
+
+CREATE TABLE __obsUser__.INST_ACT_T
+(
+  ACT_NAME                           VARCHAR2(254)                 ,
+  ACT_KIND                           NUMBER(10,0)         NOT NULL ,
+  ATID                               RAW(16)              NOT NULL ,
+  AIID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  ACT_STARTED                        TIMESTAMP                     ,
+  ACT_COMPLETED                      TIMESTAMP                     ,
+  ACT_EVENT_CNT                      NUMBER(10,0)         NOT NULL ,
+  ACT_LAST_USER                      VARCHAR2(128)                 
+) 
+  LOGGING;
+
+ALTER TABLE __obsUser__.INST_ACT_T ADD(
+  PRIMARY KEY ( AIID )
+  USING INDEX 
+);
+
+CREATE INDEX __obsUser__.INST_ACT_NAME ON __obsUser__.INST_ACT_T
+(   
+  ACT_NAME
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.INST_ACT_ATID ON __obsUser__.INST_ACT_T
+(   
+  ATID
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.INST_ACT_PIID ON __obsUser__.INST_ACT_T
+(   
+  PIID
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.INST_ACT_STARTED ON __obsUser__.INST_ACT_T
+(   
+  ACT_STARTED
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.INST_ACT_COMPLET ON __obsUser__.INST_ACT_T
+(   
+  ACT_COMPLETED
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.ATID_NAME_AIID ON __obsUser__.INST_ACT_T
+(   
+  ATID, ACT_NAME, AIID
+) 
+  LOGGING;
+
+CREATE TABLE __obsUser__.EVENT_PRC_T
+(
+  EVENT_TIME                         TIMESTAMP            NOT NULL ,
+  PRC_EVENT                          NUMBER(10,0)         NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  EXCEPTION_TEXT                     CLOB                          ,
+  USER_NAME                          VARCHAR2(128)                 ,
+  PRC_STATE                          NUMBER(10,0)         NOT NULL 
+) 
+  LOGGING
+  LOB (EXCEPTION_TEXT) STORE AS
+  (
+    TABLESPACE OBSVRLOB
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __obsUser__.EVENT_PRC_T ADD(
+  PRIMARY KEY ( EVENT_TIME, PIID )
+  USING INDEX 
+);
+
+CREATE INDEX __obsUser__.EVENT_PRC_PIID ON __obsUser__.EVENT_PRC_T
+(   
+  PIID
+) 
+  LOGGING;
+
+CREATE TABLE __obsUser__.EVENT_ACT_T
+(
+  EVENT_TIME                         TIMESTAMP            NOT NULL ,
+  ACT_EVENT                          NUMBER(10,0)         NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  AIID                               RAW(16)              NOT NULL ,
+  ACT_STATE                          NUMBER(10,0)         NOT NULL ,
+  EXCEPTION_TEXT                     CLOB                          ,
+  USER_NAME                          VARCHAR2(128)                 
+) 
+  LOGGING
+  LOB (EXCEPTION_TEXT) STORE AS
+  (
+    TABLESPACE OBSVRLOB
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __obsUser__.EVENT_ACT_T ADD(
+  PRIMARY KEY ( EVENT_TIME, AIID )
+  USING INDEX 
+);
+
+CREATE UNIQUE INDEX __obsUser__.AIID_TIME_EVNT ON __obsUser__.EVENT_ACT_T
+(   
+  AIID, EVENT_TIME, ACT_EVENT
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.EVENT_ACT_PIID ON __obsUser__.EVENT_ACT_T
+(   
+  PIID
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.EVENT_ACT_USER ON __obsUser__.EVENT_ACT_T
+(   
+  USER_NAME
+) 
+  LOGGING;
+
+CREATE TABLE __obsUser__.QUERY_T
+(
+  ID                                 NUMBER(10,0)         NOT NULL ,
+  LAST_UPD                           TIMESTAMP            NOT NULL ,
+  DISPLAY_NAME                       VARCHAR2(254)        NOT NULL ,
+  TYPE                               NUMBER(5,0)          NOT NULL ,
+  TEXT                               CLOB                 NOT NULL 
+) 
+  LOGGING
+  LOB (TEXT) STORE AS
+  (
+    TABLESPACE OBSVRLOB
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __obsUser__.QUERY_T ADD(
+  PRIMARY KEY ( ID )
+  USING INDEX 
+);
+
+CREATE INDEX __obsUser__.QUERY_TYPE_NAME ON __obsUser__.QUERY_T
+(   
+  TYPE, DISPLAY_NAME
+) 
+  LOGGING;
+
+CREATE INDEX __obsUser__.QUERY_DISPLAY_NAME ON __obsUser__.QUERY_T
+(   
+  DISPLAY_NAME
+) 
+  LOGGING;
+
+CREATE TABLE __obsUser__.SLICES_T
+(
+  ID                                 NUMBER(10,0)         NOT NULL 
+) 
+  LOGGING;
+
+ALTER TABLE __obsUser__.SLICES_T ADD(
+  PRIMARY KEY ( ID )
+  USING INDEX 
+);
+
+CREATE TABLE __obsUser__.OPEN_EVENTS_T
+(
+  GLOBAL_ID                          VARCHAR2(64)         NOT NULL ,
+  SEQUENCE                           NUMBER(10,0)         NOT NULL ,
+  EVENT_TIME_UTC                     TIMESTAMP            NOT NULL ,
+  AUDIT_EVENT                        NUMBER(10,0)         NOT NULL ,
+  PTID                               RAW(16)                       ,
+  PIID                               RAW(16)              NOT NULL ,
+  PROCESS_TEMPL_NAME                 VARCHAR2(254)                 ,
+  VALID_FROM_UTC                     TIMESTAMP                     ,
+  ATID                               RAW(16)                       ,
+  AIID                               RAW(16)                       ,
+  ACTIVITY_NAME                      VARCHAR2(254)                 ,
+  ACTIVITY_KIND                      NUMBER(10,0)                  ,
+  ACTIVITY_STATE                     NUMBER(10,0)                  ,
+  EXCEPTION_TEXT                     CLOB                          ,
+  PROCESS_STATE                      NUMBER(10,0)                  ,
+  USER_NAME                          VARCHAR2(128)                 ,
+  EXTENSION_NAME                     VARCHAR2(128)                 
+) 
+  LOGGING
+  LOB (EXCEPTION_TEXT) STORE AS
+  (
+    TABLESPACE OBSVRLOB
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __obsUser__.OPEN_EVENTS_T ADD(
+  PRIMARY KEY ( GLOBAL_ID )
+  USING INDEX 
+);
+
+CREATE INDEX __obsUser__.OPEN_EVNTS_PIID_TS ON __obsUser__.OPEN_EVENTS_T
+(   
+  PIID, EVENT_TIME_UTC
+) 
+  LOGGING;
+-- set schema version to: 610
+INSERT INTO __obsUser__.OBSERVER_VERSION (OBSERVER_VERSION, DATA_MIGRATION) VALUES( 610, 0 );
+
+--------------------------------------------------------------------------------
+--  Licensed Materials - Property of IBM
+--  5655-FLW (C) Copyright IBM Corporation 2005,2007.
+--  All Rights Reserved.
+--  US Government Users Restricted Rights-
+--  Use, duplication or disclosure restricted
+--  by GSA ADP Schedule Contract with IBM Corp.
+--------------------------------------------------------------------------------
+--   Version 1.4
+--   Last update: 07/07/17 03:28:50
+--------------------------------------------------------------------------------
+--
+-- SQL snippet for Observer UDF
+-- for Oracle 9i and Oracle 10g
+--
+--------------------------------------------------------------------------------
+
+---------------------
+-- Create function --
+---------------------
+CREATE OR REPLACE FUNCTION
+   __obsUser__.INTERVALIN(INTERVALUNIT NUMBER, TS1 TIMESTAMP, TS2 TIMESTAMP) RETURN NUMBER IS
+   intervalValue NUMBER;
+
+duration INTERVAL DAY(6) TO SECOND;
+
+BEGIN --;
+   -- return the number of intervalunits within two given timestamps
+   -- MILLISECOND = 1;     not used
+   -- SECOND = 2;
+   -- MINUTE = 4;
+   -- HOUR = 8;
+   -- DAY = 16;
+   -- WEEK = 32;
+   -- MONTH = 64;
+   -- QUARTER = 128;
+   -- YEAR = 256;
+
+   -- first get the interval
+   duration := ts2 - ts1;
+
+   CASE  --;
+      WHEN intervalunit=1 THEN --;
+         -- calculate the milliseconds of the interval and add them
+         intervalValue:=extract(day FROM duration) * 86400000
+                 +extract(hour FROM duration) * 3600000
+                 +extract(minute FROM duration) * 60000
+                 +extract(second FROM duration) * 1000;
+      WHEN intervalunit=2 THEN --;
+         -- calculate the seconds of the interval and add them
+         intervalValue:=extract(day FROM duration) * 86400
+                 +extract(hour FROM duration) * 3600
+                 +extract(minute FROM duration) * 60
+                 +extract(second FROM duration) ;
+      WHEN intervalunit=4 THEN --;
+         -- calculate the minutes of the interval and add them
+         intervalValue:=extract(day FROM duration) * 1440
+                 +extract(hour FROM duration) * 60
+                 +extract(minute FROM duration);
+      WHEN intervalunit=8 THEN --;
+         -- calculate the hour of the interval and add them
+         intervalValue:=extract(day FROM duration) * 24
+                 +extract(hour FROM duration);
+      WHEN intervalunit=16 THEN --;
+         -- calculate the day of the interval and add them
+         intervalValue:=extract(day FROM duration);
+      WHEN intervalunit=32 THEN --;
+         -- calculate the week of the interval and add them
+         intervalValue:=extract(day FROM duration)/7;
+      WHEN intervalunit=64 THEN --;
+         -- calculate the month(30 days) of the interval and add them
+         intervalValue:=extract(day FROM duration)/30;
+      WHEN intervalunit=128 THEN --;
+         -- calculate the quarter (90 days)  of the interval and add them
+         intervalValue:=extract(day FROM duration)/90;
+      WHEN intervalunit=256 THEN --;
+         -- calculate the year (365 days) of the interval and add them
+         intervalValue:=extract(day FROM duration)/365;
+      ELSE --;
+         intervalValue:=0;
+   END CASE;
+
+-- return only full values
+RETURN TRUNC(intervalValue);
+END INTERVALIN;
+/
+CREATE OR REPLACE FUNCTION __obsUser__.OBSVR_JAR_ACTIVE RETURN NUMBER IS
+BEGIN
+  RETURN 0;
+END OBSVR_JAR_ACTIVE;
+/
+--------------------------------------------------------------------
+--  Licensed Materials - Property of IBM
+--  5655-FLW (C) Copyright IBM Corporation 2005,2007.
+--  All Rights Reserved.
+--  US Government Users Restricted Rights-
+--  Use, duplication or disclosure restricted
+--  by GSA ADP Schedule Contract with IBM Corp.
+--------------------------------------------------------------------
+--   Version 1.3
+--   Last update: 07/07/17 03:31:56
+--------------------------------------------------------------------
+--
+-- SQL snippet for filling the the SLICES_T table with values
+--
+--------------------------------------------------------------------
+
+INSERT INTO __obsUser__.SLICES_T VALUES(   1);
+INSERT INTO __obsUser__.SLICES_T VALUES(   2);
+INSERT INTO __obsUser__.SLICES_T VALUES(   3);
+INSERT INTO __obsUser__.SLICES_T VALUES(   4);
+INSERT INTO __obsUser__.SLICES_T VALUES(   5);
+INSERT INTO __obsUser__.SLICES_T VALUES(   6);
+INSERT INTO __obsUser__.SLICES_T VALUES(   7);
+INSERT INTO __obsUser__.SLICES_T VALUES(   8);
+INSERT INTO __obsUser__.SLICES_T VALUES(   9);
+INSERT INTO __obsUser__.SLICES_T VALUES(  10);
+INSERT INTO __obsUser__.SLICES_T VALUES(  11);
+INSERT INTO __obsUser__.SLICES_T VALUES(  12);
+INSERT INTO __obsUser__.SLICES_T VALUES(  13);
+INSERT INTO __obsUser__.SLICES_T VALUES(  14);
+INSERT INTO __obsUser__.SLICES_T VALUES(  15);
+INSERT INTO __obsUser__.SLICES_T VALUES(  16);
+INSERT INTO __obsUser__.SLICES_T VALUES(  17);
+INSERT INTO __obsUser__.SLICES_T VALUES(  18);
+INSERT INTO __obsUser__.SLICES_T VALUES(  19);
+INSERT INTO __obsUser__.SLICES_T VALUES(  20);
+INSERT INTO __obsUser__.SLICES_T VALUES(  21);
+INSERT INTO __obsUser__.SLICES_T VALUES(  22);
+INSERT INTO __obsUser__.SLICES_T VALUES(  23);
+INSERT INTO __obsUser__.SLICES_T VALUES(  24);
+INSERT INTO __obsUser__.SLICES_T VALUES(  25);
+INSERT INTO __obsUser__.SLICES_T VALUES(  26);
+INSERT INTO __obsUser__.SLICES_T VALUES(  27);
+INSERT INTO __obsUser__.SLICES_T VALUES(  28);
+INSERT INTO __obsUser__.SLICES_T VALUES(  29);
+INSERT INTO __obsUser__.SLICES_T VALUES(  30);
+INSERT INTO __obsUser__.SLICES_T VALUES(  31);
+INSERT INTO __obsUser__.SLICES_T VALUES(  32);
+INSERT INTO __obsUser__.SLICES_T VALUES(  33);
+INSERT INTO __obsUser__.SLICES_T VALUES(  34);
+INSERT INTO __obsUser__.SLICES_T VALUES(  35);
+INSERT INTO __obsUser__.SLICES_T VALUES(  36);
+INSERT INTO __obsUser__.SLICES_T VALUES(  37);
+INSERT INTO __obsUser__.SLICES_T VALUES(  38);
+INSERT INTO __obsUser__.SLICES_T VALUES(  39);
+INSERT INTO __obsUser__.SLICES_T VALUES(  40);
+INSERT INTO __obsUser__.SLICES_T VALUES(  41);
+INSERT INTO __obsUser__.SLICES_T VALUES(  42);
+INSERT INTO __obsUser__.SLICES_T VALUES(  43);
+INSERT INTO __obsUser__.SLICES_T VALUES(  44);
+INSERT INTO __obsUser__.SLICES_T VALUES(  45);
+INSERT INTO __obsUser__.SLICES_T VALUES(  46);
+INSERT INTO __obsUser__.SLICES_T VALUES(  47);
+INSERT INTO __obsUser__.SLICES_T VALUES(  48);
+INSERT INTO __obsUser__.SLICES_T VALUES(  49);
+INSERT INTO __obsUser__.SLICES_T VALUES(  50);
+INSERT INTO __obsUser__.SLICES_T VALUES(  51);
+INSERT INTO __obsUser__.SLICES_T VALUES(  52);
+INSERT INTO __obsUser__.SLICES_T VALUES(  53);
+INSERT INTO __obsUser__.SLICES_T VALUES(  54);
+INSERT INTO __obsUser__.SLICES_T VALUES(  55);
+INSERT INTO __obsUser__.SLICES_T VALUES(  56);
+INSERT INTO __obsUser__.SLICES_T VALUES(  57);
+INSERT INTO __obsUser__.SLICES_T VALUES(  58);
+INSERT INTO __obsUser__.SLICES_T VALUES(  59);
+INSERT INTO __obsUser__.SLICES_T VALUES(  60);
+INSERT INTO __obsUser__.SLICES_T VALUES(  61);
+INSERT INTO __obsUser__.SLICES_T VALUES(  62);
+INSERT INTO __obsUser__.SLICES_T VALUES(  63);
+INSERT INTO __obsUser__.SLICES_T VALUES(  64);
+INSERT INTO __obsUser__.SLICES_T VALUES(  65);
+INSERT INTO __obsUser__.SLICES_T VALUES(  66);
+INSERT INTO __obsUser__.SLICES_T VALUES(  67);
+INSERT INTO __obsUser__.SLICES_T VALUES(  68);
+INSERT INTO __obsUser__.SLICES_T VALUES(  69);
+INSERT INTO __obsUser__.SLICES_T VALUES(  70);
+INSERT INTO __obsUser__.SLICES_T VALUES(  71);
+INSERT INTO __obsUser__.SLICES_T VALUES(  72);
+INSERT INTO __obsUser__.SLICES_T VALUES(  73);
+INSERT INTO __obsUser__.SLICES_T VALUES(  74);
+INSERT INTO __obsUser__.SLICES_T VALUES(  75);
+INSERT INTO __obsUser__.SLICES_T VALUES(  76);
+INSERT INTO __obsUser__.SLICES_T VALUES(  77);
+INSERT INTO __obsUser__.SLICES_T VALUES(  78);
+INSERT INTO __obsUser__.SLICES_T VALUES(  79);
+INSERT INTO __obsUser__.SLICES_T VALUES(  80);
+INSERT INTO __obsUser__.SLICES_T VALUES(  81);
+INSERT INTO __obsUser__.SLICES_T VALUES(  82);
+INSERT INTO __obsUser__.SLICES_T VALUES(  83);
+INSERT INTO __obsUser__.SLICES_T VALUES(  84);
+INSERT INTO __obsUser__.SLICES_T VALUES(  85);
+INSERT INTO __obsUser__.SLICES_T VALUES(  86);
+INSERT INTO __obsUser__.SLICES_T VALUES(  87);
+INSERT INTO __obsUser__.SLICES_T VALUES(  88);
+INSERT INTO __obsUser__.SLICES_T VALUES(  89);
+INSERT INTO __obsUser__.SLICES_T VALUES(  90);
+INSERT INTO __obsUser__.SLICES_T VALUES(  91);
+INSERT INTO __obsUser__.SLICES_T VALUES(  92);
+INSERT INTO __obsUser__.SLICES_T VALUES(  93);
+INSERT INTO __obsUser__.SLICES_T VALUES(  94);
+INSERT INTO __obsUser__.SLICES_T VALUES(  95);
+INSERT INTO __obsUser__.SLICES_T VALUES(  96);
+INSERT INTO __obsUser__.SLICES_T VALUES(  97);
+INSERT INTO __obsUser__.SLICES_T VALUES(  98);
+INSERT INTO __obsUser__.SLICES_T VALUES(  99);
+INSERT INTO __obsUser__.SLICES_T VALUES( 100);
+INSERT INTO __obsUser__.SLICES_T VALUES( 101);
+INSERT INTO __obsUser__.SLICES_T VALUES( 102);
+INSERT INTO __obsUser__.SLICES_T VALUES( 103);
+INSERT INTO __obsUser__.SLICES_T VALUES( 104);
+INSERT INTO __obsUser__.SLICES_T VALUES( 105);
+INSERT INTO __obsUser__.SLICES_T VALUES( 106);
+INSERT INTO __obsUser__.SLICES_T VALUES( 107);
+INSERT INTO __obsUser__.SLICES_T VALUES( 108);
+INSERT INTO __obsUser__.SLICES_T VALUES( 109);
+INSERT INTO __obsUser__.SLICES_T VALUES( 110);
+INSERT INTO __obsUser__.SLICES_T VALUES( 111);
+INSERT INTO __obsUser__.SLICES_T VALUES( 112);
+INSERT INTO __obsUser__.SLICES_T VALUES( 113);
+INSERT INTO __obsUser__.SLICES_T VALUES( 114);
+INSERT INTO __obsUser__.SLICES_T VALUES( 115);
+INSERT INTO __obsUser__.SLICES_T VALUES( 116);
+INSERT INTO __obsUser__.SLICES_T VALUES( 117);
+INSERT INTO __obsUser__.SLICES_T VALUES( 118);
+INSERT INTO __obsUser__.SLICES_T VALUES( 119);
+INSERT INTO __obsUser__.SLICES_T VALUES( 120);
+INSERT INTO __obsUser__.SLICES_T VALUES( 121);
+INSERT INTO __obsUser__.SLICES_T VALUES( 122);
+INSERT INTO __obsUser__.SLICES_T VALUES( 123);
+INSERT INTO __obsUser__.SLICES_T VALUES( 124);
+INSERT INTO __obsUser__.SLICES_T VALUES( 125);
+INSERT INTO __obsUser__.SLICES_T VALUES( 126);
+INSERT INTO __obsUser__.SLICES_T VALUES( 127);
+INSERT INTO __obsUser__.SLICES_T VALUES( 128);
+INSERT INTO __obsUser__.SLICES_T VALUES( 129);
+INSERT INTO __obsUser__.SLICES_T VALUES( 130);
+INSERT INTO __obsUser__.SLICES_T VALUES( 131);
+INSERT INTO __obsUser__.SLICES_T VALUES( 132);
+INSERT INTO __obsUser__.SLICES_T VALUES( 133);
+INSERT INTO __obsUser__.SLICES_T VALUES( 134);
+INSERT INTO __obsUser__.SLICES_T VALUES( 135);
+INSERT INTO __obsUser__.SLICES_T VALUES( 136);
+INSERT INTO __obsUser__.SLICES_T VALUES( 137);
+INSERT INTO __obsUser__.SLICES_T VALUES( 138);
+INSERT INTO __obsUser__.SLICES_T VALUES( 139);
+INSERT INTO __obsUser__.SLICES_T VALUES( 140);
+INSERT INTO __obsUser__.SLICES_T VALUES( 141);
+INSERT INTO __obsUser__.SLICES_T VALUES( 142);
+INSERT INTO __obsUser__.SLICES_T VALUES( 143);
+INSERT INTO __obsUser__.SLICES_T VALUES( 144);
+INSERT INTO __obsUser__.SLICES_T VALUES( 145);
+INSERT INTO __obsUser__.SLICES_T VALUES( 146);
+INSERT INTO __obsUser__.SLICES_T VALUES( 147);
+INSERT INTO __obsUser__.SLICES_T VALUES( 148);
+INSERT INTO __obsUser__.SLICES_T VALUES( 149);
+INSERT INTO __obsUser__.SLICES_T VALUES( 150);
+INSERT INTO __obsUser__.SLICES_T VALUES( 151);
+INSERT INTO __obsUser__.SLICES_T VALUES( 152);
+INSERT INTO __obsUser__.SLICES_T VALUES( 153);
+INSERT INTO __obsUser__.SLICES_T VALUES( 154);
+INSERT INTO __obsUser__.SLICES_T VALUES( 155);
+INSERT INTO __obsUser__.SLICES_T VALUES( 156);
+INSERT INTO __obsUser__.SLICES_T VALUES( 157);
+INSERT INTO __obsUser__.SLICES_T VALUES( 158);
+INSERT INTO __obsUser__.SLICES_T VALUES( 159);
+INSERT INTO __obsUser__.SLICES_T VALUES( 160);
+INSERT INTO __obsUser__.SLICES_T VALUES( 161);
+INSERT INTO __obsUser__.SLICES_T VALUES( 162);
+INSERT INTO __obsUser__.SLICES_T VALUES( 163);
+INSERT INTO __obsUser__.SLICES_T VALUES( 164);
+INSERT INTO __obsUser__.SLICES_T VALUES( 165);
+INSERT INTO __obsUser__.SLICES_T VALUES( 166);
+INSERT INTO __obsUser__.SLICES_T VALUES( 167);
+INSERT INTO __obsUser__.SLICES_T VALUES( 168);
+INSERT INTO __obsUser__.SLICES_T VALUES( 169);
+INSERT INTO __obsUser__.SLICES_T VALUES( 170);
+INSERT INTO __obsUser__.SLICES_T VALUES( 171);
+INSERT INTO __obsUser__.SLICES_T VALUES( 172);
+INSERT INTO __obsUser__.SLICES_T VALUES( 173);
+INSERT INTO __obsUser__.SLICES_T VALUES( 174);
+INSERT INTO __obsUser__.SLICES_T VALUES( 175);
+INSERT INTO __obsUser__.SLICES_T VALUES( 176);
+INSERT INTO __obsUser__.SLICES_T VALUES( 177);
+INSERT INTO __obsUser__.SLICES_T VALUES( 178);
+INSERT INTO __obsUser__.SLICES_T VALUES( 179);
+INSERT INTO __obsUser__.SLICES_T VALUES( 180);
+INSERT INTO __obsUser__.SLICES_T VALUES( 181);
+INSERT INTO __obsUser__.SLICES_T VALUES( 182);
+INSERT INTO __obsUser__.SLICES_T VALUES( 183);
+INSERT INTO __obsUser__.SLICES_T VALUES( 184);
+INSERT INTO __obsUser__.SLICES_T VALUES( 185);
+INSERT INTO __obsUser__.SLICES_T VALUES( 186);
+INSERT INTO __obsUser__.SLICES_T VALUES( 187);
+INSERT INTO __obsUser__.SLICES_T VALUES( 188);
+INSERT INTO __obsUser__.SLICES_T VALUES( 189);
+INSERT INTO __obsUser__.SLICES_T VALUES( 190);
+INSERT INTO __obsUser__.SLICES_T VALUES( 191);
+INSERT INTO __obsUser__.SLICES_T VALUES( 192);
+INSERT INTO __obsUser__.SLICES_T VALUES( 193);
+INSERT INTO __obsUser__.SLICES_T VALUES( 194);
+INSERT INTO __obsUser__.SLICES_T VALUES( 195);
+INSERT INTO __obsUser__.SLICES_T VALUES( 196);
+INSERT INTO __obsUser__.SLICES_T VALUES( 197);
+INSERT INTO __obsUser__.SLICES_T VALUES( 198);
+INSERT INTO __obsUser__.SLICES_T VALUES( 199);
+INSERT INTO __obsUser__.SLICES_T VALUES( 200);
+INSERT INTO __obsUser__.SLICES_T VALUES( 201);
+INSERT INTO __obsUser__.SLICES_T VALUES( 202);
+INSERT INTO __obsUser__.SLICES_T VALUES( 203);
+INSERT INTO __obsUser__.SLICES_T VALUES( 204);
+INSERT INTO __obsUser__.SLICES_T VALUES( 205);
+INSERT INTO __obsUser__.SLICES_T VALUES( 206);
+INSERT INTO __obsUser__.SLICES_T VALUES( 207);
+INSERT INTO __obsUser__.SLICES_T VALUES( 208);
+INSERT INTO __obsUser__.SLICES_T VALUES( 209);
+INSERT INTO __obsUser__.SLICES_T VALUES( 210);
+INSERT INTO __obsUser__.SLICES_T VALUES( 211);
+INSERT INTO __obsUser__.SLICES_T VALUES( 212);
+INSERT INTO __obsUser__.SLICES_T VALUES( 213);
+INSERT INTO __obsUser__.SLICES_T VALUES( 214);
+INSERT INTO __obsUser__.SLICES_T VALUES( 215);
+INSERT INTO __obsUser__.SLICES_T VALUES( 216);
+INSERT INTO __obsUser__.SLICES_T VALUES( 217);
+INSERT INTO __obsUser__.SLICES_T VALUES( 218);
+INSERT INTO __obsUser__.SLICES_T VALUES( 219);
+INSERT INTO __obsUser__.SLICES_T VALUES( 220);
+INSERT INTO __obsUser__.SLICES_T VALUES( 221);
+INSERT INTO __obsUser__.SLICES_T VALUES( 222);
+INSERT INTO __obsUser__.SLICES_T VALUES( 223);
+INSERT INTO __obsUser__.SLICES_T VALUES( 224);
+INSERT INTO __obsUser__.SLICES_T VALUES( 225);
+INSERT INTO __obsUser__.SLICES_T VALUES( 226);
+INSERT INTO __obsUser__.SLICES_T VALUES( 227);
+INSERT INTO __obsUser__.SLICES_T VALUES( 228);
+INSERT INTO __obsUser__.SLICES_T VALUES( 229);
+INSERT INTO __obsUser__.SLICES_T VALUES( 230);
+INSERT INTO __obsUser__.SLICES_T VALUES( 231);
+INSERT INTO __obsUser__.SLICES_T VALUES( 232);
+INSERT INTO __obsUser__.SLICES_T VALUES( 233);
+INSERT INTO __obsUser__.SLICES_T VALUES( 234);
+INSERT INTO __obsUser__.SLICES_T VALUES( 235);
+INSERT INTO __obsUser__.SLICES_T VALUES( 236);
+INSERT INTO __obsUser__.SLICES_T VALUES( 237);
+INSERT INTO __obsUser__.SLICES_T VALUES( 238);
+INSERT INTO __obsUser__.SLICES_T VALUES( 239);
+INSERT INTO __obsUser__.SLICES_T VALUES( 240);
+INSERT INTO __obsUser__.SLICES_T VALUES( 241);
+INSERT INTO __obsUser__.SLICES_T VALUES( 242);
+INSERT INTO __obsUser__.SLICES_T VALUES( 243);
+INSERT INTO __obsUser__.SLICES_T VALUES( 244);
+INSERT INTO __obsUser__.SLICES_T VALUES( 245);
+INSERT INTO __obsUser__.SLICES_T VALUES( 246);
+INSERT INTO __obsUser__.SLICES_T VALUES( 247);
+INSERT INTO __obsUser__.SLICES_T VALUES( 248);
+INSERT INTO __obsUser__.SLICES_T VALUES( 249);
+INSERT INTO __obsUser__.SLICES_T VALUES( 250);
+INSERT INTO __obsUser__.SLICES_T VALUES( 251);
+INSERT INTO __obsUser__.SLICES_T VALUES( 252);
+INSERT INTO __obsUser__.SLICES_T VALUES( 253);
+INSERT INTO __obsUser__.SLICES_T VALUES( 254);
+INSERT INTO __obsUser__.SLICES_T VALUES( 255);
+INSERT INTO __obsUser__.SLICES_T VALUES( 256);
+INSERT INTO __obsUser__.SLICES_T VALUES( 257);
+INSERT INTO __obsUser__.SLICES_T VALUES( 258);
+INSERT INTO __obsUser__.SLICES_T VALUES( 259);
+INSERT INTO __obsUser__.SLICES_T VALUES( 260);
+INSERT INTO __obsUser__.SLICES_T VALUES( 261);
+INSERT INTO __obsUser__.SLICES_T VALUES( 262);
+INSERT INTO __obsUser__.SLICES_T VALUES( 263);
+INSERT INTO __obsUser__.SLICES_T VALUES( 264);
+INSERT INTO __obsUser__.SLICES_T VALUES( 265);
+INSERT INTO __obsUser__.SLICES_T VALUES( 266);
+INSERT INTO __obsUser__.SLICES_T VALUES( 267);
+INSERT INTO __obsUser__.SLICES_T VALUES( 268);
+INSERT INTO __obsUser__.SLICES_T VALUES( 269);
+INSERT INTO __obsUser__.SLICES_T VALUES( 270);
+INSERT INTO __obsUser__.SLICES_T VALUES( 271);
+INSERT INTO __obsUser__.SLICES_T VALUES( 272);
+INSERT INTO __obsUser__.SLICES_T VALUES( 273);
+INSERT INTO __obsUser__.SLICES_T VALUES( 274);
+INSERT INTO __obsUser__.SLICES_T VALUES( 275);
+INSERT INTO __obsUser__.SLICES_T VALUES( 276);
+INSERT INTO __obsUser__.SLICES_T VALUES( 277);
+INSERT INTO __obsUser__.SLICES_T VALUES( 278);
+INSERT INTO __obsUser__.SLICES_T VALUES( 279);
+INSERT INTO __obsUser__.SLICES_T VALUES( 280);
+INSERT INTO __obsUser__.SLICES_T VALUES( 281);
+INSERT INTO __obsUser__.SLICES_T VALUES( 282);
+INSERT INTO __obsUser__.SLICES_T VALUES( 283);
+INSERT INTO __obsUser__.SLICES_T VALUES( 284);
+INSERT INTO __obsUser__.SLICES_T VALUES( 285);
+INSERT INTO __obsUser__.SLICES_T VALUES( 286);
+INSERT INTO __obsUser__.SLICES_T VALUES( 287);
+INSERT INTO __obsUser__.SLICES_T VALUES( 288);
+INSERT INTO __obsUser__.SLICES_T VALUES( 289);
+INSERT INTO __obsUser__.SLICES_T VALUES( 290);
+INSERT INTO __obsUser__.SLICES_T VALUES( 291);
+INSERT INTO __obsUser__.SLICES_T VALUES( 292);
+INSERT INTO __obsUser__.SLICES_T VALUES( 293);
+INSERT INTO __obsUser__.SLICES_T VALUES( 294);
+INSERT INTO __obsUser__.SLICES_T VALUES( 295);
+INSERT INTO __obsUser__.SLICES_T VALUES( 296);
+INSERT INTO __obsUser__.SLICES_T VALUES( 297);
+INSERT INTO __obsUser__.SLICES_T VALUES( 298);
+INSERT INTO __obsUser__.SLICES_T VALUES( 299);
+INSERT INTO __obsUser__.SLICES_T VALUES( 300);
+INSERT INTO __obsUser__.SLICES_T VALUES( 301);
+INSERT INTO __obsUser__.SLICES_T VALUES( 302);
+INSERT INTO __obsUser__.SLICES_T VALUES( 303);
+INSERT INTO __obsUser__.SLICES_T VALUES( 304);
+INSERT INTO __obsUser__.SLICES_T VALUES( 305);
+INSERT INTO __obsUser__.SLICES_T VALUES( 306);
+INSERT INTO __obsUser__.SLICES_T VALUES( 307);
+INSERT INTO __obsUser__.SLICES_T VALUES( 308);
+INSERT INTO __obsUser__.SLICES_T VALUES( 309);
+INSERT INTO __obsUser__.SLICES_T VALUES( 310);
+INSERT INTO __obsUser__.SLICES_T VALUES( 311);
+INSERT INTO __obsUser__.SLICES_T VALUES( 312);
+INSERT INTO __obsUser__.SLICES_T VALUES( 313);
+INSERT INTO __obsUser__.SLICES_T VALUES( 314);
+INSERT INTO __obsUser__.SLICES_T VALUES( 315);
+INSERT INTO __obsUser__.SLICES_T VALUES( 316);
+INSERT INTO __obsUser__.SLICES_T VALUES( 317);
+INSERT INTO __obsUser__.SLICES_T VALUES( 318);
+INSERT INTO __obsUser__.SLICES_T VALUES( 319);
+INSERT INTO __obsUser__.SLICES_T VALUES( 320);
+INSERT INTO __obsUser__.SLICES_T VALUES( 321);
+INSERT INTO __obsUser__.SLICES_T VALUES( 322);
+INSERT INTO __obsUser__.SLICES_T VALUES( 323);
+INSERT INTO __obsUser__.SLICES_T VALUES( 324);
+INSERT INTO __obsUser__.SLICES_T VALUES( 325);
+INSERT INTO __obsUser__.SLICES_T VALUES( 326);
+INSERT INTO __obsUser__.SLICES_T VALUES( 327);
+INSERT INTO __obsUser__.SLICES_T VALUES( 328);
+INSERT INTO __obsUser__.SLICES_T VALUES( 329);
+INSERT INTO __obsUser__.SLICES_T VALUES( 330);
+INSERT INTO __obsUser__.SLICES_T VALUES( 331);
+INSERT INTO __obsUser__.SLICES_T VALUES( 332);
+INSERT INTO __obsUser__.SLICES_T VALUES( 333);
+INSERT INTO __obsUser__.SLICES_T VALUES( 334);
+INSERT INTO __obsUser__.SLICES_T VALUES( 335);
+INSERT INTO __obsUser__.SLICES_T VALUES( 336);
+INSERT INTO __obsUser__.SLICES_T VALUES( 337);
+INSERT INTO __obsUser__.SLICES_T VALUES( 338);
+INSERT INTO __obsUser__.SLICES_T VALUES( 339);
+INSERT INTO __obsUser__.SLICES_T VALUES( 340);
+INSERT INTO __obsUser__.SLICES_T VALUES( 341);
+INSERT INTO __obsUser__.SLICES_T VALUES( 342);
+INSERT INTO __obsUser__.SLICES_T VALUES( 343);
+INSERT INTO __obsUser__.SLICES_T VALUES( 344);
+INSERT INTO __obsUser__.SLICES_T VALUES( 345);
+INSERT INTO __obsUser__.SLICES_T VALUES( 346);
+INSERT INTO __obsUser__.SLICES_T VALUES( 347);
+INSERT INTO __obsUser__.SLICES_T VALUES( 348);
+INSERT INTO __obsUser__.SLICES_T VALUES( 349);
+INSERT INTO __obsUser__.SLICES_T VALUES( 350);
+INSERT INTO __obsUser__.SLICES_T VALUES( 351);
+INSERT INTO __obsUser__.SLICES_T VALUES( 352);
+INSERT INTO __obsUser__.SLICES_T VALUES( 353);
+INSERT INTO __obsUser__.SLICES_T VALUES( 354);
+INSERT INTO __obsUser__.SLICES_T VALUES( 355);
+INSERT INTO __obsUser__.SLICES_T VALUES( 356);
+INSERT INTO __obsUser__.SLICES_T VALUES( 357);
+INSERT INTO __obsUser__.SLICES_T VALUES( 358);
+INSERT INTO __obsUser__.SLICES_T VALUES( 359);
+INSERT INTO __obsUser__.SLICES_T VALUES( 360);
+INSERT INTO __obsUser__.SLICES_T VALUES( 361);
+INSERT INTO __obsUser__.SLICES_T VALUES( 362);
+INSERT INTO __obsUser__.SLICES_T VALUES( 363);
+INSERT INTO __obsUser__.SLICES_T VALUES( 364);
+INSERT INTO __obsUser__.SLICES_T VALUES( 365);
+INSERT INTO __obsUser__.SLICES_T VALUES( 366);
+INSERT INTO __obsUser__.SLICES_T VALUES( 367);
+INSERT INTO __obsUser__.SLICES_T VALUES( 368);
+INSERT INTO __obsUser__.SLICES_T VALUES( 369);
+INSERT INTO __obsUser__.SLICES_T VALUES( 370);
+INSERT INTO __obsUser__.SLICES_T VALUES( 371);
+INSERT INTO __obsUser__.SLICES_T VALUES( 372);
+INSERT INTO __obsUser__.SLICES_T VALUES( 373);
+INSERT INTO __obsUser__.SLICES_T VALUES( 374);
+INSERT INTO __obsUser__.SLICES_T VALUES( 375);
+INSERT INTO __obsUser__.SLICES_T VALUES( 376);
+INSERT INTO __obsUser__.SLICES_T VALUES( 377);
+INSERT INTO __obsUser__.SLICES_T VALUES( 378);
+INSERT INTO __obsUser__.SLICES_T VALUES( 379);
+INSERT INTO __obsUser__.SLICES_T VALUES( 380);
+INSERT INTO __obsUser__.SLICES_T VALUES( 381);
+INSERT INTO __obsUser__.SLICES_T VALUES( 382);
+INSERT INTO __obsUser__.SLICES_T VALUES( 383);
+INSERT INTO __obsUser__.SLICES_T VALUES( 384);
+INSERT INTO __obsUser__.SLICES_T VALUES( 385);
+INSERT INTO __obsUser__.SLICES_T VALUES( 386);
+INSERT INTO __obsUser__.SLICES_T VALUES( 387);
+INSERT INTO __obsUser__.SLICES_T VALUES( 388);
+INSERT INTO __obsUser__.SLICES_T VALUES( 389);
+INSERT INTO __obsUser__.SLICES_T VALUES( 390);
+INSERT INTO __obsUser__.SLICES_T VALUES( 391);
+INSERT INTO __obsUser__.SLICES_T VALUES( 392);
+INSERT INTO __obsUser__.SLICES_T VALUES( 393);
+INSERT INTO __obsUser__.SLICES_T VALUES( 394);
+INSERT INTO __obsUser__.SLICES_T VALUES( 395);
+INSERT INTO __obsUser__.SLICES_T VALUES( 396);
+INSERT INTO __obsUser__.SLICES_T VALUES( 397);
+INSERT INTO __obsUser__.SLICES_T VALUES( 398);
+INSERT INTO __obsUser__.SLICES_T VALUES( 399);
+INSERT INTO __obsUser__.SLICES_T VALUES( 400);
+INSERT INTO __obsUser__.SLICES_T VALUES( 401);
+INSERT INTO __obsUser__.SLICES_T VALUES( 402);
+INSERT INTO __obsUser__.SLICES_T VALUES( 403);
+INSERT INTO __obsUser__.SLICES_T VALUES( 404);
+INSERT INTO __obsUser__.SLICES_T VALUES( 405);
+INSERT INTO __obsUser__.SLICES_T VALUES( 406);
+INSERT INTO __obsUser__.SLICES_T VALUES( 407);
+INSERT INTO __obsUser__.SLICES_T VALUES( 408);
+INSERT INTO __obsUser__.SLICES_T VALUES( 409);
+INSERT INTO __obsUser__.SLICES_T VALUES( 410);
+INSERT INTO __obsUser__.SLICES_T VALUES( 411);
+INSERT INTO __obsUser__.SLICES_T VALUES( 412);
+INSERT INTO __obsUser__.SLICES_T VALUES( 413);
+INSERT INTO __obsUser__.SLICES_T VALUES( 414);
+INSERT INTO __obsUser__.SLICES_T VALUES( 415);
+INSERT INTO __obsUser__.SLICES_T VALUES( 416);
+INSERT INTO __obsUser__.SLICES_T VALUES( 417);
+INSERT INTO __obsUser__.SLICES_T VALUES( 418);
+INSERT INTO __obsUser__.SLICES_T VALUES( 419);
+INSERT INTO __obsUser__.SLICES_T VALUES( 420);
+INSERT INTO __obsUser__.SLICES_T VALUES( 421);
+INSERT INTO __obsUser__.SLICES_T VALUES( 422);
+INSERT INTO __obsUser__.SLICES_T VALUES( 423);
+INSERT INTO __obsUser__.SLICES_T VALUES( 424);
+INSERT INTO __obsUser__.SLICES_T VALUES( 425);
+INSERT INTO __obsUser__.SLICES_T VALUES( 426);
+INSERT INTO __obsUser__.SLICES_T VALUES( 427);
+INSERT INTO __obsUser__.SLICES_T VALUES( 428);
+INSERT INTO __obsUser__.SLICES_T VALUES( 429);
+INSERT INTO __obsUser__.SLICES_T VALUES( 430);
+INSERT INTO __obsUser__.SLICES_T VALUES( 431);
+INSERT INTO __obsUser__.SLICES_T VALUES( 432);
+INSERT INTO __obsUser__.SLICES_T VALUES( 433);
+INSERT INTO __obsUser__.SLICES_T VALUES( 434);
+INSERT INTO __obsUser__.SLICES_T VALUES( 435);
+INSERT INTO __obsUser__.SLICES_T VALUES( 436);
+INSERT INTO __obsUser__.SLICES_T VALUES( 437);
+INSERT INTO __obsUser__.SLICES_T VALUES( 438);
+INSERT INTO __obsUser__.SLICES_T VALUES( 439);
+INSERT INTO __obsUser__.SLICES_T VALUES( 440);
+INSERT INTO __obsUser__.SLICES_T VALUES( 441);
+INSERT INTO __obsUser__.SLICES_T VALUES( 442);
+INSERT INTO __obsUser__.SLICES_T VALUES( 443);
+INSERT INTO __obsUser__.SLICES_T VALUES( 444);
+INSERT INTO __obsUser__.SLICES_T VALUES( 445);
+INSERT INTO __obsUser__.SLICES_T VALUES( 446);
+INSERT INTO __obsUser__.SLICES_T VALUES( 447);
+INSERT INTO __obsUser__.SLICES_T VALUES( 448);
+INSERT INTO __obsUser__.SLICES_T VALUES( 449);
+INSERT INTO __obsUser__.SLICES_T VALUES( 450);
+INSERT INTO __obsUser__.SLICES_T VALUES( 451);
+INSERT INTO __obsUser__.SLICES_T VALUES( 452);
+INSERT INTO __obsUser__.SLICES_T VALUES( 453);
+INSERT INTO __obsUser__.SLICES_T VALUES( 454);
+INSERT INTO __obsUser__.SLICES_T VALUES( 455);
+INSERT INTO __obsUser__.SLICES_T VALUES( 456);
+INSERT INTO __obsUser__.SLICES_T VALUES( 457);
+INSERT INTO __obsUser__.SLICES_T VALUES( 458);
+INSERT INTO __obsUser__.SLICES_T VALUES( 459);
+INSERT INTO __obsUser__.SLICES_T VALUES( 460);
+INSERT INTO __obsUser__.SLICES_T VALUES( 461);
+INSERT INTO __obsUser__.SLICES_T VALUES( 462);
+INSERT INTO __obsUser__.SLICES_T VALUES( 463);
+INSERT INTO __obsUser__.SLICES_T VALUES( 464);
+INSERT INTO __obsUser__.SLICES_T VALUES( 465);
+INSERT INTO __obsUser__.SLICES_T VALUES( 466);
+INSERT INTO __obsUser__.SLICES_T VALUES( 467);
+INSERT INTO __obsUser__.SLICES_T VALUES( 468);
+INSERT INTO __obsUser__.SLICES_T VALUES( 469);
+INSERT INTO __obsUser__.SLICES_T VALUES( 470);
+INSERT INTO __obsUser__.SLICES_T VALUES( 471);
+INSERT INTO __obsUser__.SLICES_T VALUES( 472);
+INSERT INTO __obsUser__.SLICES_T VALUES( 473);
+INSERT INTO __obsUser__.SLICES_T VALUES( 474);
+INSERT INTO __obsUser__.SLICES_T VALUES( 475);
+INSERT INTO __obsUser__.SLICES_T VALUES( 476);
+INSERT INTO __obsUser__.SLICES_T VALUES( 477);
+INSERT INTO __obsUser__.SLICES_T VALUES( 478);
+INSERT INTO __obsUser__.SLICES_T VALUES( 479);
+INSERT INTO __obsUser__.SLICES_T VALUES( 480);
+INSERT INTO __obsUser__.SLICES_T VALUES( 481);
+INSERT INTO __obsUser__.SLICES_T VALUES( 482);
+INSERT INTO __obsUser__.SLICES_T VALUES( 483);
+INSERT INTO __obsUser__.SLICES_T VALUES( 484);
+INSERT INTO __obsUser__.SLICES_T VALUES( 485);
+INSERT INTO __obsUser__.SLICES_T VALUES( 486);
+INSERT INTO __obsUser__.SLICES_T VALUES( 487);
+INSERT INTO __obsUser__.SLICES_T VALUES( 488);
+INSERT INTO __obsUser__.SLICES_T VALUES( 489);
+INSERT INTO __obsUser__.SLICES_T VALUES( 490);
+INSERT INTO __obsUser__.SLICES_T VALUES( 491);
+INSERT INTO __obsUser__.SLICES_T VALUES( 492);
+INSERT INTO __obsUser__.SLICES_T VALUES( 493);
+INSERT INTO __obsUser__.SLICES_T VALUES( 494);
+INSERT INTO __obsUser__.SLICES_T VALUES( 495);
+INSERT INTO __obsUser__.SLICES_T VALUES( 496);
+INSERT INTO __obsUser__.SLICES_T VALUES( 497);
+INSERT INTO __obsUser__.SLICES_T VALUES( 498);
+INSERT INTO __obsUser__.SLICES_T VALUES( 499);
+INSERT INTO __obsUser__.SLICES_T VALUES( 500);
+INSERT INTO __obsUser__.SLICES_T VALUES( 501);
+INSERT INTO __obsUser__.SLICES_T VALUES( 502);
+INSERT INTO __obsUser__.SLICES_T VALUES( 503);
+INSERT INTO __obsUser__.SLICES_T VALUES( 504);
+INSERT INTO __obsUser__.SLICES_T VALUES( 505);
+INSERT INTO __obsUser__.SLICES_T VALUES( 506);
+INSERT INTO __obsUser__.SLICES_T VALUES( 507);
+INSERT INTO __obsUser__.SLICES_T VALUES( 508);
+INSERT INTO __obsUser__.SLICES_T VALUES( 509);
+INSERT INTO __obsUser__.SLICES_T VALUES( 510);
+INSERT INTO __obsUser__.SLICES_T VALUES( 511);
+INSERT INTO __obsUser__.SLICES_T VALUES( 512);
+INSERT INTO __obsUser__.SLICES_T VALUES( 513);
+INSERT INTO __obsUser__.SLICES_T VALUES( 514);
+INSERT INTO __obsUser__.SLICES_T VALUES( 515);
+INSERT INTO __obsUser__.SLICES_T VALUES( 516);
+INSERT INTO __obsUser__.SLICES_T VALUES( 517);
+INSERT INTO __obsUser__.SLICES_T VALUES( 518);
+INSERT INTO __obsUser__.SLICES_T VALUES( 519);
+INSERT INTO __obsUser__.SLICES_T VALUES( 520);
+INSERT INTO __obsUser__.SLICES_T VALUES( 521);
+INSERT INTO __obsUser__.SLICES_T VALUES( 522);
+INSERT INTO __obsUser__.SLICES_T VALUES( 523);
+INSERT INTO __obsUser__.SLICES_T VALUES( 524);
+INSERT INTO __obsUser__.SLICES_T VALUES( 525);
+INSERT INTO __obsUser__.SLICES_T VALUES( 526);
+INSERT INTO __obsUser__.SLICES_T VALUES( 527);
+INSERT INTO __obsUser__.SLICES_T VALUES( 528);
+INSERT INTO __obsUser__.SLICES_T VALUES( 529);
+INSERT INTO __obsUser__.SLICES_T VALUES( 530);
+INSERT INTO __obsUser__.SLICES_T VALUES( 531);
+INSERT INTO __obsUser__.SLICES_T VALUES( 532);
+INSERT INTO __obsUser__.SLICES_T VALUES( 533);
+INSERT INTO __obsUser__.SLICES_T VALUES( 534);
+INSERT INTO __obsUser__.SLICES_T VALUES( 535);
+INSERT INTO __obsUser__.SLICES_T VALUES( 536);
+INSERT INTO __obsUser__.SLICES_T VALUES( 537);
+INSERT INTO __obsUser__.SLICES_T VALUES( 538);
+INSERT INTO __obsUser__.SLICES_T VALUES( 539);
+INSERT INTO __obsUser__.SLICES_T VALUES( 540);
+INSERT INTO __obsUser__.SLICES_T VALUES( 541);
+INSERT INTO __obsUser__.SLICES_T VALUES( 542);
+INSERT INTO __obsUser__.SLICES_T VALUES( 543);
+INSERT INTO __obsUser__.SLICES_T VALUES( 544);
+INSERT INTO __obsUser__.SLICES_T VALUES( 545);
+INSERT INTO __obsUser__.SLICES_T VALUES( 546);
+INSERT INTO __obsUser__.SLICES_T VALUES( 547);
+INSERT INTO __obsUser__.SLICES_T VALUES( 548);
+INSERT INTO __obsUser__.SLICES_T VALUES( 549);
+INSERT INTO __obsUser__.SLICES_T VALUES( 550);
+INSERT INTO __obsUser__.SLICES_T VALUES( 551);
+INSERT INTO __obsUser__.SLICES_T VALUES( 552);
+INSERT INTO __obsUser__.SLICES_T VALUES( 553);
+INSERT INTO __obsUser__.SLICES_T VALUES( 554);
+INSERT INTO __obsUser__.SLICES_T VALUES( 555);
+INSERT INTO __obsUser__.SLICES_T VALUES( 556);
+INSERT INTO __obsUser__.SLICES_T VALUES( 557);
+INSERT INTO __obsUser__.SLICES_T VALUES( 558);
+INSERT INTO __obsUser__.SLICES_T VALUES( 559);
+INSERT INTO __obsUser__.SLICES_T VALUES( 560);
+INSERT INTO __obsUser__.SLICES_T VALUES( 561);
+INSERT INTO __obsUser__.SLICES_T VALUES( 562);
+INSERT INTO __obsUser__.SLICES_T VALUES( 563);
+INSERT INTO __obsUser__.SLICES_T VALUES( 564);
+INSERT INTO __obsUser__.SLICES_T VALUES( 565);
+INSERT INTO __obsUser__.SLICES_T VALUES( 566);
+INSERT INTO __obsUser__.SLICES_T VALUES( 567);
+INSERT INTO __obsUser__.SLICES_T VALUES( 568);
+INSERT INTO __obsUser__.SLICES_T VALUES( 569);
+INSERT INTO __obsUser__.SLICES_T VALUES( 570);
+INSERT INTO __obsUser__.SLICES_T VALUES( 571);
+INSERT INTO __obsUser__.SLICES_T VALUES( 572);
+INSERT INTO __obsUser__.SLICES_T VALUES( 573);
+INSERT INTO __obsUser__.SLICES_T VALUES( 574);
+INSERT INTO __obsUser__.SLICES_T VALUES( 575);
+INSERT INTO __obsUser__.SLICES_T VALUES( 576);
+INSERT INTO __obsUser__.SLICES_T VALUES( 577);
+INSERT INTO __obsUser__.SLICES_T VALUES( 578);
+INSERT INTO __obsUser__.SLICES_T VALUES( 579);
+INSERT INTO __obsUser__.SLICES_T VALUES( 580);
+INSERT INTO __obsUser__.SLICES_T VALUES( 581);
+INSERT INTO __obsUser__.SLICES_T VALUES( 582);
+INSERT INTO __obsUser__.SLICES_T VALUES( 583);
+INSERT INTO __obsUser__.SLICES_T VALUES( 584);
+INSERT INTO __obsUser__.SLICES_T VALUES( 585);
+INSERT INTO __obsUser__.SLICES_T VALUES( 586);
+INSERT INTO __obsUser__.SLICES_T VALUES( 587);
+INSERT INTO __obsUser__.SLICES_T VALUES( 588);
+INSERT INTO __obsUser__.SLICES_T VALUES( 589);
+INSERT INTO __obsUser__.SLICES_T VALUES( 590);
+INSERT INTO __obsUser__.SLICES_T VALUES( 591);
+INSERT INTO __obsUser__.SLICES_T VALUES( 592);
+INSERT INTO __obsUser__.SLICES_T VALUES( 593);
+INSERT INTO __obsUser__.SLICES_T VALUES( 594);
+INSERT INTO __obsUser__.SLICES_T VALUES( 595);
+INSERT INTO __obsUser__.SLICES_T VALUES( 596);
+INSERT INTO __obsUser__.SLICES_T VALUES( 597);
+INSERT INTO __obsUser__.SLICES_T VALUES( 598);
+INSERT INTO __obsUser__.SLICES_T VALUES( 599);
+INSERT INTO __obsUser__.SLICES_T VALUES( 600);
+INSERT INTO __obsUser__.SLICES_T VALUES( 601);
+INSERT INTO __obsUser__.SLICES_T VALUES( 602);
+INSERT INTO __obsUser__.SLICES_T VALUES( 603);
+INSERT INTO __obsUser__.SLICES_T VALUES( 604);
+INSERT INTO __obsUser__.SLICES_T VALUES( 605);
+INSERT INTO __obsUser__.SLICES_T VALUES( 606);
+INSERT INTO __obsUser__.SLICES_T VALUES( 607);
+INSERT INTO __obsUser__.SLICES_T VALUES( 608);
+INSERT INTO __obsUser__.SLICES_T VALUES( 609);
+INSERT INTO __obsUser__.SLICES_T VALUES( 610);
+INSERT INTO __obsUser__.SLICES_T VALUES( 611);
+INSERT INTO __obsUser__.SLICES_T VALUES( 612);
+INSERT INTO __obsUser__.SLICES_T VALUES( 613);
+INSERT INTO __obsUser__.SLICES_T VALUES( 614);
+INSERT INTO __obsUser__.SLICES_T VALUES( 615);
+INSERT INTO __obsUser__.SLICES_T VALUES( 616);
+INSERT INTO __obsUser__.SLICES_T VALUES( 617);
+INSERT INTO __obsUser__.SLICES_T VALUES( 618);
+INSERT INTO __obsUser__.SLICES_T VALUES( 619);
+INSERT INTO __obsUser__.SLICES_T VALUES( 620);
+INSERT INTO __obsUser__.SLICES_T VALUES( 621);
+INSERT INTO __obsUser__.SLICES_T VALUES( 622);
+INSERT INTO __obsUser__.SLICES_T VALUES( 623);
+INSERT INTO __obsUser__.SLICES_T VALUES( 624);
+INSERT INTO __obsUser__.SLICES_T VALUES( 625);
+INSERT INTO __obsUser__.SLICES_T VALUES( 626);
+INSERT INTO __obsUser__.SLICES_T VALUES( 627);
+INSERT INTO __obsUser__.SLICES_T VALUES( 628);
+INSERT INTO __obsUser__.SLICES_T VALUES( 629);
+INSERT INTO __obsUser__.SLICES_T VALUES( 630);
+INSERT INTO __obsUser__.SLICES_T VALUES( 631);
+INSERT INTO __obsUser__.SLICES_T VALUES( 632);
+INSERT INTO __obsUser__.SLICES_T VALUES( 633);
+INSERT INTO __obsUser__.SLICES_T VALUES( 634);
+INSERT INTO __obsUser__.SLICES_T VALUES( 635);
+INSERT INTO __obsUser__.SLICES_T VALUES( 636);
+INSERT INTO __obsUser__.SLICES_T VALUES( 637);
+INSERT INTO __obsUser__.SLICES_T VALUES( 638);
+INSERT INTO __obsUser__.SLICES_T VALUES( 639);
+INSERT INTO __obsUser__.SLICES_T VALUES( 640);
+INSERT INTO __obsUser__.SLICES_T VALUES( 641);
+INSERT INTO __obsUser__.SLICES_T VALUES( 642);
+INSERT INTO __obsUser__.SLICES_T VALUES( 643);
+INSERT INTO __obsUser__.SLICES_T VALUES( 644);
+INSERT INTO __obsUser__.SLICES_T VALUES( 645);
+INSERT INTO __obsUser__.SLICES_T VALUES( 646);
+INSERT INTO __obsUser__.SLICES_T VALUES( 647);
+INSERT INTO __obsUser__.SLICES_T VALUES( 648);
+INSERT INTO __obsUser__.SLICES_T VALUES( 649);
+INSERT INTO __obsUser__.SLICES_T VALUES( 650);
+INSERT INTO __obsUser__.SLICES_T VALUES( 651);
+INSERT INTO __obsUser__.SLICES_T VALUES( 652);
+INSERT INTO __obsUser__.SLICES_T VALUES( 653);
+INSERT INTO __obsUser__.SLICES_T VALUES( 654);
+INSERT INTO __obsUser__.SLICES_T VALUES( 655);
+INSERT INTO __obsUser__.SLICES_T VALUES( 656);
+INSERT INTO __obsUser__.SLICES_T VALUES( 657);
+INSERT INTO __obsUser__.SLICES_T VALUES( 658);
+INSERT INTO __obsUser__.SLICES_T VALUES( 659);
+INSERT INTO __obsUser__.SLICES_T VALUES( 660);
+INSERT INTO __obsUser__.SLICES_T VALUES( 661);
+INSERT INTO __obsUser__.SLICES_T VALUES( 662);
+INSERT INTO __obsUser__.SLICES_T VALUES( 663);
+INSERT INTO __obsUser__.SLICES_T VALUES( 664);
+INSERT INTO __obsUser__.SLICES_T VALUES( 665);
+INSERT INTO __obsUser__.SLICES_T VALUES( 666);
+INSERT INTO __obsUser__.SLICES_T VALUES( 667);
+INSERT INTO __obsUser__.SLICES_T VALUES( 668);
+INSERT INTO __obsUser__.SLICES_T VALUES( 669);
+INSERT INTO __obsUser__.SLICES_T VALUES( 670);
+INSERT INTO __obsUser__.SLICES_T VALUES( 671);
+INSERT INTO __obsUser__.SLICES_T VALUES( 672);
+INSERT INTO __obsUser__.SLICES_T VALUES( 673);
+INSERT INTO __obsUser__.SLICES_T VALUES( 674);
+INSERT INTO __obsUser__.SLICES_T VALUES( 675);
+INSERT INTO __obsUser__.SLICES_T VALUES( 676);
+INSERT INTO __obsUser__.SLICES_T VALUES( 677);
+INSERT INTO __obsUser__.SLICES_T VALUES( 678);
+INSERT INTO __obsUser__.SLICES_T VALUES( 679);
+INSERT INTO __obsUser__.SLICES_T VALUES( 680);
+INSERT INTO __obsUser__.SLICES_T VALUES( 681);
+INSERT INTO __obsUser__.SLICES_T VALUES( 682);
+INSERT INTO __obsUser__.SLICES_T VALUES( 683);
+INSERT INTO __obsUser__.SLICES_T VALUES( 684);
+INSERT INTO __obsUser__.SLICES_T VALUES( 685);
+INSERT INTO __obsUser__.SLICES_T VALUES( 686);
+INSERT INTO __obsUser__.SLICES_T VALUES( 687);
+INSERT INTO __obsUser__.SLICES_T VALUES( 688);
+INSERT INTO __obsUser__.SLICES_T VALUES( 689);
+INSERT INTO __obsUser__.SLICES_T VALUES( 690);
+INSERT INTO __obsUser__.SLICES_T VALUES( 691);
+INSERT INTO __obsUser__.SLICES_T VALUES( 692);
+INSERT INTO __obsUser__.SLICES_T VALUES( 693);
+INSERT INTO __obsUser__.SLICES_T VALUES( 694);
+INSERT INTO __obsUser__.SLICES_T VALUES( 695);
+INSERT INTO __obsUser__.SLICES_T VALUES( 696);
+INSERT INTO __obsUser__.SLICES_T VALUES( 697);
+INSERT INTO __obsUser__.SLICES_T VALUES( 698);
+INSERT INTO __obsUser__.SLICES_T VALUES( 699);
+INSERT INTO __obsUser__.SLICES_T VALUES( 700);
+INSERT INTO __obsUser__.SLICES_T VALUES( 701);
+INSERT INTO __obsUser__.SLICES_T VALUES( 702);
+INSERT INTO __obsUser__.SLICES_T VALUES( 703);
+INSERT INTO __obsUser__.SLICES_T VALUES( 704);
+INSERT INTO __obsUser__.SLICES_T VALUES( 705);
+INSERT INTO __obsUser__.SLICES_T VALUES( 706);
+INSERT INTO __obsUser__.SLICES_T VALUES( 707);
+INSERT INTO __obsUser__.SLICES_T VALUES( 708);
+INSERT INTO __obsUser__.SLICES_T VALUES( 709);
+INSERT INTO __obsUser__.SLICES_T VALUES( 710);
+INSERT INTO __obsUser__.SLICES_T VALUES( 711);
+INSERT INTO __obsUser__.SLICES_T VALUES( 712);
+INSERT INTO __obsUser__.SLICES_T VALUES( 713);
+INSERT INTO __obsUser__.SLICES_T VALUES( 714);
+INSERT INTO __obsUser__.SLICES_T VALUES( 715);
+INSERT INTO __obsUser__.SLICES_T VALUES( 716);
+INSERT INTO __obsUser__.SLICES_T VALUES( 717);
+INSERT INTO __obsUser__.SLICES_T VALUES( 718);
+INSERT INTO __obsUser__.SLICES_T VALUES( 719);
+INSERT INTO __obsUser__.SLICES_T VALUES( 720);
+INSERT INTO __obsUser__.SLICES_T VALUES( 721);
+INSERT INTO __obsUser__.SLICES_T VALUES( 722);
+INSERT INTO __obsUser__.SLICES_T VALUES( 723);
+INSERT INTO __obsUser__.SLICES_T VALUES( 724);
+INSERT INTO __obsUser__.SLICES_T VALUES( 725);
+INSERT INTO __obsUser__.SLICES_T VALUES( 726);
+INSERT INTO __obsUser__.SLICES_T VALUES( 727);
+INSERT INTO __obsUser__.SLICES_T VALUES( 728);
+INSERT INTO __obsUser__.SLICES_T VALUES( 729);
+INSERT INTO __obsUser__.SLICES_T VALUES( 730);
+INSERT INTO __obsUser__.SLICES_T VALUES( 731);
+INSERT INTO __obsUser__.SLICES_T VALUES( 732);
+INSERT INTO __obsUser__.SLICES_T VALUES( 733);
+INSERT INTO __obsUser__.SLICES_T VALUES( 734);
+INSERT INTO __obsUser__.SLICES_T VALUES( 735);
+INSERT INTO __obsUser__.SLICES_T VALUES( 736);
+INSERT INTO __obsUser__.SLICES_T VALUES( 737);
+INSERT INTO __obsUser__.SLICES_T VALUES( 738);
+INSERT INTO __obsUser__.SLICES_T VALUES( 739);
+INSERT INTO __obsUser__.SLICES_T VALUES( 740);
+INSERT INTO __obsUser__.SLICES_T VALUES( 741);
+INSERT INTO __obsUser__.SLICES_T VALUES( 742);
+INSERT INTO __obsUser__.SLICES_T VALUES( 743);
+INSERT INTO __obsUser__.SLICES_T VALUES( 744);
+INSERT INTO __obsUser__.SLICES_T VALUES( 745);
+INSERT INTO __obsUser__.SLICES_T VALUES( 746);
+INSERT INTO __obsUser__.SLICES_T VALUES( 747);
+INSERT INTO __obsUser__.SLICES_T VALUES( 748);
+INSERT INTO __obsUser__.SLICES_T VALUES( 749);
+INSERT INTO __obsUser__.SLICES_T VALUES( 750);
+INSERT INTO __obsUser__.SLICES_T VALUES( 751);
+INSERT INTO __obsUser__.SLICES_T VALUES( 752);
+INSERT INTO __obsUser__.SLICES_T VALUES( 753);
+INSERT INTO __obsUser__.SLICES_T VALUES( 754);
+INSERT INTO __obsUser__.SLICES_T VALUES( 755);
+INSERT INTO __obsUser__.SLICES_T VALUES( 756);
+INSERT INTO __obsUser__.SLICES_T VALUES( 757);
+INSERT INTO __obsUser__.SLICES_T VALUES( 758);
+INSERT INTO __obsUser__.SLICES_T VALUES( 759);
+INSERT INTO __obsUser__.SLICES_T VALUES( 760);
+INSERT INTO __obsUser__.SLICES_T VALUES( 761);
+INSERT INTO __obsUser__.SLICES_T VALUES( 762);
+INSERT INTO __obsUser__.SLICES_T VALUES( 763);
+INSERT INTO __obsUser__.SLICES_T VALUES( 764);
+INSERT INTO __obsUser__.SLICES_T VALUES( 765);
+INSERT INTO __obsUser__.SLICES_T VALUES( 766);
+INSERT INTO __obsUser__.SLICES_T VALUES( 767);
+INSERT INTO __obsUser__.SLICES_T VALUES( 768);
+INSERT INTO __obsUser__.SLICES_T VALUES( 769);
+INSERT INTO __obsUser__.SLICES_T VALUES( 770);
+INSERT INTO __obsUser__.SLICES_T VALUES( 771);
+INSERT INTO __obsUser__.SLICES_T VALUES( 772);
+INSERT INTO __obsUser__.SLICES_T VALUES( 773);
+INSERT INTO __obsUser__.SLICES_T VALUES( 774);
+INSERT INTO __obsUser__.SLICES_T VALUES( 775);
+INSERT INTO __obsUser__.SLICES_T VALUES( 776);
+INSERT INTO __obsUser__.SLICES_T VALUES( 777);
+INSERT INTO __obsUser__.SLICES_T VALUES( 778);
+INSERT INTO __obsUser__.SLICES_T VALUES( 779);
+INSERT INTO __obsUser__.SLICES_T VALUES( 780);
+INSERT INTO __obsUser__.SLICES_T VALUES( 781);
+INSERT INTO __obsUser__.SLICES_T VALUES( 782);
+INSERT INTO __obsUser__.SLICES_T VALUES( 783);
+INSERT INTO __obsUser__.SLICES_T VALUES( 784);
+INSERT INTO __obsUser__.SLICES_T VALUES( 785);
+INSERT INTO __obsUser__.SLICES_T VALUES( 786);
+INSERT INTO __obsUser__.SLICES_T VALUES( 787);
+INSERT INTO __obsUser__.SLICES_T VALUES( 788);
+INSERT INTO __obsUser__.SLICES_T VALUES( 789);
+INSERT INTO __obsUser__.SLICES_T VALUES( 790);
+INSERT INTO __obsUser__.SLICES_T VALUES( 791);
+INSERT INTO __obsUser__.SLICES_T VALUES( 792);
+INSERT INTO __obsUser__.SLICES_T VALUES( 793);
+INSERT INTO __obsUser__.SLICES_T VALUES( 794);
+INSERT INTO __obsUser__.SLICES_T VALUES( 795);
+INSERT INTO __obsUser__.SLICES_T VALUES( 796);
+INSERT INTO __obsUser__.SLICES_T VALUES( 797);
+INSERT INTO __obsUser__.SLICES_T VALUES( 798);
+INSERT INTO __obsUser__.SLICES_T VALUES( 799);
+INSERT INTO __obsUser__.SLICES_T VALUES( 800);
+INSERT INTO __obsUser__.SLICES_T VALUES( 801);
+INSERT INTO __obsUser__.SLICES_T VALUES( 802);
+INSERT INTO __obsUser__.SLICES_T VALUES( 803);
+INSERT INTO __obsUser__.SLICES_T VALUES( 804);
+INSERT INTO __obsUser__.SLICES_T VALUES( 805);
+INSERT INTO __obsUser__.SLICES_T VALUES( 806);
+INSERT INTO __obsUser__.SLICES_T VALUES( 807);
+INSERT INTO __obsUser__.SLICES_T VALUES( 808);
+INSERT INTO __obsUser__.SLICES_T VALUES( 809);
+INSERT INTO __obsUser__.SLICES_T VALUES( 810);
+INSERT INTO __obsUser__.SLICES_T VALUES( 811);
+INSERT INTO __obsUser__.SLICES_T VALUES( 812);
+INSERT INTO __obsUser__.SLICES_T VALUES( 813);
+INSERT INTO __obsUser__.SLICES_T VALUES( 814);
+INSERT INTO __obsUser__.SLICES_T VALUES( 815);
+INSERT INTO __obsUser__.SLICES_T VALUES( 816);
+INSERT INTO __obsUser__.SLICES_T VALUES( 817);
+INSERT INTO __obsUser__.SLICES_T VALUES( 818);
+INSERT INTO __obsUser__.SLICES_T VALUES( 819);
+INSERT INTO __obsUser__.SLICES_T VALUES( 820);
+INSERT INTO __obsUser__.SLICES_T VALUES( 821);
+INSERT INTO __obsUser__.SLICES_T VALUES( 822);
+INSERT INTO __obsUser__.SLICES_T VALUES( 823);
+INSERT INTO __obsUser__.SLICES_T VALUES( 824);
+INSERT INTO __obsUser__.SLICES_T VALUES( 825);
+INSERT INTO __obsUser__.SLICES_T VALUES( 826);
+INSERT INTO __obsUser__.SLICES_T VALUES( 827);
+INSERT INTO __obsUser__.SLICES_T VALUES( 828);
+INSERT INTO __obsUser__.SLICES_T VALUES( 829);
+INSERT INTO __obsUser__.SLICES_T VALUES( 830);
+INSERT INTO __obsUser__.SLICES_T VALUES( 831);
+INSERT INTO __obsUser__.SLICES_T VALUES( 832);
+INSERT INTO __obsUser__.SLICES_T VALUES( 833);
+INSERT INTO __obsUser__.SLICES_T VALUES( 834);
+INSERT INTO __obsUser__.SLICES_T VALUES( 835);
+INSERT INTO __obsUser__.SLICES_T VALUES( 836);
+INSERT INTO __obsUser__.SLICES_T VALUES( 837);
+INSERT INTO __obsUser__.SLICES_T VALUES( 838);
+INSERT INTO __obsUser__.SLICES_T VALUES( 839);
+INSERT INTO __obsUser__.SLICES_T VALUES( 840);
+INSERT INTO __obsUser__.SLICES_T VALUES( 841);
+INSERT INTO __obsUser__.SLICES_T VALUES( 842);
+INSERT INTO __obsUser__.SLICES_T VALUES( 843);
+INSERT INTO __obsUser__.SLICES_T VALUES( 844);
+INSERT INTO __obsUser__.SLICES_T VALUES( 845);
+INSERT INTO __obsUser__.SLICES_T VALUES( 846);
+INSERT INTO __obsUser__.SLICES_T VALUES( 847);
+INSERT INTO __obsUser__.SLICES_T VALUES( 848);
+INSERT INTO __obsUser__.SLICES_T VALUES( 849);
+INSERT INTO __obsUser__.SLICES_T VALUES( 850);
+INSERT INTO __obsUser__.SLICES_T VALUES( 851);
+INSERT INTO __obsUser__.SLICES_T VALUES( 852);
+INSERT INTO __obsUser__.SLICES_T VALUES( 853);
+INSERT INTO __obsUser__.SLICES_T VALUES( 854);
+INSERT INTO __obsUser__.SLICES_T VALUES( 855);
+INSERT INTO __obsUser__.SLICES_T VALUES( 856);
+INSERT INTO __obsUser__.SLICES_T VALUES( 857);
+INSERT INTO __obsUser__.SLICES_T VALUES( 858);
+INSERT INTO __obsUser__.SLICES_T VALUES( 859);
+INSERT INTO __obsUser__.SLICES_T VALUES( 860);
+INSERT INTO __obsUser__.SLICES_T VALUES( 861);
+INSERT INTO __obsUser__.SLICES_T VALUES( 862);
+INSERT INTO __obsUser__.SLICES_T VALUES( 863);
+INSERT INTO __obsUser__.SLICES_T VALUES( 864);
+INSERT INTO __obsUser__.SLICES_T VALUES( 865);
+INSERT INTO __obsUser__.SLICES_T VALUES( 866);
+INSERT INTO __obsUser__.SLICES_T VALUES( 867);
+INSERT INTO __obsUser__.SLICES_T VALUES( 868);
+INSERT INTO __obsUser__.SLICES_T VALUES( 869);
+INSERT INTO __obsUser__.SLICES_T VALUES( 870);
+INSERT INTO __obsUser__.SLICES_T VALUES( 871);
+INSERT INTO __obsUser__.SLICES_T VALUES( 872);
+INSERT INTO __obsUser__.SLICES_T VALUES( 873);
+INSERT INTO __obsUser__.SLICES_T VALUES( 874);
+INSERT INTO __obsUser__.SLICES_T VALUES( 875);
+INSERT INTO __obsUser__.SLICES_T VALUES( 876);
+INSERT INTO __obsUser__.SLICES_T VALUES( 877);
+INSERT INTO __obsUser__.SLICES_T VALUES( 878);
+INSERT INTO __obsUser__.SLICES_T VALUES( 879);
+INSERT INTO __obsUser__.SLICES_T VALUES( 880);
+INSERT INTO __obsUser__.SLICES_T VALUES( 881);
+INSERT INTO __obsUser__.SLICES_T VALUES( 882);
+INSERT INTO __obsUser__.SLICES_T VALUES( 883);
+INSERT INTO __obsUser__.SLICES_T VALUES( 884);
+INSERT INTO __obsUser__.SLICES_T VALUES( 885);
+INSERT INTO __obsUser__.SLICES_T VALUES( 886);
+INSERT INTO __obsUser__.SLICES_T VALUES( 887);
+INSERT INTO __obsUser__.SLICES_T VALUES( 888);
+INSERT INTO __obsUser__.SLICES_T VALUES( 889);
+INSERT INTO __obsUser__.SLICES_T VALUES( 890);
+INSERT INTO __obsUser__.SLICES_T VALUES( 891);
+INSERT INTO __obsUser__.SLICES_T VALUES( 892);
+INSERT INTO __obsUser__.SLICES_T VALUES( 893);
+INSERT INTO __obsUser__.SLICES_T VALUES( 894);
+INSERT INTO __obsUser__.SLICES_T VALUES( 895);
+INSERT INTO __obsUser__.SLICES_T VALUES( 896);
+INSERT INTO __obsUser__.SLICES_T VALUES( 897);
+INSERT INTO __obsUser__.SLICES_T VALUES( 898);
+INSERT INTO __obsUser__.SLICES_T VALUES( 899);
+INSERT INTO __obsUser__.SLICES_T VALUES( 900);
+INSERT INTO __obsUser__.SLICES_T VALUES( 901);
+INSERT INTO __obsUser__.SLICES_T VALUES( 902);
+INSERT INTO __obsUser__.SLICES_T VALUES( 903);
+INSERT INTO __obsUser__.SLICES_T VALUES( 904);
+INSERT INTO __obsUser__.SLICES_T VALUES( 905);
+INSERT INTO __obsUser__.SLICES_T VALUES( 906);
+INSERT INTO __obsUser__.SLICES_T VALUES( 907);
+INSERT INTO __obsUser__.SLICES_T VALUES( 908);
+INSERT INTO __obsUser__.SLICES_T VALUES( 909);
+INSERT INTO __obsUser__.SLICES_T VALUES( 910);
+INSERT INTO __obsUser__.SLICES_T VALUES( 911);
+INSERT INTO __obsUser__.SLICES_T VALUES( 912);
+INSERT INTO __obsUser__.SLICES_T VALUES( 913);
+INSERT INTO __obsUser__.SLICES_T VALUES( 914);
+INSERT INTO __obsUser__.SLICES_T VALUES( 915);
+INSERT INTO __obsUser__.SLICES_T VALUES( 916);
+INSERT INTO __obsUser__.SLICES_T VALUES( 917);
+INSERT INTO __obsUser__.SLICES_T VALUES( 918);
+INSERT INTO __obsUser__.SLICES_T VALUES( 919);
+INSERT INTO __obsUser__.SLICES_T VALUES( 920);
+INSERT INTO __obsUser__.SLICES_T VALUES( 921);
+INSERT INTO __obsUser__.SLICES_T VALUES( 922);
+INSERT INTO __obsUser__.SLICES_T VALUES( 923);
+INSERT INTO __obsUser__.SLICES_T VALUES( 924);
+INSERT INTO __obsUser__.SLICES_T VALUES( 925);
+INSERT INTO __obsUser__.SLICES_T VALUES( 926);
+INSERT INTO __obsUser__.SLICES_T VALUES( 927);
+INSERT INTO __obsUser__.SLICES_T VALUES( 928);
+INSERT INTO __obsUser__.SLICES_T VALUES( 929);
+INSERT INTO __obsUser__.SLICES_T VALUES( 930);
+INSERT INTO __obsUser__.SLICES_T VALUES( 931);
+INSERT INTO __obsUser__.SLICES_T VALUES( 932);
+INSERT INTO __obsUser__.SLICES_T VALUES( 933);
+INSERT INTO __obsUser__.SLICES_T VALUES( 934);
+INSERT INTO __obsUser__.SLICES_T VALUES( 935);
+INSERT INTO __obsUser__.SLICES_T VALUES( 936);
+INSERT INTO __obsUser__.SLICES_T VALUES( 937);
+INSERT INTO __obsUser__.SLICES_T VALUES( 938);
+INSERT INTO __obsUser__.SLICES_T VALUES( 939);
+INSERT INTO __obsUser__.SLICES_T VALUES( 940);
+INSERT INTO __obsUser__.SLICES_T VALUES( 941);
+INSERT INTO __obsUser__.SLICES_T VALUES( 942);
+INSERT INTO __obsUser__.SLICES_T VALUES( 943);
+INSERT INTO __obsUser__.SLICES_T VALUES( 944);
+INSERT INTO __obsUser__.SLICES_T VALUES( 945);
+INSERT INTO __obsUser__.SLICES_T VALUES( 946);
+INSERT INTO __obsUser__.SLICES_T VALUES( 947);
+INSERT INTO __obsUser__.SLICES_T VALUES( 948);
+INSERT INTO __obsUser__.SLICES_T VALUES( 949);
+INSERT INTO __obsUser__.SLICES_T VALUES( 950);
+INSERT INTO __obsUser__.SLICES_T VALUES( 951);
+INSERT INTO __obsUser__.SLICES_T VALUES( 952);
+INSERT INTO __obsUser__.SLICES_T VALUES( 953);
+INSERT INTO __obsUser__.SLICES_T VALUES( 954);
+INSERT INTO __obsUser__.SLICES_T VALUES( 955);
+INSERT INTO __obsUser__.SLICES_T VALUES( 956);
+INSERT INTO __obsUser__.SLICES_T VALUES( 957);
+INSERT INTO __obsUser__.SLICES_T VALUES( 958);
+INSERT INTO __obsUser__.SLICES_T VALUES( 959);
+INSERT INTO __obsUser__.SLICES_T VALUES( 960);
+INSERT INTO __obsUser__.SLICES_T VALUES( 961);
+INSERT INTO __obsUser__.SLICES_T VALUES( 962);
+INSERT INTO __obsUser__.SLICES_T VALUES( 963);
+INSERT INTO __obsUser__.SLICES_T VALUES( 964);
+INSERT INTO __obsUser__.SLICES_T VALUES( 965);
+INSERT INTO __obsUser__.SLICES_T VALUES( 966);
+INSERT INTO __obsUser__.SLICES_T VALUES( 967);
+INSERT INTO __obsUser__.SLICES_T VALUES( 968);
+INSERT INTO __obsUser__.SLICES_T VALUES( 969);
+INSERT INTO __obsUser__.SLICES_T VALUES( 970);
+INSERT INTO __obsUser__.SLICES_T VALUES( 971);
+INSERT INTO __obsUser__.SLICES_T VALUES( 972);
+INSERT INTO __obsUser__.SLICES_T VALUES( 973);
+INSERT INTO __obsUser__.SLICES_T VALUES( 974);
+INSERT INTO __obsUser__.SLICES_T VALUES( 975);
+INSERT INTO __obsUser__.SLICES_T VALUES( 976);
+INSERT INTO __obsUser__.SLICES_T VALUES( 977);
+INSERT INTO __obsUser__.SLICES_T VALUES( 978);
+INSERT INTO __obsUser__.SLICES_T VALUES( 979);
+INSERT INTO __obsUser__.SLICES_T VALUES( 980);
+INSERT INTO __obsUser__.SLICES_T VALUES( 981);
+INSERT INTO __obsUser__.SLICES_T VALUES( 982);
+INSERT INTO __obsUser__.SLICES_T VALUES( 983);
+INSERT INTO __obsUser__.SLICES_T VALUES( 984);
+INSERT INTO __obsUser__.SLICES_T VALUES( 985);
+INSERT INTO __obsUser__.SLICES_T VALUES( 986);
+INSERT INTO __obsUser__.SLICES_T VALUES( 987);
+INSERT INTO __obsUser__.SLICES_T VALUES( 988);
+INSERT INTO __obsUser__.SLICES_T VALUES( 989);
+INSERT INTO __obsUser__.SLICES_T VALUES( 990);
+INSERT INTO __obsUser__.SLICES_T VALUES( 991);
+INSERT INTO __obsUser__.SLICES_T VALUES( 992);
+INSERT INTO __obsUser__.SLICES_T VALUES( 993);
+INSERT INTO __obsUser__.SLICES_T VALUES( 994);
+INSERT INTO __obsUser__.SLICES_T VALUES( 995);
+INSERT INTO __obsUser__.SLICES_T VALUES( 996);
+INSERT INTO __obsUser__.SLICES_T VALUES( 997);
+INSERT INTO __obsUser__.SLICES_T VALUES( 998);
+INSERT INTO __obsUser__.SLICES_T VALUES( 999);
+INSERT INTO __obsUser__.SLICES_T VALUES(1000);
+
+COMMIT;
+
+EXIT;

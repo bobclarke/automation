@@ -1,0 +1,15 @@
+create
+profileName=__nodeProf__
+nodeName=__nodeName__
+hostName=__nodeHost__
+cellName=__nodeName___Cell
+profilePath=__profilePath__/__nodeProf__
+personalCertValidityPeriod=15
+signingCertValidityPeriod=15
+templatePath=__wasInstallDir__/profileTemplates/managed
+federateLater=true
+dbType=Oracle10g
+personalCertValidityPeriod=15
+signingCertValidityPeriod=15
+keyStorePassword=__keyStorePassword__
+startingPort=__nodeBasePort__

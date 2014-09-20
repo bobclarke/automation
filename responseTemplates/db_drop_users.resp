@@ -1,0 +1,29 @@
+-- Drop WPS users and role
+
+DROP ROLE __dbGrants__ CASCADE;
+
+DROP ROLE __xaGrants__ CASCADE;
+
+DROP USER __xaUser__ CASCADE;
+
+DROP USER __commonUser__ CASCADE;
+
+DROP USER __bpcUser__ CASCADE;
+
+DROP USER __bspUser__ CASCADE;
+
+DROP USER __ceiUser__ CASCADE;
+
+DROP USER __obsUser__  CASCADE;
+
+DROP USER __appMsgUser__ CASCADE;
+
+DROP USER __sysMsgUser__ CASCADE;
+
+DROP USER __bpcMsgUser__ CASCADE;
+
+DROP USER __ceiMsgUser__ CASCADE;
+
+COMMIT;
+
+EXIT;

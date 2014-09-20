@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--The "acceptLicense" attribute has been deprecated. Use "-acceptLicense" command line option to accept license agreements.-->
+<agent-input acceptLicense='true'>
+
+<server>
+	<repository location='__imSrcDir__' temporary='true' />
+</server>
+
+<profile id='__imSelfProfile__' installLocation='__installDir__/im/eclipse' kind='self'>
+	<data key='eclipseLocation' value='__installDir__/im/eclipse'/>
+	<data key='user.import.profile' value='false'/>
+	<data key='cic.selector.os' value='__os__'/>
+	<data key='cic.selector.ws' value='__ws__'/>
+	<data key='cic.selector.arch' value='__arch__'/>
+	<data key='cic.selector.nl' value='__nl__'/>
+</profile>
+
+<install modify='false'>
+	<offering id='com.ibm.cic.agent' version='__imVersion__' profile='__imSelfProfile__' features='agent_core,agent_jre' installFixes='none'/>
+</install>
+
+<preference name='com.ibm.cic.common.core.preferences.connectTimeout' value='30'/>
+<preference name='com.ibm.cic.common.core.preferences.readTimeout' value='45'/>
+<preference name='com.ibm.cic.common.core.preferences.downloadAutoRetryCount' value='0'/>
+<preference name='offering.service.repositories.areUsed' value='true'/>
+<preference name='com.ibm.cic.common.core.preferences.ssl.nonsecureMode' value='false'/>
+<preference name='com.ibm.cic.common.core.preferences.http.disablePreemptiveAuthentication' value='false'/>
+<preference name='http.ntlm.auth.kind' value='NTLM'/>
+<preference name='http.ntlm.auth.enableIntegrated.win32' value='true'/>
+<preference name='com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts' value='true'/>
+<preference name='com.ibm.cic.common.core.preferences.keepFetchedFiles' value='false'/>
+<preference name='PassportAdvantageIsEnabled' value='false'/>
+<preference name='com.ibm.cic.common.core.preferences.searchForUpdates' value='false'/>
+<preference name='com.ibm.cic.agent.ui.displayInternalVersion' value='false'/>
+
+</agent-input>

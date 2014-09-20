@@ -1,0 +1,10 @@
+slr.service.url=http://slr.lbg.com:5000/helloslr
+cia.service.url=http://cia.lbg.com:5000/hellocia
+ipa.service.url=http://ipa.com:5000/helloipa
+fuse.service.url=http://fuse.com:5000/hellofuse
+slr.service.timeout=20
+slr.max.connections=100
+ibref.driverClassName=ojdbc14.jar
+ibref.host=localhost
+ibref.port=1510
+ibref.dbname=MYDB

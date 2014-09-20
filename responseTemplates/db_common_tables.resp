@@ -1,0 +1,540 @@
+
+--
+-- Common DB Tables 
+--
+
+CREATE TABLE __commonUser__.SchemaVersionInfo
+  (ComponentName	VARCHAR (255) NOT NULL,
+   MajorVersion		SMALLINT NOT NULL,
+   MinorVersion		SMALLINT NOT NULL,
+   RefreshPackLevel	SMALLINT NOT NULL,
+   FixpackLevel		SMALLINT NOT NULL,
+   Migration		SMALLINT NOT NULL,
+   PRIMARY KEY (ComponentName, MajorVersion, MinorVersion, RefreshPackLevel, FixpackLevel));
+
+INSERT INTO __commonUser__.SchemaVersionInfo VALUES ('recovery.ejb', 6, 2, 0, 0, 0);
+
+INSERT INTO __commonUser__.SchemaVersionInfo VALUES ('interfaceMediation', 6, 2, 0, 0, 0);
+
+INSERT INTO __commonUser__.SchemaVersionInfo VALUES ('relationshipService', 6, 2, 0, 0, 0);
+
+INSERT INTO __commonUser__.SchemaVersionInfo VALUES ('scheduler.wbi', 6, 2, 0, 0, 0);
+
+INSERT INTO __commonUser__.SchemaVersionInfo VALUES ('customization', 6, 2, 0, 0, 0);
+
+INSERT INTO __commonUser__.SchemaVersionInfo VALUES ('persistentlockmanager', 6, 2, 0, 0, 0);
+
+INSERT INTO __commonUser__.SchemaVersionInfo VALUES ('governance', 6, 2, 0, 0, 0);
+
+INSERT INTO __commonUser__.SchemaVersionInfo VALUES ('DirectDeploy', 6, 2, 0, 0, 0);
+
+INSERT INTO __commonUser__.SchemaVersionInfo VALUES ('WPS', 6, 2, 0, 0, 0);
+-----------------------------------------------
+
+
+
+  CREATE TABLE __commonUser__.W_LIT_BOOL 
+   (	ID NUMBER(*,0), 
+	LITVAL NUMBER(1,0)
+   ) ;
+  ALTER TABLE __commonUser__.W_LIT_BOOL ADD PRIMARY KEY (ID) ENABLE;
+
+  CREATE INDEX __commonUser__.idx_obj_bool ON __commonUser__.w_lit_bool (litval);
+ 
+  CREATE TABLE __commonUser__.W_LIT_DOUBLE 
+   (	ID NUMBER(*,0), 
+	LITVAL FLOAT(126)
+   ) ;
+  ALTER TABLE __commonUser__.W_LIT_DOUBLE ADD PRIMARY KEY (ID) ENABLE;
+
+  CREATE INDEX __commonUser__.idx_obj_dbl ON __commonUser__.w_lit_double (litval);
+ 
+  CREATE TABLE __commonUser__.W_LIT_FLOAT 
+   (	ID NUMBER(*,0), 
+	LITVAL FLOAT(63)
+   ) ;
+  ALTER TABLE __commonUser__.W_LIT_FLOAT ADD PRIMARY KEY (ID) ENABLE;
+
+  CREATE INDEX __commonUser__.idx_obj_flt ON __commonUser__.w_lit_float (litval);
+ 
+  CREATE TABLE __commonUser__.W_LIT_INT 
+   (	ID NUMBER(*,0), 
+	LITVAL NUMBER(*,0)
+   ) ;
+  ALTER TABLE __commonUser__.W_LIT_INT ADD PRIMARY KEY (ID) ENABLE;
+
+  CREATE INDEX __commonUser__.idx_obj_int ON __commonUser__.w_lit_int (litval);
+ 
+  CREATE TABLE __commonUser__.W_LIT_LONG 
+   (	ID NUMBER(*,0), 
+	LITVAL NUMBER(38,0)
+   ) ;
+  ALTER TABLE __commonUser__.W_LIT_LONG ADD PRIMARY KEY (ID) ENABLE;
+
+  CREATE INDEX __commonUser__.idx_obj_long ON __commonUser__.w_lit_long (litval);
+ 
+  CREATE TABLE __commonUser__.W_NAMESPACE 
+   (	ID NUMBER(*,0), 
+	NAMESPACE VARCHAR2(254) NOT NULL ENABLE
+   ) ;
+  ALTER TABLE __commonUser__.W_NAMESPACE ADD PRIMARY KEY (ID) ENABLE;
+ 
+  CREATE TABLE __commonUser__.W_OBJ_LIT_ANY 
+   (	ID NUMBER(*,0), 
+	LARGE BLOB, 
+	HASH VARCHAR2(40), 
+	TYPE_URI VARCHAR2(254) NOT NULL ENABLE
+   ) ;
+  ALTER TABLE __commonUser__.W_OBJ_LIT_ANY ADD PRIMARY KEY (ID) ENABLE;
+
+  CREATE INDEX __commonUser__.idx_obj_any ON __commonUser__.w_obj_lit_any (type_uri);
+ 
+  CREATE TABLE __commonUser__.W_OBJ_LIT_DATE 
+   (	ID NUMBER(*,0), 
+	LITVAL TIMESTAMP (6)
+   ) ;
+  ALTER TABLE __commonUser__.W_OBJ_LIT_DATE ADD PRIMARY KEY (ID) ENABLE;
+ 
+  CREATE INDEX __commonUser__.idx_obj_date ON __commonUser__.w_obj_lit_date (litval);
+
+  CREATE TABLE __commonUser__.W_OBJ_LIT_DATETIME 
+   (	ID NUMBER(*,0), 
+	LITVAL TIMESTAMP (6)
+   ) ;
+  ALTER TABLE __commonUser__.W_OBJ_LIT_DATETIME ADD PRIMARY KEY (ID) ENABLE;
+
+  CREATE INDEX __commonUser__.idx_obj_time ON __commonUser__.w_obj_lit_datetime (litval);
+
+ 
+  CREATE TABLE __commonUser__.W_OBJ_LIT_PLAIN 
+   (	ID NUMBER(*,0), 
+	LARGE BLOB, 
+	LITVAL VARCHAR2(1024), 
+	HASH VARCHAR2(40), 
+	XML_LANG VARCHAR2(64)
+   ) ;
+  ALTER TABLE __commonUser__.W_OBJ_LIT_PLAIN ADD PRIMARY KEY (ID) ENABLE;
+
+  CREATE INDEX __commonUser__.idx_obj_plain ON __commonUser__.w_obj_lit_plain (hash);
+ 
+  CREATE TABLE __commonUser__.W_OBJ_LIT_STRING 
+   (	ID NUMBER(*,0), 
+	LARGE BLOB, 
+	LITVAL VARCHAR2(1024), 
+	HASH VARCHAR2(40)
+   ) ;
+  ALTER TABLE __commonUser__.W_OBJ_LIT_STRING ADD PRIMARY KEY (ID) ENABLE;
+
+  CREATE INDEX __commonUser__.idx_obj_str ON __commonUser__.w_obj_lit_string (hash);
+
+ 
+  CREATE TABLE __commonUser__.W_STATEMENT 
+   (	ID NUMBER(*,0), 
+	VERSION_FROM NUMBER(*,0) NOT NULL ENABLE, 
+	VERSION_TO NUMBER(*,0) NOT NULL ENABLE, 
+	SUBJ_ID NUMBER(*,0) NOT NULL ENABLE, 
+	PRED_ID NUMBER(*,0) NOT NULL ENABLE, 
+	OBJ_ID NUMBER(*,0) NOT NULL ENABLE, 
+	OBJ_TYP_CD NUMBER(*,0) NOT NULL ENABLE,
+	PARTITION_ID NUMBER(*,0) NOT NULL ENABLE
+   ) ;
+  ALTER TABLE __commonUser__.W_STATEMENT ADD PRIMARY KEY (ID) ENABLE;
+  
+  CREATE INDEX __commonUser__.idx_stmt_partition ON __commonUser__.W_STATEMENT (PARTITION_ID);
+  CREATE INDEX __commonUser__.idx_smt_by_sbj ON __commonUser__.w_statement (subj_id, partition_id);
+  CREATE INDEX __commonUser__.idx_smt_by_fvr ON __commonUser__.w_statement (version_from);
+  CREATE INDEX __commonUser__.idx_sbj_by_prp ON __commonUser__.w_statement (pred_id, obj_typ_cd, obj_id, partition_id);
+  CREATE INDEX __commonUser__.idx_sbj_by_val ON __commonUser__.w_statement (obj_typ_cd, obj_id, partition_id);
+  CREATE INDEX __commonUser__.idx_val_by_prp ON __commonUser__.w_statement (subj_id, pred_id, partition_id);
+
+ 
+  CREATE TABLE __commonUser__.W_URI 
+   (	ID NUMBER(*,0), 
+	URI VARCHAR2(254) NOT NULL ENABLE, 
+	NAMESPACE_ID NUMBER(*,0) NOT NULL ENABLE
+   ) ;
+  ALTER TABLE __commonUser__.W_URI ADD PRIMARY KEY (ID) ENABLE;
+  ALTER TABLE __commonUser__.W_URI ADD CONSTRAINT W_URI_FK_NAMESP FOREIGN KEY (NAMESPACE_ID)
+	  REFERENCES __commonUser__.W_NAMESPACE (ID) ENABLE;
+ 
+  CREATE TABLE __commonUser__.W_VERSION 
+   (	USERNAME VARCHAR2(64) NOT NULL ENABLE, 
+	CHANGE_TIME TIMESTAMP (6) NOT NULL ENABLE, 
+	CL_GID VARCHAR2(36), 
+	CL_LID VARCHAR2(10), 
+	SCHEMA_NS_ID NUMBER(*,0), 
+	SCHEMA_REV NUMBER(*,0), 
+	ID NUMBER(*,0) NOT NULL ENABLE,
+	PARTITION_ID NUMBER(*,0) NOT NULL ENABLE
+   ) ;
+  ALTER TABLE __commonUser__.W_VERSION ADD PRIMARY KEY (ID, PARTITION_ID) ENABLE;
+  ALTER TABLE __commonUser__.W_VERSION ADD CONSTRAINT W_VER_FK_NAMESP FOREIGN KEY (SCHEMA_NS_ID)
+	  REFERENCES __commonUser__.W_NAMESPACE (ID) ENABLE;
+
+CREATE INDEX __commonUser__.idx_ver_partition ON __commonUser__.W_VERSION (PARTITION_ID);
+
+CREATE TABLE __commonUser__.W_ARTIFACT_BLOB 
+(
+ ID VARCHAR2(254) NOT NULL, 
+ CONTENT BLOB, 
+ DELETED NUMBER(1,0)
+);
+ALTER TABLE __commonUser__.W_ARTIFACT_BLOB ADD PRIMARY KEY (ID) ENABLE;
+
+CREATE UNIQUE INDEX __commonUser__.IDX_URI ON __commonUser__.W_URI (URI);
+
+CREATE UNIQUE INDEX __commonUser__.IDX_NAMESPACE ON __commonUser__.W_NAMESPACE (NAMESPACE);
+
+CREATE SEQUENCE __commonUser__. SEQ_W_LIT_BOOL_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_LIT_DOUBLE_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_LIT_FLOAT_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_LIT_INT_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_LIT_LONG_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_NAMESPACE_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_OBJ_LIT_ANY_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_OBJ_LIT_DATE_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_OBJ_LIT_DATETIME_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_OBJ_LIT_PLAIN_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_OBJ_LIT_STRING_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_STATEMENT_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+CREATE SEQUENCE __commonUser__. SEQ_W_URI_ID  MINVALUE 1 NOMAXVALUE INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+  CREATE TABLE __commonUser__.W_DBVERSION  
+  (	  SUBSYSTEM VARCHAR2(8) NOT NULL ENABLE, 
+	  CUR_VERSION NUMBER(*,0) NOT NULL ENABLE   
+  ) ;
+  ALTER TABLE __commonUser__.W_DBVERSION ADD PRIMARY KEY (SUBSYSTEM) ENABLE;
+
+CREATE TABLE __commonUser__.MSGLOG
+  (TIMESTAMP TIMESTAMP(6) NOT NULL,
+   MESSAGEID VARCHAR2(36) NOT NULL,
+   MEDIATIONNAME VARCHAR2(256) NOT NULL,
+   MODULENAME VARCHAR2(256),
+   MESSAGE CLOB,
+   VERSION VARCHAR2(10));
+
+ALTER TABLE __commonUser__.MSGLOG
+  ADD CONSTRAINT PK_MSGLOG PRIMARY KEY (TIMESTAMP, MESSAGEID, MEDIATIONNAME);
+
+CREATE TABLE __commonUser__.BYTESTORE
+  (ARTIFACTTNS VARCHAR2(250) NOT NULL,
+   ARTIFACTNAME VARCHAR2(200) NOT NULL,
+   ARTIFACTTYPE VARCHAR2(50) NOT NULL,
+   INITIALBYTES BLOB,
+   TIMESTAMP1 NUMBER(19) NOT NULL,
+   FILENAME VARCHAR2(250),
+   BACKINGCLASS VARCHAR2(250),
+   CHARENCODING VARCHAR2(50),
+   APPNAME VARCHAR2(200),
+   COMPONENTTNS VARCHAR2(250),
+   COMPONENTNAME VARCHAR2(200),
+   SCAMODULENAME VARCHAR2(200),
+   SCACOMPONENTNAME VARCHAR2(200));
+
+ALTER TABLE __commonUser__.BYTESTORE
+  ADD CONSTRAINT PK_BYTESTORE PRIMARY KEY (ARTIFACTTYPE, ARTIFACTTNS, ARTIFACTNAME);
+
+CREATE INDEX __commonUser__.BYTESTORE_INDEX1 ON __commonUser__.BYTESTORE (
+      COMPONENTTNS,
+      COMPONENTNAME);
+
+CREATE INDEX __commonUser__.BYTESTORE_INDEX2 ON __commonUser__.BYTESTORE (
+      ARTIFACTTYPE,
+      COMPONENTTNS,
+      COMPONENTNAME);
+
+
+-- *******************************************
+-- Create the BYTESTOREOVERFLOW table
+-- *******************************************
+
+CREATE TABLE __commonUser__.BYTESTOREOVERFLOW
+  (ARTIFACTTYPE VARCHAR2(50) NOT NULL,
+   ARTIFACTTNS VARCHAR2(250) NOT NULL,
+   ARTIFACTNAME VARCHAR2(200) NOT NULL,
+   SEQUENCENUMBER NUMBER(10) NOT NULL,
+   BYTES BLOB);
+
+ALTER TABLE __commonUser__.BYTESTOREOVERFLOW
+  ADD CONSTRAINT PK_BYTESTOREOVERFL PRIMARY KEY (ARTIFACTTYPE, ARTIFACTTNS, ARTIFACTNAME, SEQUENCENUMBER);
+
+
+
+CREATE TABLE __commonUser__.APPTIMESTAMP
+  (APPNAME VARCHAR2(200) NOT NULL,
+   TIMESTAMP1 NUMBER(19) NOT NULL);
+
+ALTER TABLE __commonUser__.APPTIMESTAMP
+  ADD CONSTRAINT PK_APPTIMESTAMP PRIMARY KEY (APPNAME);
+
+
+CREATE TABLE __commonUser__.CUSTPROPERTIES
+  (PROPERTYID VARCHAR (128) NOT NULL,
+   ARTIFACTTNS VARCHAR(250) NOT NULL,
+   ARTIFACTNAME VARCHAR(200) NOT NULL,
+   ARTIFACTTYPE VARCHAR(50) NOT NULL,
+   PNAME VARCHAR(250) NOT NULL,
+   PVALUE VARCHAR(250) NOT NULL,
+   PTYPE VARCHAR (16) NOT NULL);
+
+ALTER TABLE __commonUser__.CUSTPROPERTIES
+  ADD CONSTRAINT PK_CUSTPROPERTIES PRIMARY KEY (PROPERTYID);
+
+CREATE INDEX __commonUser__.CUSTPROPERTIES_INDEX1 ON __commonUser__.CUSTPROPERTIES (
+      ARTIFACTTYPE,
+      ARTIFACTTNS);  
+      
+CREATE INDEX __commonUser__.CUSTPROPERTIES_INDEX2 ON __commonUser__.CUSTPROPERTIES (
+      ARTIFACTTYPE,
+      ARTIFACTNAME);
+  
+CREATE INDEX __commonUser__.CUSTPROPERTIES_INDEX3 ON __commonUser__.CUSTPROPERTIES (
+      ARTIFACTTYPE,
+      ARTIFACTTNS,
+      ARTIFACTNAME);  
+      
+CREATE INDEX __commonUser__.CUSTPROPERTIES_INDEX4 ON __commonUser__.CUSTPROPERTIES (
+      ARTIFACTTYPE,
+      PNAME);      
+      
+CREATE INDEX __commonUser__.CUSTPROPERTIES_INDEX5 ON __commonUser__.CUSTPROPERTIES (
+      ARTIFACTTYPE,
+      ARTIFACTTNS,
+      PNAME);      
+
+CREATE TABLE __commonUser__.FailedEvents
+  (MsgId			VARCHAR2 (255) NOT NULL,
+   Destination_Module_Name	VARCHAR2 (255),
+   Destination_Component_Name	VARCHAR2 (255),
+   Destination_Method_Name	VARCHAR2 (255),
+   Source_Module_Name		VARCHAR2 (255),
+   Source_Component_Name	VARCHAR2 (255),
+   ResubmitDestination		VARCHAR2 (512),
+   InteractionType		VARCHAR2 (128),
+   ExceptionDetails		VARCHAR2 (1024),
+   SessionId			VARCHAR2 (255),
+   CorrelationId		VARCHAR2 (255),
+   DeploymentTarget		VARCHAR2 (200),
+   FailureTime			DATE NOT NULL,
+   Status			INTEGER NOT NULL,
+   EsQualified      		SMALLINT,
+   EventType		VARCHAR (10));
+
+ALTER TABLE __commonUser__.FailedEvents
+   ADD CONSTRAINT PK_FailedEvents PRIMARY KEY (MsgId);
+
+CREATE INDEX __commonUser__.INX_FEDest ON __commonUser__.FailedEvents
+  (Destination_Module_Name,
+   Destination_Component_Name,
+   Destination_Method_Name);
+
+CREATE INDEX __commonUser__.INX_FESrc ON __commonUser__.FailedEvents
+  (Source_Module_Name,
+   Source_Component_Name);
+
+CREATE INDEX __commonUser__.INX_FESID ON __commonUser__.FailedEvents (SessionId);
+
+CREATE INDEX __commonUser__.INX_FEFTime ON __commonUser__.FailedEvents (FailureTime);
+
+CREATE INDEX __commonUser__.INX_FEESQualified ON __commonUser__.FailedEvents (EsQualified);
+
+CREATE INDEX __commonUser__.INX_FEEventType ON __commonUser__.FailedEvents (EventType);
+
+CREATE TABLE __commonUser__.FailedEventBOTypes
+  (MsgId		VARCHAR2 (255) NOT NULL,
+   BOType		VARCHAR2 (255) NOT NULL,
+   Argument_Position	INTEGER NOT NULL);
+
+ALTER TABLE __commonUser__.FailedEventBOTypes
+   ADD CONSTRAINT PK_FailedEventBO PRIMARY KEY (MsgId, Argument_Position);
+
+ALTER TABLE __commonUser__.FailedEventBOTypes
+   ADD CONSTRAINT FK_FailedEventBO FOREIGN KEY (MsgId) REFERENCES __commonUser__.FailedEvents(MsgId);
+
+CREATE INDEX __commonUser__.FailedEventBOTp ON __commonUser__.FailedEventBOTypes (BOType);
+
+CREATE TABLE __commonUser__.FailedEventMessage
+  (MsgId		VARCHAR2 (255) NOT NULL,
+   JserviceMessage	LONG RAW);
+
+ALTER TABLE __commonUser__.FailedEventMessage
+   ADD CONSTRAINT PK_FailedEventMSG PRIMARY KEY (MsgId);
+
+ALTER TABLE __commonUser__.FailedEventMessage
+   ADD CONSTRAINT FK_FailedEventMSG FOREIGN KEY (MsgId) REFERENCES __commonUser__.FailedEvents(MsgId);
+
+CREATE TABLE __commonUser__.FailedEventDetail
+  (MsgId		VARCHAR (255) NOT NULL,
+   Message		BLOB,
+   Parameters		BLOB,
+   ExceptionDetail	BLOB,
+   WrapperType          SMALLINT,
+   ApplicationName	VARCHAR (255),
+   CEITraceControl	VARCHAR (255),
+   UserIdentity		VARCHAR(128),
+   ExpirationTime	TIMESTAMP);
+
+ALTER TABLE __commonUser__.FailedEventDetail
+   ADD CONSTRAINT PK_FailedEventDTL PRIMARY KEY (MsgId);
+
+ALTER TABLE __commonUser__.FailedEventDetail
+   ADD CONSTRAINT FK_FailedEventDTL FOREIGN KEY (MsgId) REFERENCES __commonUser__.FailedEvents(MsgId);
+
+create table __commonUser__.persistentlock (
+	lockId integer not null,
+	sequenceId integer not null,
+	owner integer not null,
+	moduleName varchar2 (250),
+	compName varchar2 (250),
+	method varchar2 (250),
+	msgHandleString varchar2 (128),
+	primary key (lockId,sequenceId));-- BEGIN COPYRIGHT
+
+create table __commonUser__.mediation_tickets (
+	targetTicketID varchar(255) not null, 
+	ticketEntry long raw, 
+	version varchar(255) not null, 
+	primary key (targetTicketID));
+
+CREATE TABLE __commonUser__.RELN_METADATA_T(RELATIONSHIP_NAME VARCHAR2(255) NOT NULL, VERSION VARCHAR2(10) NOT NULL);
+CREATE UNIQUE INDEX __commonUser__.RMT_RELN_NAME_I ON __commonUser__.RELN_METADATA_T (RELATIONSHIP_NAME);
+
+
+CREATE TABLE __commonUser__.RELN_VIEW_META_T ( VIEW_NAME VARCHAR(255) NOT NULL,
+				RELATIONSHIP_NAME VARCHAR(255) NOT NULL,
+				ROLE_NAME VARCHAR(255) NOT NULL,
+				VERSION VARCHAR(10) NOT NULL
+							);										
+CREATE UNIQUE INDEX __commonUser__.RELN_VIEW_I ON __commonUser__.RELN_VIEW_META_T (RELATIONSHIP_NAME, ROLE_NAME);-- BEGIN COPYRIGHT
+
+create table __commonUser__.d2d_item (
+	id varchar(255) not null, 
+	state varchar(20) not null,
+	item_level int not null,
+	module_name varchar(255),
+	application_name varchar(255),
+	version varchar(30), 
+	wps_version varchar(10),
+	new_app_name varchar(255),
+	primary key (id));
+
+create table __commonUser__.d2d_progress (
+	item_id varchar(255) not null,
+	progress INTEGER,
+	progress_msg varchar(255),
+	progress_error_code  varchar(255),
+	primary key (item_id));
+
+create table __commonUser__.d2d_content (
+	item_id varchar(255) not null,
+	pi	blob,
+	primary key (item_id));
+
+create table __commonUser__.d2d_metadata(
+	item_id varchar(255) not null,
+	name varchar(255) not null,
+	value varchar(255) );
+
+create table __commonUser__.d2d_lock(
+	item_lock character(1),
+	lastUpdate timestamp);
+
+insert into __commonUser__.d2d_lock values ('x', null);
+
+create table __commonUser__.d2d_message(
+	item_id varchar(255) not null,
+	seq int not null,
+	id	varchar(63),
+	description varchar(1024),
+	affected_resource varchar(255),
+	location varchar(63),
+	folder varchar(255),
+	chr varchar(63),
+	tag	varchar(63),
+	severity varchar(15),
+	time timestamp,
+	primary key (item_id, seq));
+
+CREATE TABLE __commonUser__.WSCH_TASK
+(
+  TASKID             NUMBER(19)            NOT NULL ,
+  VERSION            VARCHAR2(5)           NOT NULL ,
+  ROW_VERSION        NUMBER(10)            NOT NULL ,
+  TASKTYPE           NUMBER(10)            NOT NULL ,
+  TASKSUSPENDED      NUMBER(1)             NOT NULL ,
+  CANCELLED          NUMBER(1)             NOT NULL ,
+  NEXTFIRETIME       NUMBER(19)            NOT NULL ,
+  STARTBYINTERVAL    VARCHAR2(254)                  ,
+  STARTBYTIME        NUMBER(19)                     ,
+  VALIDFROMTIME      NUMBER(19)                     ,
+  VALIDTOTIME        NUMBER(19)                     ,
+  REPEATINTERVAL     VARCHAR2(254)                  ,
+  MAXREPEATS         NUMBER(10)            NOT NULL ,
+  REPEATSLEFT        NUMBER(10)            NOT NULL ,
+  TASKINFO           BLOB                           ,
+  NAME               VARCHAR2(254)                  ,
+  AUTOPURGE          NUMBER(10)            NOT NULL ,
+  FAILUREACTION      NUMBER(10)                     ,
+  MAXATTEMPTS        NUMBER(10)                     ,
+  QOS                NUMBER(10)                     ,
+  PARTITIONID        NUMBER(10)                     ,
+  OWNERTOKEN         VARCHAR2(200)         NOT NULL ,
+  CREATETIME         NUMBER(19)            NOT NULL ,
+  PRIMARY KEY (TASKID)
+) ;
+
+CREATE INDEX __commonUser__.WSCH_TASK_IDX1 ON __commonUser__.WSCH_TASK
+(
+  TASKID, OWNERTOKEN
+) ;
+
+CREATE INDEX __commonUser__.WSCH_TASK_IDX2 ON __commonUser__.WSCH_TASK
+(
+  NEXTFIRETIME ASC ,
+  REPEATSLEFT ,
+  PARTITIONID
+) ;
+
+CREATE TABLE __commonUser__.WSCH_TREG
+(
+  REGKEY             VARCHAR2(254)         NOT NULL ,
+  REGVALUE           VARCHAR2(254)                  ,
+  PRIMARY KEY ( REGKEY )
+) ;
+
+CREATE TABLE __commonUser__.WSCH_LMGR
+(
+  LEASENAME          VARCHAR2(254)         NOT NULL ,
+  LEASEOWNER         VARCHAR2(254)                  ,
+  LEASE_EXPIRE_TIME  NUMBER(19)                     ,
+  DISABLED           VARCHAR2(254)                  ,
+  PRIMARY KEY ( LEASENAME )
+) ;
+
+CREATE TABLE __commonUser__.WSCH_LMPR
+(
+  LEASENAME          VARCHAR2(254)         NOT NULL ,
+  NAME               VARCHAR2(254)         NOT NULL ,
+  VALUE              VARCHAR2(254)         NOT NULL
+) ;
+
+CREATE INDEX __commonUser__.WSCH_LMPR_IDX1 ON __commonUser__.WSCH_LMPR
+(
+  LEASENAME, NAME
+) ;
+
+COMMIT;
+
+EXIT;

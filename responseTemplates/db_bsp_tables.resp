@@ -1,0 +1,559 @@
+
+--
+-- Business Space Tables
+--
+
+CREATE TABLE __bspUser__.VERSION_INFO(
+    OID             VARCHAR2(64) NOT NULL,
+    VERSION_MAJOR   NUMBER(10,0),
+    VERSION_MINOR   NUMBER(10,0),
+    VERSION_RELEASE NUMBER(10,0),
+    VERSION_DEV     NUMBER(10,0),
+    VERSION_TIME    NUMBER(19,0),
+    DESCRIPTION     VARCHAR2(254),
+    CONSTRAINT PK100 PRIMARY KEY (OID)
+);
+
+CREATE TABLE __bspUser__.ACCOUNT (
+    OID         VARCHAR2(64)            NOT NULL,
+    EXTERNAL_ID VARCHAR2(1024)          NOT NULL,
+    CREATED     NUMBER(19,0)            NOT NULL,
+    MODIFIED    NUMBER(19,0)            NOT NULL,
+    STATE       NUMBER(10,0) DEFAULT 1  NOT NULL,
+    CONSTRAINT PK200 PRIMARY KEY (OID)
+);
+
+CREATE TABLE __bspUser__.CATALOG (
+    OID         VARCHAR2(64)           NOT NULL,
+    ACCOUNT_OID VARCHAR2(1024)         NOT NULL,
+    UNIQUE_NAME VARCHAR2(255)          NOT NULL,
+    CREATED     NUMBER(19,0)           NOT NULL,
+    MODIFIED    NUMBER(19,0)           NOT NULL,
+    STATE       NUMBER(10,0) DEFAULT 1 NOT NULL,
+    CONSTRAINT PK300 PRIMARY KEY (OID)
+);
+
+CREATE TABLE __bspUser__.CATALOG_LOD (
+    RESOURCE_OID VARCHAR2(64)   NOT NULL,
+    LOCALE       VARCHAR2(64)   NOT NULL,
+    TITLE        VARCHAR2(255)  NOT NULL,
+    DESCRIPTION  VARCHAR2(1024) ,
+    CONSTRAINT PK301 PRIMARY KEY (RESOURCE_OID, LOCALE),
+    CONSTRAINT FK302 FOREIGN KEY (RESOURCE_OID) REFERENCES __bspUser__.CATALOG (OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- CATALOG ENTRY (310)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.CATALOG_ENTRY (
+    OID            			VARCHAR2(64)           NOT NULL,
+    CATALOG_OID    			VARCHAR2(64)           NOT NULL,
+    CATEGORY_OID   			VARCHAR2(64)           NOT NULL,
+    DEFINITION_URL 			VARCHAR2(2500)         NOT NULL,
+    CONTENT_URL    			VARCHAR2(2500)         ,
+    PREVIEW_URL    			VARCHAR2(2500)         ,
+    PREVIEW_THUMBNAIL_URL	VARCHAR2(2500)         ,
+    HELP_URL       			VARCHAR2(2500)         ,    
+    ICON_URL       			VARCHAR2(2500)         ,
+    HUB_ENTRY_URL  			VARCHAR2(2500)         ,
+    DEF_URL_TYPE   			NUMBER(10,0)           ,
+    ICON_URL_TYPE  			NUMBER(10,0)           ,
+    CREATED        			NUMBER(19,0)           NOT NULL,
+    MODIFIED       			NUMBER(19,0)           NOT NULL,
+    STATE          			NUMBER(10,0) DEFAULT 1 NOT NULL,
+    CONSTRAINT PK310 PRIMARY KEY (OID)
+);
+
+CREATE TABLE __bspUser__.CATALOG_ENTRY_LOD (
+    RESOURCE_OID  		VARCHAR2(64)   NOT NULL,
+    LOCALE        		VARCHAR2(64)   NOT NULL,
+    TITLE         		VARCHAR2(255)  NOT NULL,
+    DESCRIPTION   		VARCHAR2(1024) ,
+    SHORT_DESCRIPTION   VARCHAR2(255)  ,    
+    CONSTRAINT PK311 PRIMARY KEY (RESOURCE_OID, LOCALE),
+    CONSTRAINT FK311 FOREIGN KEY (RESOURCE_OID) REFERENCES __bspUser__.CATALOG_ENTRY (OID) ON DELETE CASCADE
+);
+
+CREATE TABLE __bspUser__.CATALOG_ENTRY_DD (
+    RESOURCE_OID  VARCHAR2(64)   NOT NULL,
+    NAME          VARCHAR2(255)  NOT NULL,
+    VALUE         VARCHAR2(3000) NOT NULL,
+    CONSTRAINT PK312 PRIMARY KEY (RESOURCE_OID, NAME),
+    CONSTRAINT FK312 FOREIGN KEY (RESOURCE_OID) REFERENCES __bspUser__.CATALOG_ENTRY (OID) ON DELETE CASCADE
+);
+
+
+-- *****************************************************************
+--
+-- CATALOG CATEGORY (320)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.CATALOG_CATEGORY (
+    OID         VARCHAR2(64)            NOT NULL,
+    CATALOG_OID VARCHAR2(64)            NOT NULL,
+    NAME        VARCHAR2(255)           ,
+    CREATED     NUMBER(19,0)            NOT NULL,
+    MODIFIED    NUMBER(19,0)            NOT NULL,
+    STATE       NUMBER(10,0) DEFAULT 1  NOT NULL,
+    CONSTRAINT PK320 PRIMARY KEY (OID),
+    CONSTRAINT FK320 FOREIGN KEY (CATALOG_OID) REFERENCES __bspUser__.CATALOG (OID) ON DELETE CASCADE
+);
+
+CREATE TABLE __bspUser__.CATALOG_CATEGORY_LOD (
+    RESOURCE_OID VARCHAR2(64)   NOT NULL,
+    LOCALE       VARCHAR2(64)   NOT NULL,
+    TITLE        VARCHAR2(255)  NOT NULL,
+    DESCRIPTION  VARCHAR2(1024) ,
+    CONSTRAINT PK321 PRIMARY KEY (RESOURCE_OID, LOCALE),
+    CONSTRAINT FK321 FOREIGN KEY (RESOURCE_OID) REFERENCES __bspUser__.CATALOG_CATEGORY (OID) ON DELETE CASCADE
+);
+
+
+-- *****************************************************************
+--
+-- CATALOG CATEGORY INCLUDES (330)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.CATALOG_CATEGORY_INC (
+    OID          		VARCHAR2(64)    NOT NULL,
+    CATALOG_OID  		VARCHAR2(64)    NOT NULL,
+    CATEGORY_OID 		VARCHAR2(64)    NOT NULL,
+    INCLUDE_CAT  		VARCHAR2(255)   NOT NULL,
+    INCLUDE_CATEGORY	VARCHAR2(255)   NOT NULL,
+    CONSTRAINT PK330 PRIMARY KEY (OID)
+);
+
+-- *****************************************************************
+--
+-- CATALOG INCLUDES (340)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.CATALOG_INC (
+    OID          		VARCHAR2(64)      NOT NULL,
+    CATALOG_OID  		VARCHAR2(64)      NOT NULL,
+    INCLUDE_CAT  		VARCHAR2(255)  	NOT NULL,
+    CONSTRAINT PK340 PRIMARY KEY (OID)
+);
+
+-- *****************************************************************
+--
+-- NAVIGATION NODE (500)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.NAVNODE (
+    OID            VARCHAR2(64)           NOT NULL,
+    OWNER_OID      VARCHAR2(64)           NOT NULL,
+    THEME_ID       VARCHAR2(255)          NOT NULL,
+    THEME_NAME     VARCHAR2(255)          NOT NULL,
+    CONTENT        BLOB                   ,
+    BYTE_COUNT     NUMBER(10,0)           ,
+    IS_ZIPPED      NUMBER(10,0) DEFAULT 0 NOT NULL,
+    COMMUNITY_OID  VARCHAR2(64)           ,
+    SPACE_OID      VARCHAR2(64)           ,
+    CREATED        NUMBER(19,0)           NOT NULL,
+    MODIFIED       NUMBER(19,0)           NOT NULL,
+    STATE          NUMBER(10,0) DEFAULT 1 NOT NULL,
+    CONSTRAINT PK500 PRIMARY KEY (OID, OWNER_OID)
+);
+
+CREATE TABLE __bspUser__.NAVNODE_LOD (
+    RESOURCE_OID  VARCHAR2(64)   NOT NULL,
+    OWNER_OID     VARCHAR2(64)   NOT NULL,
+    LOCALE        VARCHAR2(64)   NOT NULL,
+    TITLE         VARCHAR2(255)  NOT NULL,
+    DESCRIPTION   VARCHAR2(1024) ,
+    CONSTRAINT FK500 FOREIGN KEY (RESOURCE_OID,OWNER_OID) REFERENCES __bspUser__.NAVNODE (OID,OWNER_OID) ON DELETE CASCADE
+);
+
+CREATE TABLE __bspUser__.NAVNODE_DD (
+    RESOURCE_OID  VARCHAR2(64)    NOT NULL,
+    OWNER_OID     VARCHAR2(64)    NOT NULL,
+    NAME          VARCHAR2(255)   NOT NULL,
+    VALUE         VARCHAR2(3000)  NOT NULL,
+    CONSTRAINT PK502 PRIMARY KEY (RESOURCE_OID,OWNER_OID,NAME),
+    CONSTRAINT FK502 FOREIGN KEY (RESOURCE_OID,OWNER_OID) REFERENCES __bspUser__.NAVNODE (OID,OWNER_OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- NAVIGATION TREE (510)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.NAV_TREE (
+    OWNER_OID    VARCHAR2(64)           NOT NULL,
+    PAGE_OID     VARCHAR2(64)           NOT NULL,
+    PARENT_OID   VARCHAR2(64)           NOT NULL,
+    ORDINAL      NUMBER(10,0) DEFAULT 1 ,
+    IS_VIRTUAL   NUMBER(10,0) DEFAULT 0 ,
+    CONSTRAINT PK510 PRIMARY KEY (OWNER_OID, PAGE_OID)
+);
+
+-- *****************************************************************
+--
+-- ACCESS CONTROL (600)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.COMMUNITY_DEF (
+    OID            VARCHAR2(64)           NOT NULL,
+    OWNER_UID      VARCHAR2(64)           NOT NULL,
+    RESOURCE_OID   VARCHAR2(64)           NOT NULL,
+    RESOURCE_TYPE  VARCHAR2(32)           NOT NULL,
+    CREATED        NUMBER(19,0)           NOT NULL,
+    MODIFIED       NUMBER(19,0)           NOT NULL,
+    STATE          NUMBER(10,0) DEFAULT 1 NOT NULL,
+    CONSTRAINT PK600 PRIMARY KEY( OID )
+);
+-- UNIQUE CONSTRAINT
+ALTER TABLE __bspUser__.COMMUNITY_DEF ADD CONSTRAINT UQ600 UNIQUE (OID,RESOURCE_OID);
+
+CREATE TABLE __bspUser__.ACL (
+    COMMUNITY_OID     VARCHAR2(64)           NOT NULL,
+    PARTICIPANT_UID   VARCHAR2(64)           NOT NULL,
+    PARTICIPANT_TYPE  NUMBER(10,0)           NOT NULL,
+    PERMISSIONS       VARCHAR2(255)          NOT NULL,
+    CREATED           NUMBER(19,0)           NOT NULL,
+    MODIFIED          NUMBER(19,0)           NOT NULL,
+    STATE             NUMBER(10,0) DEFAULT 1 NOT NULL,
+    CONSTRAINT PK610 PRIMARY KEY (COMMUNITY_OID,PARTICIPANT_UID),
+    CONSTRAINT FK611 FOREIGN KEY (COMMUNITY_OID) REFERENCES __bspUser__.COMMUNITY_DEF (OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- SPACES (700)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.SPACENODE (
+    OID            VARCHAR2(64)           NOT NULL,
+    OWNER_OID      VARCHAR2(64)           NOT NULL,
+    ROOTNAV_OID    VARCHAR2(64)           ,
+    TEMPLATE_OID   VARCHAR2(64)           ,
+    CREATED        NUMBER(19,0)           NOT NULL,
+    MODIFIED       NUMBER(19,0)           NOT NULL,
+    STATE          NUMBER(10,0) DEFAULT 1 NOT NULL,
+    CONSTRAINT PK700 PRIMARY KEY (OID, OWNER_OID)
+);
+
+CREATE TABLE __bspUser__.SPACENODE_LOD (
+    RESOURCE_OID  VARCHAR2(64)    NOT NULL,
+    OWNER_OID     VARCHAR2(64)    NOT NULL,
+    LOCALE        VARCHAR2(64)    NOT NULL,
+    TITLE         VARCHAR2(255)   NOT NULL,
+    DESCRIPTION   VARCHAR2(1024)          ,
+    CONSTRAINT PK701 PRIMARY KEY (RESOURCE_OID,OWNER_OID,LOCALE),
+    CONSTRAINT FK701 FOREIGN KEY (RESOURCE_OID,OWNER_OID) REFERENCES __bspUser__.SPACENODE (OID,OWNER_OID) ON DELETE CASCADE
+);
+
+CREATE TABLE __bspUser__.SPACENODE_DD (
+    RESOURCE_OID  VARCHAR2(64)    NOT NULL,
+    OWNER_OID     VARCHAR2(64)    NOT NULL,
+    NAME          VARCHAR2(255)   NOT NULL,
+    VALUE         VARCHAR2(3000)  NOT NULL,
+    CONSTRAINT PK702 PRIMARY KEY (RESOURCE_OID,OWNER_OID,NAME),
+    CONSTRAINT FK702 FOREIGN KEY (RESOURCE_OID,OWNER_OID) REFERENCES __bspUser__.SPACENODE (OID,OWNER_OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- TEMPLATES (800)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.TEMPLATENODE (
+    OID            VARCHAR2(64)           NOT NULL,
+    OWNER_OID      VARCHAR2(1024)         ,
+    CONTENT        BLOB                   ,
+    BYTE_COUNT     NUMBER(10,0)           ,
+    TEMPLATE_TYPE  VARCHAR2(64)           ,
+    CREATED        NUMBER(19,0)           NOT NULL,
+    MODIFIED       NUMBER(19,0)           NOT NULL,
+    STATE          NUMBER(10,0) DEFAULT 1 NOT NULL,
+    CONSTRAINT PK800 PRIMARY KEY (OID)
+);
+
+CREATE TABLE __bspUser__.TEMPLATENODE_LOD (
+    RESOURCE_OID  VARCHAR2(64)    NOT NULL,
+    LOCALE        VARCHAR2(64)    NOT NULL,
+    TITLE         VARCHAR2(255)   NOT NULL,
+    DESCRIPTION   VARCHAR2(1024)          ,
+    CONSTRAINT PK801 PRIMARY KEY (RESOURCE_OID,LOCALE),
+    CONSTRAINT FK801 FOREIGN KEY (RESOURCE_OID) REFERENCES __bspUser__.TEMPLATENODE (OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- ACCESS CONTROL RESOURCES (900)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.AC_RESOURCE (
+    OID            VARCHAR2(64)           NOT NULL,
+    OWNER_UID      VARCHAR2(64)           NOT NULL,
+    RESOURCE_OID   VARCHAR2(64)           NOT NULL,
+    RESOURCE_TYPE  VARCHAR2(32)           NOT NULL,
+    ROLE_BLOCKS    VARCHAR2(1024)         ,
+    CREATED        NUMBER(19,0)           NOT NULL,
+    MODIFIED       NUMBER(19,0)           NOT NULL,
+    STATE          NUMBER(10,0) DEFAULT 1 NOT NULL,
+    CONSTRAINT PK900 PRIMARY KEY( RESOURCE_OID )
+);
+
+CREATE TABLE __bspUser__.AC_ROLE (
+    AC_RESOURCE_OID   VARCHAR2(64)       NOT NULL,
+    ROLE_OID          VARCHAR2(64)       NOT NULL,
+    ROLE_NAME         VARCHAR2(1024)     NOT NULL,
+    ROLE_TYPE         VARCHAR2(1024)             ,
+    CREATED           NUMBER(19,0)       NOT NULL,
+    MODIFIED          NUMBER(19,0)       NOT NULL,
+    STATE             NUMBER(10,0)       DEFAULT 1 NOT NULL,
+    CONSTRAINT PK910 PRIMARY KEY( ROLE_OID ),
+    CONSTRAINT FK911 FOREIGN KEY (AC_RESOURCE_OID) REFERENCES __bspUser__.AC_RESOURCE (RESOURCE_OID) ON DELETE CASCADE
+);
+
+CREATE TABLE __bspUser__.AC_MEMBER (
+    ROLE_OID          VARCHAR2(64)       NOT NULL,
+    MEMBER_UID        VARCHAR2(64)       NOT NULL,
+    MEMBER_TYPE       NUMBER(10,0)       NOT NULL,
+    CONSTRAINT PK920 PRIMARY KEY (ROLE_OID,MEMBER_UID),
+    CONSTRAINT FK921 FOREIGN KEY (ROLE_OID) REFERENCES __bspUser__.AC_ROLE (ROLE_OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- FILESTORE (1000)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.FILESTORE_PATH (
+    OID         VARCHAR2(64)           NOT NULL,
+    PARENT_OID  VARCHAR2(64)           NOT NULL,
+    NAME        VARCHAR2(255)          NOT NULL,
+    PATH        VARCHAR2(255)          NOT NULL,
+    LOCKED      VARCHAR2(64)           , 
+    OWNER       VARCHAR2(64)           ,             
+    CREATED     NUMBER(19,0)           NOT NULL,
+    MODIFIED    NUMBER(19,0)           NOT NULL,
+    COLL_TYPE   NUMBER(10,0) DEFAULT 1 NOT NULL,
+    CONSTRAINT PK1010 PRIMARY KEY (OID)
+);
+
+CREATE TABLE __bspUser__.FILESTORE_FILE (
+    OID         VARCHAR2(64)           NOT NULL,
+    F_SIZE      NUMBER(19,0)           NOT NULL,
+    CONTENT     BLOB                   ,
+    CONSTRAINT PK1000 PRIMARY KEY (OID),
+    CONSTRAINT FK1001 FOREIGN KEY (OID) REFERENCES __bspUser__.FILESTORE_PATH (OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- LAYOUT NODE (1200)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.LAYOUTNODE (
+    OID            VARCHAR2(64)            NOT NULL,
+    PAGE_OID       VARCHAR2(64)            NOT NULL,
+    SKIN_OID       VARCHAR2(255)                   ,
+    NODE_TYPE      NUMBER(10,0) DEFAULT 1  NOT NULL,
+    CREATED        NUMBER(19,0)            NOT NULL,
+    MODIFIED       NUMBER(19,0)            NOT NULL,
+    CONSTRAINT PK1200 PRIMARY KEY (OID, PAGE_OID)
+);
+
+CREATE TABLE __bspUser__.LAYOUTNODE_DD (
+    PAGE_OID      VARCHAR2(64)    NOT NULL,
+    RESOURCE_OID  VARCHAR2(64)    NOT NULL,
+    NAME          VARCHAR2(255)   NOT NULL,
+    VALUE         VARCHAR2(3000)  NOT NULL,
+    CONSTRAINT PK1202 PRIMARY KEY (RESOURCE_OID,PAGE_OID,NAME),
+    CONSTRAINT FK1202 FOREIGN KEY (RESOURCE_OID,PAGE_OID) REFERENCES __bspUser__.LAYOUTNODE (OID,PAGE_OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- LAYOUT TREE (1210)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.LAYOUT_TREE (
+    LAYOUTNODE_OID VARCHAR2(64)            NOT NULL,
+    PAGE_OID       VARCHAR2(64)            NOT NULL,
+    PARENT_OID     VARCHAR2(64)            NOT NULL,
+    ORDINAL        NUMBER(10,0) DEFAULT 1  ,
+    CONSTRAINT PK1210 PRIMARY KEY (LAYOUTNODE_OID,PAGE_OID),
+    CONSTRAINT FK1210 FOREIGN KEY (LAYOUTNODE_OID,PAGE_OID) REFERENCES __bspUser__.LAYOUTNODE (OID,PAGE_OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- WIDGET RELATION (1300)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.WIDGET_RELATION (
+  OID             VARCHAR2(64)          NOT NULL,
+  CONSTRAINT PK1300 PRIMARY KEY (OID)
+);
+
+-- *****************************************************************
+--
+-- WIDGET DEFINITION (1310)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.WIDGET_DEFINITION (
+  OID             VARCHAR2(64)              NOT NULL,
+  DEFINITION_URL  VARCHAR2(2048)            NOT NULL,
+  WIDGET_ID       VARCHAR2(255)             NOT NULL,
+  WIDGET_TYPE     VARCHAR2(20)              NOT NULL,
+  CREATED         NUMBER(19,0)              NOT NULL,
+  MODIFIED        NUMBER(19,0)              NOT NULL,
+  CONSTRAINT PK1310 PRIMARY KEY (OID),
+  CONSTRAINT FK1310 FOREIGN KEY (OID) REFERENCES __bspUser__.WIDGET_RELATION (OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- WIDGET INSTANCE (1320)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.WIDGET_INSTANCE (
+  OID        VARCHAR2(64)            NOT NULL,
+  OWNER_OID  VARCHAR2(64)            ,
+  PARENT_OID VARCHAR2(64)            ,
+  SANDBOX    NUMBER(10,0) DEFAULT 0  NOT NULL,
+  CREATED    NUMBER(19,0)            NOT NULL,
+  MODIFIED   NUMBER(19,0)            NOT NULL,
+  CONSTRAINT PK1320 PRIMARY KEY (OID),
+  CONSTRAINT FK1320 FOREIGN KEY (PARENT_OID) REFERENCES __bspUser__.WIDGET_INSTANCE (OID) ON DELETE CASCADE,
+  CONSTRAINT FK1321 FOREIGN KEY (OID) REFERENCES __bspUser__.WIDGET_RELATION (OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- WIDGET WINDOW (1330)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.WIDGET_WINDOW (
+  OID            VARCHAR2(64)           NOT NULL,
+  PAGE_OID       VARCHAR2(64)           NOT NULL,
+  DEFINITION_OID VARCHAR2(64)           NOT NULL,
+  INSTANCE_OID   VARCHAR2(64)           NOT NULL,
+  CREATED        NUMBER(19,0)           NOT NULL,
+  MODIFIED       NUMBER(19,0)           NOT NULL,
+  CONSTRAINT PK1330 PRIMARY KEY (OID),
+  CONSTRAINT FK1330 FOREIGN KEY (OID, PAGE_OID) REFERENCES __bspUser__.LAYOUTNODE (OID, PAGE_OID) ON DELETE CASCADE,
+  CONSTRAINT FK1331 FOREIGN KEY (DEFINITION_OID) REFERENCES __bspUser__.WIDGET_DEFINITION (OID) ON DELETE CASCADE,
+  CONSTRAINT FK1332 FOREIGN KEY (INSTANCE_OID) REFERENCES __bspUser__.WIDGET_INSTANCE (OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- WIDGET BLOB (1340)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.WIDGET_WIDGETBLOB (
+  PARENT_OID       VARCHAR2(64)  NOT NULL,
+  CONTENT          BLOB,
+  CONSTRAINT PK1340 PRIMARY KEY (PARENT_OID),
+  CONSTRAINT FK1340 FOREIGN KEY (PARENT_OID) REFERENCES __bspUser__.WIDGET_RELATION (OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- WIRE (1400)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.WIREITEM (
+    OID         VARCHAR2(64)           NOT NULL,
+    PAGE_OID    VARCHAR2(64)           NOT NULL,
+    CREATED     NUMBER(19,0)           NOT NULL,
+    MODIFIED    NUMBER(19,0)           NOT NULL,
+    S_WIDGET    VARCHAR2(64)           NOT NULL,
+    S_EVENT     VARCHAR(255)           NOT NULL,
+    S_EVENTNAME VARCHAR(255)                   ,
+    S_PAGE      VARCHAR2(64)           NOT NULL,
+    T_WIDGET    VARCHAR2(64)           NOT NULL,
+    T_EVENT     VARCHAR(255)           NOT NULL,
+    T_EVENTNAME VARCHAR(255)                   ,
+    T_PAGE      VARCHAR2(64)           NOT NULL,
+    CONSTRAINT PK1400 PRIMARY KEY (OID),
+    CONSTRAINT FK1400 FOREIGN KEY (S_WIDGET,PAGE_OID) REFERENCES __bspUser__.LAYOUTNODE (OID,PAGE_OID) ON DELETE CASCADE,
+    CONSTRAINT FK1401 FOREIGN KEY (T_WIDGET,PAGE_OID) REFERENCES __bspUser__.LAYOUTNODE (OID,PAGE_OID) ON DELETE CASCADE
+);
+
+-- *****************************************************************
+--
+-- LAYOUT_MARKUP_NODE (1500)
+--
+-- *****************************************************************
+CREATE TABLE __bspUser__.LAYOUT_MARKUP_NODE (
+	PAGE_OID    VARCHAR(64)           NOT NULL,
+	CREATED     NUMBER(19,0)          NOT NULL,
+	MODIFIED    NUMBER(19,0)          NOT NULL,
+	CONTENT     BLOB,
+ 	CONSTRAINT PK1500 PRIMARY KEY (PAGE_OID)
+);
+
+--*****************************************************************
+--
+-- Indexing
+--
+--*****************************************************************
+-- Catalog
+CREATE INDEX __bspUser__.CATACCT      ON __bspUser__.CATALOG(ACCOUNT_OID);
+CREATE INDEX __bspUser__.ENTRYCATGOID ON __bspUser__.CATALOG_ENTRY(CATALOG_OID, CATEGORY_OID);
+CREATE INDEX __bspUser__.CATGCATOID   ON __bspUser__.CATALOG_CATEGORY(CATALOG_OID);
+CREATE INDEX __bspUser__.CATINTCATOID ON __bspUser__.CATALOG_INC(CATALOG_OID);
+
+-- Navigation
+CREATE INDEX __bspUser__.PAGECOMM     ON __bspUser__.NAVNODE(COMMUNITY_OID);
+CREATE INDEX __bspUser__.PAGELODOWNRS ON __bspUser__.NAVNODE_LOD(OWNER_OID,RESOURCE_OID);
+CREATE INDEX __bspUser__.TREEOWPAR    ON __bspUser__.NAV_TREE(OWNER_OID,PARENT_OID);
+
+-- Acl
+CREATE INDEX __bspUser__.COMMOWNPAR ON __bspUser__.COMMUNITY_DEF(OWNER_UID);
+CREATE INDEX __bspUser__.PRTTYUID   ON __bspUser__.ACL(PARTICIPANT_TYPE,PARTICIPANT_UID);
+CREATE INDEX __bspUser__.PRTUID     ON __bspUser__.ACL(PARTICIPANT_UID);
+
+-- AC
+CREATE INDEX __bspUser__.AC_ROLE_RESOURCE ON __bspUser__.AC_ROLE(AC_RESOURCE_OID);
+CREATE INDEX __bspUser__.AC_MEMBER_UID ON __bspUser__.AC_MEMBER(MEMBER_UID);
+CREATE INDEX __bspUser__.AC_MEMBER_MEMBERTYPE ON __bspUser__.AC_MEMBER(MEMBER_TYPE ASC);
+CREATE INDEX __bspUser__.AC_RESOURCE_OWNER ON __bspUser__.AC_RESOURCE(OWNER_UID,RESOURCE_OID);
+
+-- FILESTORE_PATH
+CREATE INDEX __bspUser__.FILESTORE_PATH_1 ON __bspUser__.FILESTORE_PATH( PATH );
+CREATE INDEX __bspUser__.FILESTORE_PATH_2 ON __bspUser__.FILESTORE_PATH( PARENT_OID);
+
+-- Layout
+CREATE INDEX __bspUser__.LAYOUT_TREE_1 ON __bspUser__.LAYOUT_TREE(PAGE_OID ASC, PARENT_OID DESC);
+
+-- Account
+CREATE INDEX __bspUser__.ACCOUNT_1 ON __bspUser__.ACCOUNT(EXTERNAL_ID);
+
+-- Widget & Wire
+CREATE INDEX __bspUser__.WIREITEM_PAGEOID ON __bspUser__.WIREITEM(PAGE_OID);
+CREATE INDEX __bspUser__.WIREITEM_SEVENT ON __bspUser__.WIREITEM(S_EVENT);
+CREATE INDEX __bspUser__.WIREITEM_TEVENT ON __bspUser__.WIREITEM(T_EVENT);
+CREATE INDEX __bspUser__.WIDGETDEFINITION_DEFINITIONURL ON __bspUser__.WIDGET_DEFINITION(DEFINITION_URL);
+CREATE INDEX __bspUser__.WIDGETDEFINITION_WIDGETID ON __bspUser__.WIDGET_DEFINITION(WIDGET_ID);
+CREATE INDEX __bspUser__.WIDGETINSTANCE_PARENTOID ON __bspUser__.WIDGET_INSTANCE(PARENT_OID);
+CREATE INDEX __bspUser__.WIDGETINSTANCE_OWNEROID ON __bspUser__.WIDGET_INSTANCE(OWNER_OID);
+CREATE INDEX __bspUser__.WIDGETWINDOW_INSTANCEOID ON __bspUser__.WIDGET_WINDOW(INSTANCE_OID);
+
+--*****************************************************************
+--
+-- Initialization
+--
+--*****************************************************************
+-- Schema version (leave this here to faciliate version checking)
+
+INSERT INTO __bspUser__.VERSION_INFO (OID,VERSION_MAJOR,VERSION_MINOR,VERSION_RELEASE,VERSION_DEV,VERSION_TIME,DESCRIPTION)
+VALUES ('458202233263219661970198300000000000',1,0,0,15,0,'Initialization from install script');
+
+	CREATE TABLE __bspUser__.BSP_USER_DATA_T (
+		  USER_DN                 VARCHAR2(1024) NOT NULL ,
+		  EXTENSION               BLOB ,
+		  PRIMARY KEY ( USER_DN )
+		) 
+
+COMMIT;
+
+EXIT;

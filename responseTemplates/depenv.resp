@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="ASCII"?>
+<wbitopology:WBITopology xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:wbitopology="http://www.ibm.com/wbi/schemas/6.1/wbitopology.xmi" name="__envName__" version="6.2.0.0">
+  <pattern id="Reference" name="Remote Messaging and Remote Support" version="6.2.0.0"/>
+  <runtime id="WPS" name="WPS" version="6.2.0.0" value="3"/>
+  <roles id="ADT" name="AppTarget" version="6.2.0.0" baseRuntime="WPS">
+    <deploymentTarget xsi:type="wbitopology:WBICluster" name="__AppTargetClusterName__"/>
+    <nodes name="__nodeName__" runtime="WPS" hostName="__nodeHost__" port="0" numOfServers="1"/>
+  </roles>
+  <roles id="Support" name="Support" version="6.2.0.0" baseRuntime="WPS">
+    <deploymentTarget xsi:type="wbitopology:WBICluster" name="__SupportClusterName__"/>
+    <nodes name="__nodeName__" runtime="WPS" hostName="057A0221383" port="0" numOfServers="1"/>
+  </roles>
+  <roles id="Messaging" name="Messaging" version="6.2.0.0" baseRuntime="WAS">
+    <deploymentTarget xsi:type="wbitopology:WBICluster" name="__MessagingClusterName__"/>
+    <nodes name="__nodeName__" runtime="WPS" hostName="057A0221383" port="0" numOfServers="1"/>
+  </roles>
+  <components id="WBI_CEI" name="WBI_CEI" version="6.2.0.0" topologyRole="Support" baseRuntimeId="WAS" level="1">
+    <dataSrc component="WBI_CEI" createTable="false" dbcomponent="WBI_CEI_EVENT">
+      <authAlias name="__cellName__/__SupportClusterName__/EventAuthDataAliasOracle" userName="__ceiUser__" password="__ceiPass__" component="WBI_CEI" description="CEI Event data source authentication alias" dbcomponent="WBI_CEI_EVENT"/>
+      <properties name="driverType" value="" type=""/>
+      <properties name="URL" value="jdbc:oracle:thin:@__dbHost__:__dbPort__:__dbName__" type=""/>
+      <attributes name="jndiName" value="__ceiJndi__"/>
+      <attributes name="name" value="event"/>
+      <attributes name="description" value="Event server data source"/>
+      <attributes name="dataStoreHelperClassName" value="com.ibm.websphere.rsadapter.Oracle10gDataStoreHelper"/>
+      <provider scope="Cluster=__SupportClusterName__" databaseType="ORACLE10G" providerType="Oracle JDBC Driver" implementationType="XA data source" dbcomponent="WBI_CEI_EVENT"/>
+    </dataSrc>
+    <authAliases name="CommonEventInfrastructureJMSAuthAlias" userName="__wasUser__" password="__wasPass__" component="WBI_CEI" description="CEI JMS authentication alias" dbcomponent="WBI_CEI_EVENT"/>
+    <siBuses id="WBI_SIB" name="CEI_bus" topologyRole="Messaging" baseRuntimeId="WAS" level="2">
+      <bus name="ceiBus">
+        <wbiMEs name="ceiBusME">
+          <authAlias name="CEIME.Messaging_Auth_Alias" userName="__ceiMsgUser__" password="__ceiMsgPass__" component="CEI_bus" description="CEI ME data source authentication alias" dbcomponent="WBI_CEI_ME"/>
+          <dataSrc component="CEI_bus" schemaName="__ceiMsgUser__" createTable="false" dbcomponent="WBI_CEI_ME">
+            <properties name="driverType" value="" type=""/>
+            <properties name="URL" value="jdbc:oracle:thin:@__dbHost__:__dbPort__:__dbName__" type=""/>
+            <attributes name="jndiName" value="jdbc/com.ibm.ws.sib/Messaging-CommonEventInfrastructure_Bus"/>
+            <attributes name="name" value="CEI ME data source"/>
+            <attributes name="description" value="CEI Messaging Engine data source"/>
+            <attributes name="dataStoreHelperClassName" value="com.ibm.websphere.rsadapter.Oracle10gDataStoreHelper"/>
+            <provider scope="Cluster=__MessagingClusterName__" databaseType="ORACLE10G" providerType="Oracle JDBC Driver" implementationType="XA data source" dbcomponent="WBI_CEI_ME"/>
+          </dataSrc>
+        </wbiMEs>
+      </bus>
+    </siBuses>
+    <properties name="dbType" value="ORACLE10G"/>
+    <properties name="jdbcClassPath" value="ORACLE_JDBC_DRIVER_PATH"/>
+  </components>
+  <components id="WBI_SCA" name="WBI_SCA" version="6.2.0.0" topologyRole="AppTarget" baseRuntimeId="WESB" level="1">
+    <siBuses id="WBI_SIB" name="SCA_system_bus" topologyRole="Messaging" baseRuntimeId="WAS" level="2">
+      <bus name="sysBus">
+        <wbiMEs name="scaSysBusME">
+          <authAlias name="SCASYSME01_Auth_Alias" userName="__sysMsgUser__" password="__sysMsgPass__" component="SCA_system_bus" description="SCA System Bus ME data source authentication alias" dbcomponent="WBI_SCA_SYS_ME"/>
+          <dataSrc component="SCA_system_bus" schemaName="__sysMsgUser__" createTable="false" dbcomponent="WBI_SCA_SYS_ME">
+            <properties name="driverType" value="" type=""/>
+            <properties name="URL" value="jdbc:oracle:thin:@__dbHost__:__dbPort__:__dbName__" type=""/>
+            <attributes name="jndiName" value="jdbc/com.ibm.ws.sib/Messaging-SCA.SYSTEM.Bus"/>
+            <attributes name="name" value="SCA System Bus ME data source"/>
+            <attributes name="description" value="SCA System Bus Messaging Engine data source"/>
+            <attributes name="dataStoreHelperClassName" value="com.ibm.websphere.rsadapter.Oracle10gDataStoreHelper"/>
+            <provider scope="Cluster=__MessagingClusterName__" databaseType="ORACLE10G" providerType="Oracle JDBC Driver" implementationType="XA data source" dbcomponent="WBI_SCA_SYS_ME"/>
+          </dataSrc>
+        </wbiMEs>
+      </bus>
+    </siBuses>
+    <siBuses id="WBI_SIB" name="SCA_app_bus" topologyRole="Messaging" baseRuntimeId="WAS" level="2">
+      <bus name="appBus">
+        <wbiMEs name="scaAppBusME">
+          <authAlias name="SCAAPPME01_Auth_Alias" userName="__appMsgUser__" password="__appMsgPass__" component="SCA_app_bus" description="SCA Application Bus ME data source authentication alias" dbcomponent="WBI_SCA_APP_ME"/>
+          <dataSrc component="SCA_app_bus" schemaName="__appMsgUser__" createTable="false" dbcomponent="WBI_SCA_APP_ME">
+            <properties name="driverType" value="" type=""/>
+            <properties name="URL" value="jdbc:oracle:thin:@__dbHost__:__dbPort__:__dbName__" type=""/>
+            <attributes name="jndiName" value="jdbc/com.ibm.ws.sib/Messaging-SCA.APPLICATION.Bus"/>
+            <attributes name="name" value="SCA Application Bus ME data source"/>
+            <attributes name="description" value="SCA Application Bus Messaging Engine data source"/>
+            <attributes name="dataStoreHelperClassName" value="com.ibm.websphere.rsadapter.Oracle10gDataStoreHelper"/>
+            <provider scope="Cluster=__MessagingClusterName__" databaseType="ORACLE10G" providerType="Oracle JDBC Driver" implementationType="XA data source" dbcomponent="WBI_SCA_APP_ME"/>
+          </dataSrc>
+        </wbiMEs>
+      </bus>
+    </siBuses>
+    <dependencies name="WBI_CEI" value="WBI_CEI" type="String"/>
+  </components>
+  <components id="WBI_BRM" name="WBI_BRM" version="6.2.0.0" topologyRole="Support" baseRuntimeId="WPS" level="1">
+    <properties name="contextRoot" value="/br" type="String"/>
+  </components>
+  <components id="WBI_RECOVERY" name="WBI_RECOVERY" version="6.2.0.0" topologyRole="AppTarget" baseRuntimeId="WESB" level="1">
+    <dependencies name="WBI_SCA" value="WBI_SCA" type="String"/>
+  </components>
+  <components id="WBI_BPC" name="WBI_BPC" version="6.2.0.0" topologyRole="AppTarget" baseRuntimeId="WPS" level="1">
+    <dataSrc component="WBI_BPC" schemaName="__bpcUser__" createTable="false" dbcomponent="WBI_BPC">
+      <authAlias name="BPCDB_AppTarget_Auth_Alias" userName="__bpcUser__" password="__bpcPass__" component="WBI_BPC" description="Business Process Choreographer data source authentication alias" dbcomponent="WBI_BPC"/>
+      <properties name="driverType" value="" type=""/>
+      <properties name="URL" value="jdbc:oracle:thin:@__dbHost__:__dbPort__:__dbName__" type=""/>
+      <attributes name="jndiName" value="__bpcJndi__"/>
+      <attributes name="name" value="Business Process Choreographer data source"/>
+      <attributes name="description" value="Business Process Choreographer data source"/>
+      <attributes name="dataStoreHelperClassName" value="com.ibm.websphere.rsadapter.Oracle10gDataStoreHelper"/>
+      <connPoolAttributes name="reapTime" value="120"/>
+      <connPoolAttributes name="agedTimeout" value="1800"/>
+      <connPoolAttributes name="maxConnections" value="30"/>
+      <connPoolAttributes name="minConnections" value="1"/>
+      <provider scope="Cluster=__AppTargetClusterName__" databaseType="ORACLE10G" providerType="Oracle JDBC Driver" implementationType="XA data source" dbcomponent="WBI_BPC"/>
+    </dataSrc>
+    <authAliases name="BPC_Auth_Alias" userName="__wasUser__" password="__wasPass__=" component="WBI_BPC" description="Business Process Choreographer JMS authentication alias" dbcomponent="WBI_BPC"/>
+    <siBuses id="WBI_SIB" name="BPC_bus" topologyRole="Messaging" baseRuntimeId="WAS" level="2">
+      <bus name="bpcBus">
+        <wbiMEs name="bpcBusME">
+          <authAlias name="BPCME_01_Auth_Alias" userName="__bpcMsgUser__" password="__bpcMsgPass__" component="BPC_bus" description="Business Process Choreographer ME data source authentication alias" dbcomponent="WBI_BPC_ME"/>
+          <dataSrc component="BPC_bus" schemaName="__bpcMsgUser__" createTable="false" dbcomponent="WBI_BPC_ME">
+            <properties name="driverType" value="" type=""/>
+            <properties name="URL" value="jdbc:oracle:thin:@__dbHost__:__dbPort__:__dbName__" type=""/>
+            <attributes name="jndiName" value="jdbc/com.ibm.ws.sib/Messaging-BPC.Bus"/>
+            <attributes name="name" value="Business Process Choreographer ME data source"/>
+            <attributes name="description" value="Business Process Choreographer Messaging Engine data source"/>
+            <attributes name="dataStoreHelperClassName" value="com.ibm.websphere.rsadapter.Oracle10gDataStoreHelper"/>
+            <provider scope="Cluster=__MessagingClusterName__" databaseType="ORACLE10G" providerType="Oracle JDBC Driver" implementationType="XA data source" dbcomponent="WBI_BPC_ME"/>
+          </dataSrc>
+        </wbiMEs>
+      </bus>
+    </siBuses>
+    <properties name="jmsAPIUser" value="admin" type="String"/>
+    <properties name="jmsAPIPassword" value="{xor}" type="password"/>
+    <properties name="adminUsers" value="admin" type="String"/>
+    <properties name="monitorUsers" value="admin" type="String"/>
+    <properties name="escalationUser" value="admin" type="String"/>
+    <properties name="escalationPassword" value="{xor}" type="password"/>
+    <properties name="adminGroups" value="" type="String"/>
+    <properties name="monitorGroups" value="" type="String"/>
+    <properties name="bfmContextRoot" value="/BFMIF_" type="String"/>
+    <properties name="htmContextRoot" value="/HTMIF_" type="String"/>
+    <properties name="mailServer" value="" type="String"/>
+    <properties name="mailSessionUserId" value="" type="String"/>
+    <properties name="mailSessionPassword" value="{xor}" type="password"/>
+    <properties name="explorerURLPrefix" value="" type="String"/>
+  </components>
+  <components id="WBI_BSPACE" name="WBI_BSPACE" version="6.2.0.0" topologyRole="Support" baseRuntimeId="WESB" level="1">
+    <dataSrc component="WBI_BSPACE" schemaName="__bspUser__" dbcomponent="WBI_BSPACE">
+      <authAlias name="BSPACE_Auth_Alias" userName="__bspUser__" password="__bspPass__" component="WBI_BSPACE" description="Business Space data source authentication alias" dbcomponent="WBI_BSPACE"/>
+      <properties name="driverType" value="" type=""/>
+      <properties name="URL" value="jdbc:oracle:thin:@__dbHost__:__dbPort__:__dbName__" type=""/>
+      <attributes name="jndiName" value="__bspJndi__"/>
+      <attributes name="name" value="Business Space data source"/>
+      <attributes name="description" value="Business Space data source"/>
+      <attributes name="dataStoreHelperClassName" value="com.ibm.websphere.rsadapter.Oracle10gDataStoreHelper"/>
+      <provider scope="Cluster=Support" databaseType="ORACLE10G" providerType="Oracle JDBC Driver" implementationType="XA data source" dbcomponent="WBI_BSPACE"/>
+    </dataSrc>
+  </components>
+  <components id="WBI_BPCEventCollector" name="WBI_BPCEventCollector" version="6.2.0.0" topologyRole="Support" baseRuntimeId="WPS" level="1">
+    <dataSrc component="WBI_BPCEventCollector" schemaName="__obsUser__" createTable="false" dbcomponent="WBI_BPCEventCollector">
+      <authAlias name="BPCEDB_Support_Auth_Alias" userName="__obsUser__" password="__obsPass__" component="WBI_BPCEventCollector" description="Business Process Choreographer reporting function data source authentication alias" dbcomponent="WBI_BPCEventCollector"/>
+      <properties name="driverType" value="" type=""/>
+      <properties name="URL" value="jdbc:oracle:thin:@__dbHost__:__dbPort__:__dbName__" type=""/>
+      <attributes name="jndiName" value="__obsJndi__"/>
+      <attributes name="name" value="Business Process Choreographer reporting function source"/>
+      <attributes name="description" value="Business Process Choreographer reporting function data source"/>
+      <attributes name="dataStoreHelperClassName" value="com.ibm.websphere.rsadapter.Oracle10gDataStoreHelper"/>
+      <provider scope="Cell=__cellName__" databaseType="ORACLE10G" providerType="Oracle JDBC Driver" implementationType="XA data source" dbcomponent="WBI_BPCEventCollector"/>
+    </dataSrc>
+    <dependencies name="WBI_CEI" value="WBI_CEI" type="String"/>
+    <dependencies name="WBI_BPC" value="WBI_BPC" type="String"/>
+  </components>
+  <components xsi:type="wbitopology:WBIRestServicesComponent" id="WBI_RESTSERVICES" name="WBI_RESTSERVICES" version="6.2.0.0" topologyRole="Support" baseRuntimeId="WESB" level="1">
+    <webModules name="rest.gateway.war" applicationName="REST Services Gateway" contextRoot="/rest" transportType="https://" hostName="10.153.10.96" port="50021">
+      <endpoints id="fb1daa74-77e4-4872-91f5-ef5b44b0991a" name="Business Calendar" description="WBI Business Calendar REST API" type="{com.ibm.bpm}TimeTable" typeDisplayName="Time Tables" version="6.2.0.0" url="/bpm/businesscalendar" lastModified="1395849038023" publicEndpoint="true" providerEndpointID="BusinessCalendar"/>
+      <endpoints id="8da8bffb-6d2a-4f8e-bb88-22e5e5d9f654" name="Business Rules" description="WBI Business Rule REST API" type="{com.ibm.bpm}BusinessRules" typeDisplayName="Business Rules" version="6.1.2.0" url="/bpm/brules" lastModified="1395849038023" providerEndpointID="BusinessRules"/>
+      <endpoints id="d4c88348-bfca-4c64-9d95-c36992e83be0" name="Direct Deploy" description="Internal REST service for directly deploying SCA modules" type="{com.ibm.bpm}DirectDeploy" typeDisplayName="Direct Deploy" version="6.2.0.0" url="/serverComponent" lastModified="1395849038023" providerEndpointID="DirectDeploy"/>
+      <endpoints id="2849bb46-508e-4cd4-bb63-9c77a24ea52d" name="Health Monitor" description="The Health Monitor REST is an application programming interface for system health" type="{com.ibm.bpm}HealthMonitor" typeDisplayName="Health Monitor" version="6.2.0.0" url="/bpm/hm/v1" lastModified="1395849038023" providerEndpointID="HM" jndiName="HM"/>
+      <endpoints id="4b44ef73-3352-4846-89af-4e8dea10e061" name="Virtual Member Manager" description="User Membership REST API" type="{com.ibm.bpm}VirtualMemberManager" typeDisplayName="User Membership" version="6.2.0.0" url="/ws/um" lastModified="1395849038023" publicEndpoint="true" providerEndpointID="VirtualMemberManager"/>
+      <endpoints id="0c8ad307-4ae6-483b-a5e9-722abdab2200" name="WBI Security" description="WBI Security REST API" type="{com.ibm.bpm}Security" typeDisplayName="Security" version="6.2.0.0" url="/bpm/security" lastModified="1395849038023" providerEndpointID="WBISecurity"/>
+      <endpoints id="604b43a1-dec7-4a35-9098-af8e33ae2492" name="SCA Administration" description="SCA appplication module administration" type="{com.ibm.bpm}SCAAdmin" typeDisplayName="SCA Administration" version="6.2.0.0" url="/sca/modules" lastModified="1395849038023" providerEndpointID="{com.ibm.bpm}SCAAdmin" jndiName="SCAAdmin"/>
+    </webModules>
+  </components>
+  <components id="WBI_BPCExplorer" name="WBI_BPCExplorer" version="6.2.0.0" topologyRole="Support" baseRuntimeId="WPS" level="1">
+    <properties name="contextRoot" value="/bpc" type="String"/>
+    <dependencies name="WBI_BPC" value="WBI_BPC" type="String"/>
+    <dependencies name="WBI_BPCEventCollector" value="WBI_BPCEventCollector" type="String"/>
+  </components>
+</wbitopology:WBITopology>

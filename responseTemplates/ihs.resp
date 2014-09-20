@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent-input>
+<server>
+	<repository location='__ihsSrcDir__'/>
+</server>
+
+<profile installLocation='__ihsInstallDir__' id='__ihsProfile__'>
+	<data key='eclipseLocation' value='__ihsInstallDir__' />
+	<data key="cic.selector.nl" value="en" />
+	<data key='user.import.profile' value='false'/>
+	<data key='user.ihs.httpPort' value='__ihsHttpPort__'/>
+	<data key='user.ihs.allowNonRootSilentInstall' value='true'/>
+</profile>
+
+<install>
+	<offering profile='__ihsProfile__' id='__ihsImage__' features='core.feature,arch.64bit' installFixes='none'/>
+</install>
+
+<preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='__installDir__/eclipsecache'/>
+<preference value="30" name="com.ibm.cic.common.core.preferences.connectTimeout" /> 
+<preference value="30" name="com.ibm.cic.common.core.preferences.readTimeout" /> 
+<preference value="1" name="com.ibm.cic.common.core.preferences.downloadAutoRetryCount" /> 
+<preference value="false" name="offering.service.repositories.areUsed" /> 
+<preference value="false" name="com.ibm.cic.common.core.preferences.ssl.nonsecureMode" /> 
+<preference value="false" name="com.ibm.cic.common.core.preferences.http.disablePreemptiveAuthentication" /> 
+<preference value="true" name="com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts" /> 
+<preference value="false" name="PassportAdvantageIsEnabled" /> 
+<preference value="false" name="com.ibm.cic.common.core.preferences.searchForUpdates" /> 
+<preference value="true" name="com.ibm.cic.common.core.preferences.import.enabled" /> 
+</agent-input>

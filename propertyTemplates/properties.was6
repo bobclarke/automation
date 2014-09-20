@@ -1,0 +1,184 @@
+#!/bin/sh
+
+# Environment Name
+envName=CentOS
+
+# Remote repo endpoints - No need to change unless we're changing versions
+remoteImRepo=http://10.153.10.96/assets/Installs/ibm/im/ # Not used for WAS6 - temp added to stop download.sh barfing
+remoteRepo=http://10.153.10.96/assets/Installs/ibm/wps/wps-6.2
+was6Image=wps62.tar
+
+# Local repo base dir
+localRepo=~/.repo
+
+# Location of response file templates
+respDir=$(pwd)/responseTemplates
+
+# WAS repo
+wasSrcDir=${localRepo}/WBI
+imSrcDir=not_required
+imSelfProfile=not_required
+wasImage=not_required
+wasProfile=not_required
+imVersion=not_required
+wasPatchDir=${localRepo}/WBI-PATCH
+
+# Installation directories
+installDir=~
+wasInstallDir=${installDir}/was
+
+# Operating system and architecture
+os=linux
+ws=gtk
+arch=x86_64
+nl=en
+is64bit=true
+
+# Details of the host currently being built
+hostName=`hostname`
+wasHost=${wasHost:=$hostName}
+
+# The name of the Websphere Cell
+cellName=${envName}Cell
+
+# The directory where Websphere profiles will reside
+profilePath=${wasInstallDir}/profiles
+
+# The Websphere node name of the Deployment Manager
+dmgrName=${envName}Dmgr
+
+# The hostname of the Deployment Manager
+dmgrHost=${hostName}
+
+# The Deployment Manager profile name
+dmgrProf=${envName}Dmgr
+
+# The name of the Websphere Node currently being built
+nodeName=${envName}Node1
+
+# The name of the second Websphere Node in the deployment Environment. If its not required, write NONE
+otherNodeName1=NONE
+
+# The name of the Websphere Profile currently being built
+nodeProf=${envName}Node1
+
+# The hostname of the Websphere Node currently being built
+nodeHost=${hostName}
+
+# The WebSphere primary admin credentials
+wasUser=admin
+wasPass=admin
+
+# The WebSphere keystore / truststore password
+keyStorePassword=WebAS
+
+# The operating system user under which the WebSphere JVM's will run
+wasOsUser=`id | awk '{print $1}' | sed s/.*\(// | sed s/\)//`
+
+# The operating system group under which the WebSphere JVM's will run
+wasGroup=users
+
+# Base Ports
+instance=1
+dmgrRange=0
+nodeRange=1
+appRange=2
+msgRange=3
+supRange=4
+webRange=5
+
+# Deployment Manager ports
+dmgrAdminPort=10000
+dmgrDefaultPort=10001
+dmgrAdminSecurePort=10002
+dmgrDefaultSecurePort=10003
+dmgrBootstrapPort=10004
+dmgrSoapPort=10005
+dmgrSasPort=10006
+dmgrCsiv1Port=10007
+dmgrCsiv2Port=10008
+dmgrDcsPort=10009
+dmgrSpiPort=10010
+dmgrSipSecurePort=10011
+dmgrSibPort=10012
+dmgrSibSecurePort=10013
+dmgrSibmqPort=10014
+dmgrSibmqSecurePort=10015
+dmgrOrbPort=10016
+dmgrCellDiscoveryPort=10017
+dmgrIpcPort=10018
+dmgrNodeDiscoveryPort=10019
+dmgrNodeIpv6McDiscPort=10020
+dmgrNodeMcDiscPort=10021
+dmgrDataPowerSecurePort=10022
+
+# Node ports
+nodeBootstrapPort=10104
+nodeSoapPort=10105
+nodeSasPort=10106
+nodeCsiv1Port=10107
+nodeCsiv2Port=10108
+nodeDcsPort=10109
+nodeOrbPort=10116
+nodeIpcPort=10118
+nodeNodeDiscoveryPort=10119
+nodeNodeIpv6McDiscPort=10120
+nodeNodeMcDiscPort=10121
+
+# Cluster details
+clusterName=${envName}Cluster
+clusterBasePort=10200
+
+# WBI Cluster Details
+AppTargetClusterName=AppTarget
+appBasePort=10200
+SupportClusterName=Support
+messBasePort=10300
+MessagingClusterName=Messaging
+suppBasePort=10400
+
+# SQLPlus client env
+sqlPlusEnv=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/oracle_env.sh
+
+# Generic Database config
+dbGrants=AUTOWAS_WPS_ROLE
+xaGrants=AUTOWAS_XA_ROLE
+dbDriverPath=drivers/oracle
+dbHost=10.153.10.96
+dbPort=40521
+dbName=XE
+
+# Common Database Config
+commonUser=AUTOWAS_CMN
+commonPass=ibm123
+
+# Business Space Database Config
+bspUser=AUTOWAS_BSP
+bspPass=ibm123
+bspJndi=jdbc/bpm/BusinessSpace
+
+# CEI Database Config
+ceiUser=AUTOWAS_CEI
+ceiPass=ibm123
+ceiJndi=jdbc/cei
+
+# Process Choreographer Database Config
+bpcUser=AUTOWAS_BPE
+bpcPass=ibm123
+bpcJndi=jdbc/BPEDB
+
+# Observer Database Config
+obsUser=AUTOWAS_OBS
+obsPass=ibm123
+obsJndi=jdbc/OBSVRDB
+
+# Messaging Engine Database config
+appMsgUser=AUTOWAS_SCAAPP
+appMsgPass=ibm123
+sysMsgUser=AUTOWAS_SCASYS
+sysMsgPass=ibm123
+ceiMsgUser=AUTOWAS_CEIME
+ceiMsgPass=ibm123
+bpcMsgUser=AUTOWAS_BPEME
+bpcMsgPass=ibm123
+

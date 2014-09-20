@@ -1,0 +1,248 @@
+#!/bin/sh
+
+# Environment Name
+envName="auto"
+
+# Remote repo endpoints - No need to change unless we're changing versions 
+remoteImRepo=http://10.153.10.96/assets/Installs/ibm/im/
+remoteRepo=http://10.153.10.96/assets/Installs/ibm/was/was-nd-8.5.5/
+
+# Local repo base dir 
+localRepo=~/.repo
+
+# Location of response file templates
+respDir=$(pwd)/responseTemplates
+
+# IM repo
+imSrcDir=$localRepo/im
+imSelfProfile=IBM_Installation_Manager  # Can not contain white space
+imVersion=1.7.1000.20131119_2219  # No need to edit thid unless we're changing versions but FYI is found in $imSrcDir/repository.xml by searching for "offering id"
+
+# WAS/WPS repo
+wasSrcDir=$localRepo/repository/WAS
+wasPatchDir=$localRepo/repository/WAS
+wasImage=com.ibm.websphere.ND.v85 # This is found in $wasSrcDir/repository.xml  by searching for "offering id"
+wasProfile=IBM_WebSphere_Application_Server  # Can not contain white space
+wasVersion=8.5.2.20130327_1831  # No need to edit thid unless we're changing versions but FYI is found in $imSrcDir/repository.xml by searching for "offering id"
+
+# Installation directories
+installDir=~
+wasInstallDir=${installDir}/was
+ihsInstallDir=${installDir}/ihs
+plgInstallDir=${installDir}/plg
+
+# Operating system and architecture
+os=linux
+ws=gtk
+arch=x86_64
+nl=en
+is64bit=true
+
+# Details of the host currently being built
+hostName=`hostname`
+wasHost=${hostName}
+
+# The name of the Websphere Cell
+cellName=${envName}Cell
+
+# The directory where Websphere profiles will reside
+profilePath=${wasInstallDir}/profiles
+
+# The Websphere node name of the Deployment Manager
+dmgrName=${envName}Dmgr
+
+# The hostname of the Deployment Manager
+dmgrHost=${hostName}
+
+# The Deployment Manager profile name
+dmgrProf=${envName}Dmgr
+
+# The name of the Websphere Node currently being built
+nodeName=${envName}Node1
+
+# The name of the second Websphere Node in the deployment Environment. If its not required, write NONE
+otherNodeName1=NONE
+
+# The name of the Websphere Profile currently being built
+nodeProf=${envName}Node1
+
+# The hostname of the Websphere Node currently being built
+nodeHost=${hostName}
+
+# The WebSphere primary admin credentials
+wasUser=admin
+wasPass=admin
+
+# The WebSphere keystore / truststore password
+keyStorePassword=WebAS
+
+# The operating system user under which the WebSphere JVM's will run
+wasOsUser=`id | awk '{print $1}' | sed s/.*\(// | sed s/\)//`
+
+# The operating system group under which the WebSphere JVM's will run
+wasGroup=autowas
+
+# IHS name (when federated into Cell)
+webServerName=${envName}Ihs1
+
+# Reserve 250 ports per env - ouch!!
+# Deployment Manager ports
+dmgrAdminPort=10000
+dmgrDefaultPort=10001
+dmgrAdminSecurePort=10002
+dmgrDefaultSecurePort=10003
+dmgrBootstrapPort=10004
+dmgrSoapPort=10005
+dmgrSasPort=10006
+dmgrCsiv1Port=10007
+dmgrCsiv2Port=10008
+dmgrDcsPort=10009
+dmgrSpiPort=10010
+dmgrSipSecurePort=10011
+dmgrSibPort=10012
+dmgrSibSecurePort=10013
+dmgrSibmqPort=10014
+dmgrSibmqSecurePort=10015
+dmgrOrbPort=10016
+dmgrCellDiscoveryPort=10017
+dmgrIpcPort=10018
+dmgrNodeDiscoveryPort=10019
+dmgrNodeIpv6McDiscPort=10020
+dmgrNodeMcDiscPort=10021
+dmgrDataPowerSecurePort=10022
+
+# Node ports
+nodeBootstrapPort=10023
+nodeSoapPort=10024
+nodeSasPort=10025
+nodeCsiv1Port=10026
+nodeCsiv2Port=10027
+nodeDcsPort=10028
+nodeOrbPort=10029
+nodeIpcPort=10030
+nodeNodeDiscoveryPort=10031
+nodeNodeIpv6McDiscPort=10032
+nodeNodeMcDiscPort=10033
+
+# IHS ports
+ihsHttpPort=10034
+ihsHttpsPort=10035
+ihsAdminPort=10036
+
+# Cluster details - reserve 50 ports
+clusterName=autowasCluster1
+clusterBasePort=10050
+
+# WBI Cluster Details - reserve 50 ports per cluster
+AppTargetClusterName=AppTarget
+appBasePort=10100
+SupportClusterName=Support
+messBasePort=10150
+MessagingClusterName=Messaging
+suppBasePort=10200
+
+# SQLPlus client env
+sqlPlusEnv=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/oracle_env.sh
+
+# Generic Database config
+dbGrants=AUTOWAS_WPS_ROLE
+xaGrants=AUTOWAS_XA_ROLE
+dbDriverPath=drivers/oracle
+dbHost=10.153.10.96
+dbPort=40521
+dbName=XE
+
+# Common Database Config
+commonUser=AUTOWAS_CMN
+commonPass=ibm123
+
+# Business Space Database Config
+bspUser=AUTOWAS_BSP
+bspPass=ibm123
+bspJndi=jdbc/bpm/BusinessSpace
+
+# CEI Database Config
+ceiUser=AUTOWAS_CEI
+ceiPass=ibm123
+ceiJndi=jdbc/cei
+
+# Process Choreographer Database Config
+bpcUser=AUTOWAS_BPE
+bpcPass=ibm123
+bpcJndi=jdbc/BPEDB
+
+# Observer Database Config
+obsUser=AUTOWAS_OBS
+obsPass=ibm123
+obsJndi=jdbc/OBSVRDB
+
+# Messaging Engine Database config
+appMsgUser=AUTOWAS_SCAAPP
+appMsgPass=ibm123
+sysMsgUser=AUTOWAS_SCASYS
+sysMsgPass=ibm123
+ceiMsgUser=AUTOWAS_CEIME
+ceiMsgPass=ibm123
+bpcMsgUser=AUTOWAS_BPEME
+bpcMsgPass=ibm123
+
+# RPC Database Config
+salsaDbUser=unset
+salsaDbPass=unset
+salsaDbHost=unset
+salsaDbPort=unset
+salsaDbName=unset
+salsaDbJndi=unset
+
+# SLR endpoint
+slrProtocol=http
+slrHost=10.245.211.251
+slrPort=22518
+slrUri=/PM_LeadServiceWeb/sca/ID_LeadServiceExport1
+
+# CIA endpoint
+ciaProtocol=http
+ciaHost=zdev3.service.test.group
+ciaPort=60928
+ciaUri=/CICS/F139/VU0015CE
+
+# RPC App Info 
+rpcWar=rpc.war
+rpcName=rpc
+rpcCr=rpc
+rpcSharedLib=rpc-shared-lib
+endPoint=${rpcCr}/PM_RetrievePromotionalCommunicationsWeb/sca/IA_RetrievePromotionalCommunicationsExport1
+rpcSharedLibCp="\
+aopalliance-1.0.jar;\
+cxf-api-2.7.7.jar;\
+cxf-bundle-jaxrs-2.7.7.jar;\
+cxf-rt-bindings-soap-2.7.7.jar;\
+cxf-rt-bindings-xml-2.7.7.jar;\
+cxf-rt-core-2.7.7.jar;\
+cxf-rt-databinding-jaxb-2.7.7.jar;\
+cxf-rt-features-clustering-2.7.7.jar;\
+cxf-rt-frontend-jaxrs-2.7.7.jar;\
+cxf-rt-frontend-jaxws-2.7.7.jar;\
+cxf-rt-frontend-simple-2.7.7.jar;\
+cxf-rt-management-2.7.7.jar;\
+cxf-rt-transports-http-2.7.7.jar;\
+cxf-rt-ws-addr-2.7.7.jar;\
+cxf-rt-ws-policy-2.7.7.jar;\
+javax.ws.rs-api-2.0-m10.jar;\
+jaxb-impl-2.2.6.jar;\
+neethi-3.0.2.jar;\
+spring-aop-3.2.4.RELEASE.jar;\
+spring-beans-3.2.4.RELEASE.jar;\
+spring-context-3.2.4.RELEASE.jar;\
+spring-core-3.2.4.RELEASE.jar;\
+spring-expression-3.2.4.RELEASE.jar;\
+spring-tx-3.2.4.RELEASE.jar;\
+spring-web-3.2.4.RELEASE.jar;\
+stax2-api-3.1.1.jar;\
+woodstox-core-asl-4.2.0.jar;\
+xmlschema-core-2.0.3.jar;"
+
+# RPC-RM App Info 
+rpcRmWar=rpc-remotemock.war
+rpcRmName=rpc-remotemocks
+rpcRmCr=rpc/rm

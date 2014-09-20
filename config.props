@@ -1,0 +1,255 @@
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Remote repository endpoints
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+remoteImRepo=http://10.153.10.96/assets/Installs/ibm/im/
+remoteRepo=http://10.153.10.96/assets/Installs/ibm/was/was-nd-8.5.5
+
+was8Repo=http://10.153.10.96/assets/Installs/ibm/was/was-nd-8.5.5
+was8Dist=was-nd-8.5.5.tar
+was8Patch=8.5.5-WS-WAS-FP0000001.tar
+
+was6Repo=http://10.153.10.96/assets/Installs/ibm/wps/wps-6.2
+was6Dist=wps62.tar 
+
+wps6Repo=http://10.153.10.96/assets/Installs/ibm/wps/wps-6.2
+wps6Dist=wps62.tar 
+
+wps6AppRepo=http://10.153.10.96/assets/Installs/lbg/wps
+wps6AppList="\
+MM_OUT_BAPI.ear \
+MM_OUT_CIA.ear \
+MM_OUT_IBGTW_InvolvedPartyAuthorization.ear \
+MM_OUT_WPSRefDataChannelId.ear \
+MM_OUT_WPSRefDataMarketing.ear \
+MM_OUT_WPSRefDataProduct.ear \
+PM_DetermineEligibleCustomerInstructions.ear \
+PM_MarketingRules.ear \
+PM_RetrievePromotionalCommunications.ear"
+
+imRepo=http://10.153.10.96/assets/Installs/ibm/im
+imDist=agent.installer.linux.gtk.x86_64_1.7.1000.20131119_2219.zip
+
+oracle11gRepo=http://10.153.10.96/assets/Installs/oracle/11g-xe
+oracle11gDist=oracle-xe-11.2.0-1.0.x86_64_and_deps.tar
+
+oracle10gJdbcRepo=http://10.153.10.96/assets/Installs/oracle/jdbc-drivers/10g
+oracle10gJdbcDriver=ojdbc14.jar
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Local repo stuff
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+localRepo=~/repo
+respDir=$(pwd)/responseTemplates
+
+imSrcDir=$localRepo/im
+imSelfProfile=IBM_Installation_Manager  # Can not contain white space
+#imVersion=1.7.1000.20131119_2219  # No need to edit thid unless we're changing versions but FYI is found in $imSrcDir/repository.xml by searching for "offering id"
+imVersion=1.7.3000.20140521_1925  # No need to edit thid unless we're changing versions but FYI is found in $imSrcDir/repository.xml by searching for "offering id"
+
+wasSrcDir=$localRepo/repository/WAS
+wasPatchDir=$localRepo
+wasImage=com.ibm.websphere.ND.v85 # This is found in $wasSrcDir/repository.xml  by searching for "offering id"
+libertyImage=com.ibm.websphere.liberty.TRIAL.v85
+wasProfile=IBM_WebSphere_Application_Server  # Can not contain white space
+libertyProfile=IBM_Liberty  # Can not contain white space
+wasVersion=8.5.2.20130327_1831  # No need to edit thid unless we're changing versions but FYI is found in $imSrcDir/repository.xml by searching for "offering id"
+wasPatchVersion=8.5.5001.20131018_2242  # as above 
+
+was6SrcDir=${localRepo}/WBI
+was6PatchDir=${localRepo}/WBI-PATCH
+
+libertySrcDir=${localRepo}/liberty/disk1
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Installation directories
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+installDir=~
+wasInstallDir=${installDir}/was
+libertyInstallDir=${installDir}/liberty
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Operating system and architecture
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os=linux
+ws=gtk
+#arch=x86_64
+arch=x86
+nl=en
+is64bit=false
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Details of the host currently being built
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+envName=autoWas
+hostName=`hostname`
+wasHost=${hostName}
+cellName=${envName}Cell
+profilePath=${wasInstallDir}/profiles
+dmgrName=${envName}Dmgr
+dmgrHost=${hostName}
+dmgrProf=${envName}Dmgr
+nodeName=${envName}Node1
+nodeProf=${envName}Node1
+libertyProf=${envName}Liberty1
+nodeHost=${hostName}
+wasUser=admin
+wasPass=admin
+keyStorePassword=WebAS
+wasOsUser=`id | awk '{print $1}' | sed s/.*\(// | sed s/\)//`
+wasGroup=autowas
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Base TCP ports 
+# Unfortunatly I couldn't calculate these as variable expansion in 'make' nearly drove me bonkers
+# Setting three base ports is a small price to pay
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+dmgrBasePort=3000
+nodeBasePort=3050
+clusterBasePort=3050
+appBasePort=3100
+messBasePort=3150
+suppBasePort=3200
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Cluster names 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+clusterName=${envName}Cluster1
+AppTargetClusterName=AppTarget
+SupportClusterName=Support
+MessagingClusterName=Messaging
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# AE details
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+version=1
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Database details
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Database environment 
+LD_LIBRARY_PATH=/usr/lib/oracle/11.2/client64/lib
+ORACLE_SID=XE
+ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+oraData=/u01/app/oracle/oradata/${ORACLE_SID}
+oraEnv=${ORACLE_HOME}/bin/oracle_env.sh
+oraSysPw=oracle
+
+# Generic Database config
+dbGrants=AUTOWAS_WPS_ROLE
+xaGrants=AUTOWAS_XA_ROLE
+dbDriverPath=drivers/oracle
+dbHost=localhost
+dbPort=1521
+dbName=${ORACLE_SID}
+defaultTbsSize=100M
+
+# XA Database Config
+xaUser=AUTOWAS_XA
+xaPass=ibm123
+xaTbsName=AUTOWAS_XA_TBS
+xaTbsSize=100M
+
+# Common Database Config
+commonUser=AUTOWAS_CMN
+commonPass=ibm123
+commonTbsName=AUTOWAS_CMN_TBS
+commonTbsSize=100M
+
+# Business Space Database Config
+bspUser=AUTOWAS_BSP
+bspPass=ibm123
+bspJndi=jdbc/bpm/BusinessSpace
+bspTbsName=AUTOWAS_BSP_TBS
+bspTbsSize=100M
+
+# CEI Database Config
+ceiUser=AUTOWAS_CEI
+ceiPass=ibm123
+ceiJndi=jdbc/cei
+ceiTbsName=AUTOWAS_CEI_TBS
+ceiTbsSize=100M
+
+# Process Choreographer Database Config
+bpcUser=AUTOWAS_BPE
+bpcPass=ibm123
+bpcJndi=jdbc/BPEDB
+bpcTbsName=AUTOWAS_BPC_TBS
+bpcTbsSize=100M
+
+# Observer Database Config
+obsUser=AUTOWAS_OBS
+obsPass=ibm123
+obsJndi=jdbc/OBSVRDB
+obsTbsName=AUTOWAS_OBS_TBS
+obsTbsSize=100M
+
+# Messaging Engine Database config
+appMsgUser=AUTOWAS_SCAAPP
+appMsgPass=ibm123
+sysMsgUser=AUTOWAS_SCASYS
+sysMsgPass=ibm123
+ceiMsgUser=AUTOWAS_CEIME
+ceiMsgPass=ibm123
+bpcMsgUser=AUTOWAS_BPEME
+bpcMsgPass=ibm123
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Salsa stuff
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# SLR endpoint
+slrProtocol=http
+slrHost=10.245.211.251
+slrPort=22518
+slrUri=/PM_LeadServiceWeb/sca/ID_LeadServiceExport1
+
+# CIA endpoint
+ciaProtocol=http
+ciaHost=zdev3.service.test.group
+ciaPort=60928
+ciaUri=/CICS/F139/VU0015CE
+
+# RPC App Info 
+rpcWar=rpc.war
+rpcName=rpc
+rpcCr=rpc
+rpcSharedLib=rpc-shared-lib
+endPoint=${rpcCr}/PM_RetrievePromotionalCommunicationsWeb/sca/IA_RetrievePromotionalCommunicationsExport1
+cxfVersion=2.7.7
+springVersion=3.2.8.RELEASE
+rpcSharedLibCp="\
+aopalliance-1.0.jar;\
+cxf-api-${cxfVersion}.jar;\
+cxf-bundle-jaxrs-${cxfVersion}.jar;\
+cxf-rt-bindings-soap-${cxfVersion}.jar;\
+cxf-rt-bindings-xml-${cxfVersion}.jar;\
+cxf-rt-core-${cxfVersion}.jar;\
+cxf-rt-databinding-jaxb-${cxfVersion}.jar;\
+cxf-rt-features-clustering-${cxfVersion}.jar;\
+cxf-rt-frontend-jaxrs-${cxfVersion}.jar;\
+cxf-rt-frontend-jaxws-${cxfVersion}.jar;\
+cxf-rt-frontend-simple-${cxfVersion}.jar;\
+cxf-rt-management-${cxfVersion}.jar;\
+cxf-rt-transports-http-${cxfVersion}.jar;\
+cxf-rt-ws-addr-${cxfVersion}.jar;\
+cxf-rt-ws-policy-${cxfVersion}.jar;\
+javax.ws.rs-api-2.0-m10.jar;\
+jaxb-impl-2.2.6.jar;\
+neethi-3.0.3.jar;\
+spring-aop-${springVersion}.jar;\
+spring-beans-${springVersion}.jar;\
+spring-context-${springVersion}.jar;\
+spring-core-${springVersion}.jar;\
+spring-expression-${springVersion}.jar;\
+spring-tx-${springVersion}.jar;\
+spring-web-${springVersion}.jar;\
+stax2-api-3.1.4.jar;\
+woodstox-core-asl-4.2.1.jar;\
+xmlschema-core-2.1.0.jar;"
+
+# RPC-RM App Info 
+rpcRmWar=rpc-remotemock.war
+rpcRmName=rpc-remotemocks
+rpcRmCr=rpc/rm

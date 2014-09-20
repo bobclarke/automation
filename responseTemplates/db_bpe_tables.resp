@@ -1,0 +1,3856 @@
+
+
+--
+-- BPE TABLES
+--
+
+CREATE TABLE __bpcUser__.SCHEMA_VERSION
+(
+  SCHEMA_VERSION                     NUMBER(10,0)         NOT NULL ,
+  DATA_MIGRATION                     NUMBER(5,0)          NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.SCHEMA_VERSION ADD(
+  PRIMARY KEY ( SCHEMA_VERSION )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.PROCESS_TEMPLATE_B_T
+(
+  PTID                               RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(220)        NOT NULL ,
+  DEFINITION_NAME                    VARCHAR2(220)                 ,
+  DISPLAY_NAME                       VARCHAR2(64)                  ,
+  APPLICATION_NAME                   VARCHAR2(220)                 ,
+  DISPLAY_ID                         NUMBER(10,0)         NOT NULL ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  DOCUMENTATION                      CLOB                          ,
+  EXECUTION_MODE                     NUMBER(10,0)         NOT NULL ,
+  IS_SHARED                          NUMBER(5,0)          NOT NULL ,
+  IS_AD_HOC                          NUMBER(5,0)          NOT NULL ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  VALID_FROM                         TIMESTAMP            NOT NULL ,
+  TARGET_NAMESPACE                   VARCHAR2(250)                 ,
+  CREATED                            TIMESTAMP            NOT NULL ,
+  AUTO_DELETE                        NUMBER(5,0)          NOT NULL ,
+  EXTENDED_AUTO_DELETE               NUMBER(10,0)         NOT NULL ,
+  VERSION                            VARCHAR2(32)                  ,
+  SCHEMA_VERSION                     NUMBER(10,0)         NOT NULL ,
+  ABSTRACT_BASE_NAME                 VARCHAR2(254)                 ,
+  S_BEAN_LOOKUP_NAME                 VARCHAR2(254)                 ,
+  S_BEAN60_LOOKUP_NAME               VARCHAR2(254)                 ,
+  E_BEAN_LOOKUP_NAME                 VARCHAR2(254)                 ,
+  PROCESS_BASE_NAME                  VARCHAR2(254)                 ,
+  S_BEAN_HOME_NAME                   VARCHAR2(254)                 ,
+  E_BEAN_HOME_NAME                   VARCHAR2(254)                 ,
+  BPEWS_UTID                         RAW(16)                       ,
+  WPC_UTID                           RAW(16)                       ,
+  BUSINESS_RELEVANCE                 NUMBER(5,0)          NOT NULL ,
+  ADMINISTRATOR_QTID                 RAW(16)                       ,
+  READER_QTID                        RAW(16)                       ,
+  A_TKTID                            RAW(16)                       ,
+  A_TKTIDFOR_ACTS                    RAW(16)                       ,
+  COMPENSATION_SPHERE                NUMBER(10,0)         NOT NULL ,
+  AUTONOMY                           NUMBER(10,0)         NOT NULL ,
+  CAN_CALL                           NUMBER(5,0)          NOT NULL ,
+  CAN_INITIATE                       NUMBER(5,0)          NOT NULL ,
+  CONTINUE_ON_ERROR                  NUMBER(5,0)          NOT NULL ,
+  IGNORE_MISSING_DATA                NUMBER(10,0)         NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING
+  LOB (DOCUMENTATION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.PROCESS_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( PTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE UNIQUE INDEX __bpcUser__.PTB_NAME_VALID ON __bpcUser__.PROCESS_TEMPLATE_B_T
+(   
+  NAME, VALID_FROM
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PTB_NAME_VF_STATE ON __bpcUser__.PROCESS_TEMPLATE_B_T
+(   
+  NAME, VALID_FROM, STATE, PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PTB_TOP_APP ON __bpcUser__.PROCESS_TEMPLATE_B_T
+(   
+  APPLICATION_NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PTB_STATE_PTID ON __bpcUser__.PROCESS_TEMPLATE_B_T
+(   
+  STATE, PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PTB_NAME ON __bpcUser__.PROCESS_TEMPLATE_B_T
+(   
+  PTID, NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.PROCESS_TEMPLATE_ATTRIBUTE_B_T
+(
+  PTID                               RAW(16)              NOT NULL ,
+  ATTR_KEY                           VARCHAR2(220)        NOT NULL ,
+  VALUE                              VARCHAR2(254)                 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.PROCESS_TEMPLATE_ATTRIBUTE_B_T ADD(
+  PRIMARY KEY ( PTID, ATTR_KEY )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.PTAB_PTID ON __bpcUser__.PROCESS_TEMPLATE_ATTRIBUTE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.SCOPE_TEMPLATE_B_T
+(
+  STID                               RAW(16)              NOT NULL ,
+  PARENT_STID                        RAW(16)                       ,
+  PTID                               RAW(16)              NOT NULL ,
+  COMP_HANDLER_ATID                  RAW(16)                       ,
+  IMPLEMENTS_EHTID                   RAW(16)                       ,
+  FOR_EACH_ATID                      RAW(16)                       ,
+  DISPLAY_ID                         NUMBER(10,0)         NOT NULL ,
+  ISOLATED                           NUMBER(5,0)          NOT NULL ,
+  IS_COMPENSABLE                     NUMBER(5,0)          NOT NULL ,
+  BUSINESS_RELEVANCE                 NUMBER(5,0)          NOT NULL ,
+  A_TKTID                            RAW(16)                       ,
+  IS_IMPLICIT                        NUMBER(5,0)          NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.SCOPE_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( STID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.ST_PTID ON __bpcUser__.SCOPE_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.SERVICE_TEMPLATE_B_T
+(
+  VTID                               RAW(16)              NOT NULL ,
+  PORT_TYPE_NAME                     VARCHAR2(254)        NOT NULL ,
+  PORT_TYPE_UTID                     RAW(16)              NOT NULL ,
+  OPERATION_NAME                     VARCHAR2(254)        NOT NULL ,
+  NAME                               VARCHAR2(254)                 ,
+  PTID                               RAW(16)              NOT NULL ,
+  TRANSACTION_BEHAVIOR               NUMBER(10,0)         NOT NULL ,
+  IS_TWO_WAY                         NUMBER(5,0)          NOT NULL ,
+  NUMBER_OF_RECEIVE_ACTS             NUMBER(10,0)         NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.SERVICE_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( VTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.VT_VTID_PTUTID ON __bpcUser__.SERVICE_TEMPLATE_B_T
+(   
+  VTID, PORT_TYPE_UTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.VT_PTID ON __bpcUser__.SERVICE_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ACTIVITY_SERVICE_TEMPLATE_B_T
+(
+  ATID                               RAW(16)              NOT NULL ,
+  VTID                               RAW(16)              NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  PARTNER_LINK_NAME                  VARCHAR2(220)                 ,
+  INPUT_CTID                         RAW(16)                       ,
+  OUTPUT_CTID                        RAW(16)                       ,
+  LINK_ORDER_NUMBER                  NUMBER(10,0)                  ,
+  POTENTIAL_OWNER_QTID               RAW(16)                       ,
+  READER_QTID                        RAW(16)                       ,
+  EDITOR_QTID                        RAW(16)                       ,
+  TKTID                              RAW(16)                       ,
+  UNDO_MSG_TEMPLATE                  BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ACTIVITY_SERVICE_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( ATID, VTID, KIND )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.AST_PTID ON __bpcUser__.ACTIVITY_SERVICE_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.SERVICE_LOCATION_TEMPLATE_B_T
+(
+  PTID                               RAW(16)              NOT NULL ,
+  VTID                               RAW(16)              NOT NULL ,
+  MODULE_NAME                        VARCHAR2(220)        NOT NULL ,
+  EXPORT_NAME                        CLOB                          ,
+  COMPONENT_NAME                     CLOB                 NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING
+  LOB (EXPORT_NAME) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  )
+  LOB (COMPONENT_NAME) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.SERVICE_LOCATION_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( PTID, VTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.SLT_PTID ON __bpcUser__.SERVICE_LOCATION_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.SERVICE_FAULT_TEMPLATE_B_T
+(
+  VTID                               RAW(16)              NOT NULL ,
+  FAULT_NAME                         VARCHAR2(220)        NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  MESSAGE_DEFINITION                 BLOB                 NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.SERVICE_FAULT_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( VTID, FAULT_NAME )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.SFT_PTID ON __bpcUser__.SERVICE_FAULT_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ACTIVITY_TEMPLATE_B_T
+(
+  ATID                               RAW(16)              NOT NULL ,
+  PARENT_STID                        RAW(16)                       ,
+  IMPLEMENTS_STID                    RAW(16)                       ,
+  PTID                               RAW(16)              NOT NULL ,
+  IMPLEMENTS_EHTID                   RAW(16)                       ,
+  ENCLOSING_FOR_EACH_ATID            RAW(16)                       ,
+  IS_EVENT_HANDLER_END_ACTIVITY      NUMBER(5,0)          NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  NAME                               VARCHAR2(220)                 ,
+  DISPLAY_NAME                       VARCHAR2(64)                  ,
+  JOIN_CONDITION                     NUMBER(10,0)         NOT NULL ,
+  JOIN_CONDITION_NAME                VARCHAR2(254)                 ,
+  EXIT_CONDITION                     NUMBER(10,0)         NOT NULL ,
+  EXIT_CONDITION_NAME                VARCHAR2(254)                 ,
+  EXIT_CONDITION_EXECUTE_AT          NUMBER(10,0)         NOT NULL ,
+  NUMBER_OF_LINKS                    NUMBER(10,0)         NOT NULL ,
+  SUPPRESS_JOIN_FAILURE              NUMBER(5,0)          NOT NULL ,
+  SOURCES_TYPE                       NUMBER(10,0)         NOT NULL ,
+  TARGETS_TYPE                       NUMBER(10,0)         NOT NULL ,
+  CREATE_INSTANCE                    NUMBER(5,0)                   ,
+  IS_END_ACTIVITY                    NUMBER(5,0)          NOT NULL ,
+  FAULT_NAME                         VARCHAR2(254)                 ,
+  HAS_OWN_FAULT_HANDLER              NUMBER(5,0)          NOT NULL ,
+  COMPLEX_BEGIN_ATID                 RAW(16)                       ,
+  CORRESPONDING_END_ATID             RAW(16)                       ,
+  PARENT_ATID                        RAW(16)                       ,
+  HAS_CROSSING_LINK                  NUMBER(5,0)                   ,
+  SCRIPT_NAME                        VARCHAR2(254)                 ,
+  AFFILIATION                        NUMBER(10,0)         NOT NULL ,
+  TRANSACTION_BEHAVIOR               NUMBER(10,0)         NOT NULL ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  DOCUMENTATION                      CLOB                          ,
+  BUSINESS_RELEVANCE                 NUMBER(5,0)          NOT NULL ,
+  FAULT_NAME_UTID                    RAW(16)                       ,
+  FAULT_VARIABLE_CTID                RAW(16)                       ,
+  DISPLAY_ID                         NUMBER(10,0)         NOT NULL ,
+  IS_TRANSACTIONAL                   NUMBER(5,0)          NOT NULL ,
+  CONTINUE_ON_ERROR                  NUMBER(5,0)          NOT NULL ,
+  ENCLOSED_FTID                      RAW(16)                       ,
+  EXPRESSION                         CLOB                          ,
+  EXIT_EXPRESSION                    CLOB                          ,
+  HAS_INBOUND_LINK                   NUMBER(5,0)          NOT NULL ,
+  COMPENSATION_STID                  RAW(16)                       ,
+  A_TKTID                            RAW(16)                       ,
+  CUSTOM_IMPLEMENTATION              BLOB                          ,
+  EXPRESSION_MAP                     BLOB                          ,
+  EXIT_EXPRESSION_MAP                BLOB                          ,
+  GENERATED_BY                       VARCHAR2(220)                 
+) TABLESPACE TEMPLATE
+  LOGGING
+  LOB (DOCUMENTATION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  )
+  LOB (EXPRESSION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  )
+  LOB (EXIT_EXPRESSION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.ACTIVITY_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( ATID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.ATB_PTID ON __bpcUser__.ACTIVITY_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ATB_NAME ON __bpcUser__.ACTIVITY_TEMPLATE_B_T
+(   
+  NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ATB_KIND_BR_NAME ON __bpcUser__.ACTIVITY_TEMPLATE_B_T
+(   
+  KIND, BUSINESS_RELEVANCE, NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ALARM_TEMPLATE_B_T
+(
+  XTID                               RAW(16)              NOT NULL ,
+  ATID                               RAW(16)              NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  EXPRESSION                         BLOB                          ,
+  EXPRESSION_NAME                    VARCHAR2(254)                 ,
+  DURATION                           VARCHAR2(254)                 ,
+  CALENDAR                           VARCHAR2(254)                 ,
+  CALENDAR_JNDI_NAME                 VARCHAR2(254)                 ,
+  REPEAT_KIND                        NUMBER(10,0)         NOT NULL ,
+  REPEAT_EXPRESSION                  BLOB                          ,
+  REPEAT_EXP_NAME                    VARCHAR2(254)                 ,
+  ON_ALARM_ORDER_NUMBER              NUMBER(10,0)                  ,
+  EXPRESSION_MAP                     BLOB                          ,
+  REPEAT_EXPRESSION_MAP              BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ALARM_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( XTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.XT_PTID ON __bpcUser__.ALARM_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.FAULT_HANDLER_TEMPLATE_B_T
+(
+  FTID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  FAULT_NAME                         VARCHAR2(254)                 ,
+  CTID                               RAW(16)                       ,
+  STID                               RAW(16)                       ,
+  ATID                               RAW(16)                       ,
+  FAULT_LINK_SOURCE_ATID             RAW(16)                       ,
+  FAULT_LINK_TARGET_ATID             RAW(16)                       ,
+  IMPLEMENTATION_ATID                RAW(16)              NOT NULL ,
+  FAULT_NAME_UTID                    RAW(16)                       ,
+  ORDER_NUMBER                       NUMBER(10,0)         NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.FAULT_HANDLER_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( FTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.FT_PTID ON __bpcUser__.FAULT_HANDLER_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.LINK_TEMPLATE_B_T
+(
+  SOURCE_ATID                        RAW(16)              NOT NULL ,
+  TARGET_ATID                        RAW(16)              NOT NULL ,
+  FLOW_BEGIN_ATID                    RAW(16)                       ,
+  ENCLOSING_FOR_EACH_ATID            RAW(16)                       ,
+  DISPLAY_ID                         NUMBER(10,0)         NOT NULL ,
+  NAME                               VARCHAR2(254)                 ,
+  PTID                               RAW(16)              NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  LIFETIME                           NUMBER(10,0)         NOT NULL ,
+  TRANSITION_CONDITION               NUMBER(10,0)         NOT NULL ,
+  TRANSITION_CONDITION_NAME          VARCHAR2(254)                 ,
+  ORDER_NUMBER                       NUMBER(10,0)         NOT NULL ,
+  SEQUENCE_NUMBER                    NUMBER(10,0)         NOT NULL ,
+  BUSINESS_RELEVANCE                 NUMBER(5,0)          NOT NULL ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  DOCUMENTATION                      CLOB                          ,
+  EXPRESSION                         CLOB                          ,
+  IS_INBOUND_LINK                    NUMBER(5,0)          NOT NULL ,
+  OUTBOUND_ATID                      RAW(16)                       ,
+  EXPRESSION_MAP                     BLOB                          ,
+  GENERATED_BY                       VARCHAR2(220)                 
+) TABLESPACE TEMPLATE
+  LOGGING
+  LOB (DOCUMENTATION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  )
+  LOB (EXPRESSION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.LINK_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( SOURCE_ATID, TARGET_ATID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.LNK_PTID ON __bpcUser__.LINK_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.LINK_BOUNDARY_TEMPLATE_B_T
+(
+  SOURCE_ATID                        RAW(16)              NOT NULL ,
+  TARGET_ATID                        RAW(16)              NOT NULL ,
+  BOUNDARY_STID                      RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  IS_OUTMOST_BOUNDARY                NUMBER(5,0)          NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.LINK_BOUNDARY_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( SOURCE_ATID, TARGET_ATID, BOUNDARY_STID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.BND_PTID ON __bpcUser__.LINK_BOUNDARY_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.RESET_TEMPLATE_B_T
+(
+  LOOP_ENTRY_ATID                    RAW(16)              NOT NULL ,
+  LOOP_BODY_ATID                     RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.RESET_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( LOOP_ENTRY_ATID, LOOP_BODY_ATID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.RST_PTID ON __bpcUser__.RESET_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.VARIABLE_MAPPING_TEMPLATE_B_T
+(
+  PTID                               RAW(16)              NOT NULL ,
+  ATID                               RAW(16)              NOT NULL ,
+  VTID                               RAW(16)              NOT NULL ,
+  SOURCE_CTID                        RAW(16)              NOT NULL ,
+  TARGET_CTID                        RAW(16)              NOT NULL ,
+  PARAMETER                          VARCHAR2(254)        NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.VARIABLE_MAPPING_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( PTID, ATID, VTID, SOURCE_CTID, TARGET_CTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.VMT_TCTID ON __bpcUser__.VARIABLE_MAPPING_TEMPLATE_B_T
+(   
+  PTID, ATID, VTID, TARGET_CTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.VARIABLE_TEMPLATE_B_T
+(
+  CTID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  EHTID                              RAW(16)                       ,
+  STID                               RAW(16)                       ,
+  FTID                               RAW(16)                       ,
+  DERIVED                            NUMBER(5,0)          NOT NULL ,
+  DISPLAY_ID                         NUMBER(10,0)         NOT NULL ,
+  FROM_SPEC                          NUMBER(10,0)         NOT NULL ,
+  NAME                               VARCHAR2(254)        NOT NULL ,
+  MESSAGE_TEMPLATE                   BLOB                          ,
+  IS_QUERYABLE                       NUMBER(5,0)          NOT NULL ,
+  BUSINESS_RELEVANCE                 NUMBER(5,0)          NOT NULL ,
+  GENERATED_BY                       VARCHAR2(220)                 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.VARIABLE_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( CTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CT_PTID ON __bpcUser__.VARIABLE_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.VARIABLE_STACK_TEMPLATE_B_T
+(
+  VSID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  CTID                               RAW(16)              NOT NULL ,
+  STID                               RAW(16)              NOT NULL ,
+  FTID                               RAW(16)                       ,
+  EHTID                              RAW(16)                       ,
+  NAME                               VARCHAR2(255)        NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.VARIABLE_STACK_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( VSID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.VS_PTID ON __bpcUser__.VARIABLE_STACK_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ACTIVITY_FAULT_TEMPLATE_B_T
+(
+  AFID                               RAW(16)              NOT NULL ,
+  ATID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  FAULT_NAME                         VARCHAR2(254)        NOT NULL ,
+  FAULT_UTID                         RAW(16)                       ,
+  MESSAGE                            BLOB                 NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ACTIVITY_FAULT_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( AFID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.AF_PTID ON __bpcUser__.ACTIVITY_FAULT_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.PARTNER_LINK_TEMPLATE_B_T
+(
+  PTID                               RAW(16)              NOT NULL ,
+  PARTNER_LINK_NAME                  VARCHAR2(220)        NOT NULL ,
+  PROCESS_NAME                       VARCHAR2(220)                 ,
+  TARGET_NAMESPACE                   VARCHAR2(250)                 ,
+  RESOLUTION_SCOPE                   NUMBER(10,0)         NOT NULL ,
+  MY_ROLE                            NUMBER(5,0)          NOT NULL ,
+  MY_ROLE_IMPL                       BLOB                          ,
+  MY_ROLE_LOCALNAME                  VARCHAR2(220)                 ,
+  MY_ROLE_NAMESPACE                  VARCHAR2(220)                 ,
+  THEIR_ROLE                         NUMBER(5,0)          NOT NULL ,
+  THEIR_ROLE_IMPL                    BLOB                          ,
+  THEIR_ROLE_LOCALNAME               VARCHAR2(220)                 ,
+  THEIR_ROLE_NAMESPACE               VARCHAR2(220)                 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.PARTNER_LINK_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( PTID, PARTNER_LINK_NAME )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.URI_TEMPLATE_B_T
+(
+  UTID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  URI                                VARCHAR2(220)        NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.URI_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( UTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE UNIQUE INDEX __bpcUser__.UT_PTID_URI ON __bpcUser__.URI_TEMPLATE_B_T
+(   
+  PTID, URI
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.UT_UTID_URI ON __bpcUser__.URI_TEMPLATE_B_T
+(   
+  UTID, URI
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.CLIENT_SETTING_TEMPLATE_B_T
+(
+  CSID                               RAW(16)              NOT NULL ,
+  ATID                               RAW(16)                       ,
+  PTID                               RAW(16)              NOT NULL ,
+  VTID                               RAW(16)                       ,
+  SETTINGS                           BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.CLIENT_SETTING_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( CSID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CS_PTID ON __bpcUser__.CLIENT_SETTING_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ASSIGN_TEMPLATE_B_T
+(
+  ATID                               RAW(16)              NOT NULL ,
+  ORDER_NUMBER                       NUMBER(10,0)         NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  FROM_SPEC                          NUMBER(10,0)         NOT NULL ,
+  FROM_VARIABLE_CTID                 RAW(16)                       ,
+  FROM_PARAMETER2                    VARCHAR2(254)                 ,
+  FROM_PARAMETER3                    BLOB                          ,
+  FROM_PARAMETER3_LANGUAGE           NUMBER(10,0)         NOT NULL ,
+  TO_SPEC                            NUMBER(10,0)         NOT NULL ,
+  TO_VARIABLE_CTID                   RAW(16)                       ,
+  TO_PARAMETER2                      VARCHAR2(254)                 ,
+  TO_PARAMETER3                      BLOB                          ,
+  TO_PARAMETER3_LANGUAGE             NUMBER(10,0)         NOT NULL ,
+  FROM_EXPRESSION_MAP                BLOB                          ,
+  TO_EXPRESSION_MAP                  BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ASSIGN_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( ATID, ORDER_NUMBER )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.ASTB_PTID ON __bpcUser__.ASSIGN_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.CORRELATION_SET_TEMPLATE_B_T
+(
+  COID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  STID                               RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(255)        NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.CORRELATION_SET_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( COID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CSTB_PTID ON __bpcUser__.CORRELATION_SET_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.CORRELATION_TEMPLATE_B_T
+(
+  ATID                               RAW(16)              NOT NULL ,
+  VTID                               RAW(16)              NOT NULL ,
+  COID                               RAW(16)              NOT NULL ,
+  IS_FOR_EVENT_HANDLER               NUMBER(5,0)          NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  INITIATE                           NUMBER(10,0)         NOT NULL ,
+  PATTERN                            NUMBER(10,0)         NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.CORRELATION_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( ATID, VTID, COID, IS_FOR_EVENT_HANDLER )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.COID_PTID ON __bpcUser__.CORRELATION_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.PROPERTY_ALIAS_TEMPLATE_B_T
+(
+  PAID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  COID                               RAW(16)              NOT NULL ,
+  SEQUENCE_NUMBER                    NUMBER(10,0)         NOT NULL ,
+  PROPERTY_UTID                      RAW(16)              NOT NULL ,
+  PROPERTY_NAME                      VARCHAR2(255)        NOT NULL ,
+  JAVA_TYPE                          VARCHAR2(255)        NOT NULL ,
+  MSG_TYPE_UTID                      RAW(16)              NOT NULL ,
+  MSG_TYPE_NAME                      VARCHAR2(255)        NOT NULL ,
+  MSG_TYPE_KIND                      NUMBER(10,0)         NOT NULL ,
+  PROPERTY_TYPE_UTID                 RAW(16)                       ,
+  PROPERTY_TYPE_NAME                 VARCHAR2(255)                 ,
+  PART                               VARCHAR2(255)                 ,
+  QUERY                              VARCHAR2(255)                 ,
+  QUERY_LANGUAGE                     NUMBER(10,0)         NOT NULL ,
+  IS_DEFINED_INLINE                  NUMBER(5,0)          NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.PROPERTY_ALIAS_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( PAID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.PATB_COID_UTID ON __bpcUser__.PROPERTY_ALIAS_TEMPLATE_B_T
+(   
+  COID, MSG_TYPE_UTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PATB_PTID_UTIDS ON __bpcUser__.PROPERTY_ALIAS_TEMPLATE_B_T
+(   
+  PTID, MSG_TYPE_UTID, PROPERTY_UTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.EVENT_HANDLER_TEMPLATE_B_T
+(
+  EHTID                              RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  STID                               RAW(16)              NOT NULL ,
+  IMPL_ATID                          RAW(16)              NOT NULL ,
+  VTID                               RAW(16)                       ,
+  INPUT_CTID                         RAW(16)                       ,
+  TKTID                              RAW(16)                       ,
+  KIND                               NUMBER(10,0)         NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.EVENT_HANDLER_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( EHTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.EHT_PTID ON __bpcUser__.EVENT_HANDLER_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.EHALARM_TEMPLATE_B_T
+(
+  EHTID                              RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  EXPRESSION                         BLOB                          ,
+  EXPRESSION_NAME                    VARCHAR2(254)                 ,
+  DURATION                           VARCHAR2(254)                 ,
+  CALENDAR                           VARCHAR2(254)                 ,
+  CALENDAR_JNDI_NAME                 VARCHAR2(254)                 ,
+  REPEAT_KIND                        NUMBER(10,0)         NOT NULL ,
+  REPEAT_EXPRESSION                  BLOB                          ,
+  REPEAT_EXP_NAME                    VARCHAR2(254)                 ,
+  REPEAT_DURATION                    VARCHAR2(254)                 ,
+  REPEAT_CALENDAR                    VARCHAR2(254)                 ,
+  REPEAT_CALENDAR_JNDI_NAME          VARCHAR2(254)                 ,
+  EXPRESSION_MAP                     BLOB                          ,
+  REPEAT_EXPRESSION_MAP              BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.EHALARM_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( EHTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.EXT_PTID ON __bpcUser__.EHALARM_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.CUSTOM_EXT_TEMPLATE_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  NAMESPACE                          VARCHAR2(220)        NOT NULL ,
+  LOCALNAME                          VARCHAR2(220)        NOT NULL ,
+  TEMPLATE_INFO                      BLOB                          ,
+  INSTANCE_INFO                      BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.CUSTOM_EXT_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CETB_PTID ON __bpcUser__.CUSTOM_EXT_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.CUSTOM_STMT_TEMPLATE_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  NAMESPACE                          VARCHAR2(220)        NOT NULL ,
+  LOCALNAME                          VARCHAR2(220)        NOT NULL ,
+  PURPOSE                            VARCHAR2(220)        NOT NULL ,
+  STATEMENT                          BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.CUSTOM_STMT_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CST_PTID_NS_LN_P ON __bpcUser__.CUSTOM_STMT_TEMPLATE_B_T
+(   
+  PTID, NAMESPACE, LOCALNAME, PURPOSE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.PROCESS_CELL_MAP_T
+(
+  PTID                               RAW(16)              NOT NULL ,
+  CELL                               VARCHAR2(220)        NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.PROCESS_CELL_MAP_T ADD(
+  PRIMARY KEY ( PTID, CELL )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.ACTIVITY_TEMPLATE_ATTR_B_T
+(
+  ATID                               RAW(16)              NOT NULL ,
+  ATTR_KEY                           VARCHAR2(192)        NOT NULL ,
+  ATTR_VALUE                         VARCHAR2(254)                 ,
+  PTID                               RAW(16)              NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ACTIVITY_TEMPLATE_ATTR_B_T ADD(
+  PRIMARY KEY ( ATID, ATTR_KEY )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.ATAB_PTID ON __bpcUser__.ACTIVITY_TEMPLATE_ATTR_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ATAB_VALUE ON __bpcUser__.ACTIVITY_TEMPLATE_ATTR_B_T
+(   
+  ATTR_VALUE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.FOR_EACH_TEMPLATE_B_T
+(
+  ATID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  COUNTER_CTID                       RAW(16)              NOT NULL ,
+  SUCCESSFUL_BRANCHES_ONLY           NUMBER(5,0)          NOT NULL ,
+  START_COUNTER_LANGUAGE             NUMBER(10,0)         NOT NULL ,
+  FINAL_COUNTER_LANGUAGE             NUMBER(10,0)         NOT NULL ,
+  COMPLETION_CONDITION_LANGUAGE      NUMBER(10,0)         NOT NULL ,
+  START_COUNTER_EXPRESSION           BLOB                          ,
+  FINAL_COUNTER_EXPRESSION           BLOB                          ,
+  COMPLETION_COND_EXPRESSION         BLOB                          ,
+  FOR_EACH_METHOD                    VARCHAR2(254)                 ,
+  START_COUNTER_EXPRESSION_MAP       BLOB                          ,
+  FINAL_COUNTER_EXPRESSION_MAP       BLOB                          ,
+  COMPLETION_COND_EXPRESSION_MAP     BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.FOR_EACH_TEMPLATE_B_T ADD(
+  PRIMARY KEY ( ATID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.FET_PTID ON __bpcUser__.FOR_EACH_TEMPLATE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.GRAPHICAL_PROCESS_MODEL_T
+(
+  PTID                               RAW(16)              NOT NULL ,
+  SOURCE                             VARCHAR2(100)        NOT NULL ,
+  KIND                               VARCHAR2(100)        NOT NULL ,
+  GRAPHICAL_DATA                     BLOB                          ,
+  ID_MAPPING                         BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.GRAPHICAL_PROCESS_MODEL_T ADD(
+  PRIMARY KEY ( PTID, SOURCE, KIND )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.QUERYABLE_VARIABLE_TEMPLATE_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  CTID                               RAW(16)              NOT NULL ,
+  PAID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  QUERY_TYPE                         NUMBER(10,0)         NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.QUERYABLE_VARIABLE_TEMPLATE_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.QVT_PTID ON __bpcUser__.QUERYABLE_VARIABLE_TEMPLATE_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.STAFF_QUERY_TEMPLATE_T
+(
+  QTID                               RAW(16)              NOT NULL ,
+  ASSOCIATED_OBJECT_TYPE             NUMBER(10,0)         NOT NULL ,
+  ASSOCIATED_OID                     RAW(16)              NOT NULL ,
+  T_QUERY                            VARCHAR2(32)         NOT NULL ,
+  QUERY                              BLOB                 NOT NULL ,
+  HASH_CODE                          NUMBER(10,0)         NOT NULL ,
+  SUBSTITUTION_POLICY                NUMBER(10,0)         NOT NULL ,
+  STAFF_VERB                         BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.STAFF_QUERY_TEMPLATE_T ADD(
+  PRIMARY KEY ( QTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.SQT_HASH ON __bpcUser__.STAFF_QUERY_TEMPLATE_T
+(   
+  ASSOCIATED_OID, HASH_CODE, T_QUERY, ASSOCIATED_OBJECT_TYPE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.PROCESS_INSTANCE_B_T
+(
+  PIID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  PENDING_REQUEST                    NUMBER(10,0)         NOT NULL ,
+  CREATED                            TIMESTAMP                     ,
+  STARTED                            TIMESTAMP                     ,
+  COMPLETED                          TIMESTAMP                     ,
+  LAST_STATE_CHANGE                  TIMESTAMP                     ,
+  LAST_MODIFIED                      TIMESTAMP                     ,
+  NAME                               VARCHAR2(220)        NOT NULL ,
+  PARENT_NAME                        VARCHAR2(220)                 ,
+  TOP_LEVEL_NAME                     VARCHAR2(220)        NOT NULL ,
+  COMPENSATION_SPHERE_NAME           VARCHAR2(100)                 ,
+  STARTER                            VARCHAR2(128)                 ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  INPUT_SNID                         RAW(16)                       ,
+  INPUT_ATID                         RAW(16)                       ,
+  INPUT_VTID                         RAW(16)                       ,
+  OUTPUT_SNID                        RAW(16)                       ,
+  OUTPUT_ATID                        RAW(16)                       ,
+  OUTPUT_VTID                        RAW(16)                       ,
+  FAULT_NAME                         VARCHAR2(254)                 ,
+  TOP_LEVEL_PIID                     RAW(16)              NOT NULL ,
+  PARENT_PIID                        RAW(16)                       ,
+  PARENT_AIID                        RAW(16)                       ,
+  TKIID                              RAW(16)                       ,
+  TERMIN_ON_REC                      NUMBER(5,0)          NOT NULL ,
+  AWAITED_SUB_PROC                   NUMBER(5,0)          NOT NULL ,
+  IS_CREATING                        NUMBER(5,0)          NOT NULL ,
+  PREVIOUS_STATE                     NUMBER(10,0)                  ,
+  EXECUTING_ISOLATED_SCOPE           NUMBER(5,0)          NOT NULL ,
+  SCHEDULER_TASK_ID                  VARCHAR2(254)                 ,
+  RESUMES                            TIMESTAMP                     ,
+  PENDING_SKIP_REQUEST               NUMBER(5,0)          NOT NULL ,
+  UNHANDLED_EXCEPTION                BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.PROCESS_INSTANCE_B_T ADD(
+  PRIMARY KEY ( PIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE UNIQUE INDEX __bpcUser__.PIB_NAME ON __bpcUser__.PROCESS_INSTANCE_B_T
+(   
+  NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PIB_TOP ON __bpcUser__.PROCESS_INSTANCE_B_T
+(   
+  TOP_LEVEL_PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PIB_PAP ON __bpcUser__.PROCESS_INSTANCE_B_T
+(   
+  PARENT_PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PIB_PAR ON __bpcUser__.PROCESS_INSTANCE_B_T
+(   
+  PARENT_AIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PIB_PTID ON __bpcUser__.PROCESS_INSTANCE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PIB_PIID_STATE ON __bpcUser__.PROCESS_INSTANCE_B_T
+(   
+  PIID, STATE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PIB_STATE ON __bpcUser__.PROCESS_INSTANCE_B_T
+(   
+  STATE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PIB_PIID_PTID_STAT ON __bpcUser__.PROCESS_INSTANCE_B_T
+(   
+  PIID, PTID, STATE, STARTER, STARTED
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.SCOPE_INSTANCE_B_T
+(
+  SIID                               RAW(16)              NOT NULL ,
+  PARENT_SIID                        RAW(16)                       ,
+  STID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  EHIID                              RAW(16)                       ,
+  ENCLOSING_FEIID                    RAW(16)                       ,
+  ENCLOSING_FOR_EACH_END_AIID        RAW(16)                       ,
+  COMPENSATE_AIID                    RAW(16)                       ,
+  PARENT_COMP_SIID                   RAW(16)                       ,
+  LAST_COMP_SIID                     RAW(16)                       ,
+  RUNNING_EVENT_HANDLERS             NUMBER(10,0)         NOT NULL ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  NOTIFY_PARENT                      NUMBER(5,0)          NOT NULL ,
+  AWAITED_SCOPES                     NUMBER(10,0)         NOT NULL ,
+  AWAITED_SUB_PROCESSES              NUMBER(10,0)         NOT NULL ,
+  BPEL_EXCEPTION                     BLOB                          ,
+  IS_ACTIVE                          NUMBER(5,0)          NOT NULL ,
+  INITIATED_COMP                     NUMBER(5,0)          NOT NULL ,
+  IS_TERMINATION_FROM_FOR_EACH       NUMBER(5,0)          NOT NULL ,
+  TOTAL_COMPL_NUMBER                 NUMBER(20,0)         NOT NULL ,
+  SCOPE_COMPL_NUMBER                 NUMBER(20,0)         NOT NULL ,
+  A_TKIID                            RAW(16)                       ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.SCOPE_INSTANCE_B_T ADD(
+  PRIMARY KEY ( SIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.SI_PI_ST_EH_STA_FE ON __bpcUser__.SCOPE_INSTANCE_B_T
+(   
+  PIID, STID, STATE, EHIID, ENCLOSING_FEIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.SI_PI_ST_EH_ACT_FE ON __bpcUser__.SCOPE_INSTANCE_B_T
+(   
+  PIID, STID, IS_ACTIVE, EHIID, ENCLOSING_FEIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.SI_PIID_PARSI ON __bpcUser__.SCOPE_INSTANCE_B_T
+(   
+  PIID, PARENT_SIID, IS_ACTIVE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.SI_PARCOMP_STA_ST ON __bpcUser__.SCOPE_INSTANCE_B_T
+(   
+  PARENT_COMP_SIID, STATE, STID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.SI_PIID_STATE ON __bpcUser__.SCOPE_INSTANCE_B_T
+(   
+  PIID, STATE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.SI_LAST_COMPSIID ON __bpcUser__.SCOPE_INSTANCE_B_T
+(   
+  LAST_COMP_SIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ACTIVITY_INSTANCE_B_T
+(
+  AIID                               RAW(16)              NOT NULL ,
+  ATID                               RAW(16)              NOT NULL ,
+  SIID                               RAW(16)                       ,
+  PIID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  EHIID                              RAW(16)                       ,
+  ENCLOSING_FEIID                    RAW(16)                       ,
+  P_TKIID                            RAW(16)                       ,
+  A_TKIID                            RAW(16)                       ,
+  INVOKED_INSTANCE_ID                RAW(16)                       ,
+  INVOKED_INSTANCE_TYPE              NUMBER(10,0)         NOT NULL ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  TRANS_COND_VALUES                  RAW(66)              NOT NULL ,
+  NUMBER_LINKS_EVALUATED             NUMBER(10,0)         NOT NULL ,
+  FINISHED                           TIMESTAMP                     ,
+  ACTIVATED                          TIMESTAMP                     ,
+  FIRST_ACTIVATED                    TIMESTAMP                     ,
+  STARTED                            TIMESTAMP                     ,
+  LAST_MODIFIED                      TIMESTAMP                     ,
+  LAST_STATE_CHANGE                  TIMESTAMP                     ,
+  OWNER                              VARCHAR2(128)                 ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  LINK_ORDER_NUMBER                  NUMBER(10,0)                  ,
+  SCHEDULER_TASK_ID                  VARCHAR2(254)                 ,
+  EXPIRES                            TIMESTAMP                     ,
+  CONTINUE_ON_ERROR                  NUMBER(5,0)          NOT NULL ,
+  UNHANDLED_EXCEPTION                BLOB                          ,
+  STOP_REASON                        NUMBER(10,0)         NOT NULL ,
+  PREVIOUS_STATE                     NUMBER(10,0)                  ,
+  INVOCATION_COUNTER                 NUMBER(10,0)         NOT NULL ,
+  FOR_EACH_START_COUNTER_VALUE       NUMBER(20,0)                  ,
+  FOR_EACH_FINAL_COUNTER_VALUE       NUMBER(20,0)                  ,
+  FOR_EACH_CURRENT_COUNTER_VALUE     NUMBER(20,0)                  ,
+  FOR_EACH_COMPLETED_BRANCHES        NUMBER(20,0)                  ,
+  FOR_EACH_FAILED_BRANCHES           NUMBER(20,0)                  ,
+  FOR_EACH_MAX_COMPL_BRANCHES        NUMBER(20,0)                  ,
+  FOR_EACH_AWAITED_BRANCHES          NUMBER(20,0)                  ,
+  IS51_ACTIVITY                      NUMBER(5,0)          NOT NULL ,
+  MAY_HAVE_SUBPROCESS                NUMBER(5,0)                   ,
+  SKIP_REQUESTED                     NUMBER(5,0)          NOT NULL ,
+  JUMP_TARGET_ATID                   RAW(16)                       ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ACTIVITY_INSTANCE_B_T ADD(
+  PRIMARY KEY ( AIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.AIB_PI_ATID_EH_FE ON __bpcUser__.ACTIVITY_INSTANCE_B_T
+(   
+  PIID, ATID, EHIID, ENCLOSING_FEIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.AIB_PTID ON __bpcUser__.ACTIVITY_INSTANCE_B_T
+(   
+  PTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.AIB_PIID_STAT_AIID ON __bpcUser__.ACTIVITY_INSTANCE_B_T
+(   
+  PIID, STATE, AIID, ACTIVATED
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.AIB_AI_AT_STAT_PI ON __bpcUser__.ACTIVITY_INSTANCE_B_T
+(   
+  AIID, ATID, STATE, PIID, OWNER, ACTIVATED
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.AIB_SIID ON __bpcUser__.ACTIVITY_INSTANCE_B_T
+(   
+  SIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.VARIABLE_INSTANCE_B_T
+(
+  CTID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  DATA                               BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.VARIABLE_INSTANCE_B_T ADD(
+  PRIMARY KEY ( CTID, PIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CI_PIID ON __bpcUser__.VARIABLE_INSTANCE_B_T
+(   
+  PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.SCOPED_VARIABLE_INSTANCE_B_T
+(
+  SVIID                              RAW(16)              NOT NULL ,
+  CTID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  SIID                               RAW(16)              NOT NULL ,
+  EHIID                              RAW(16)                       ,
+  FEIID                              RAW(16)                       ,
+  DATA                               BLOB                          ,
+  IS_ACTIVE                          NUMBER(5,0)          NOT NULL ,
+  IS_INITIALIZED                     NUMBER(5,0)          NOT NULL ,
+  IS_QUERYABLE                       NUMBER(5,0)          NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.SCOPED_VARIABLE_INSTANCE_B_T ADD(
+  PRIMARY KEY ( SVIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.SVI_PI_CT_EH_FE ON __bpcUser__.SCOPED_VARIABLE_INSTANCE_B_T
+(   
+  PIID, CTID, IS_ACTIVE, EHIID, FEIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.SVI_CT_SI_EH_AC ON __bpcUser__.SCOPED_VARIABLE_INSTANCE_B_T
+(   
+  SIID, CTID, IS_ACTIVE, EHIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.STAFF_MESSAGE_INSTANCE_B_T
+(
+  AIID                               RAW(16)              NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  DATA                               BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.STAFF_MESSAGE_INSTANCE_B_T ADD(
+  PRIMARY KEY ( AIID, KIND )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.SMI_PIID ON __bpcUser__.STAFF_MESSAGE_INSTANCE_B_T
+(   
+  PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.EVENT_INSTANCE_B_T
+(
+  EIID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  VTID                               RAW(16)              NOT NULL ,
+  IS_TWO_WAY                         NUMBER(5,0)          NOT NULL ,
+  IS_PRIMARY_EVENT_INSTANCE          NUMBER(5,0)          NOT NULL ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  AIID                               RAW(16)                       ,
+  EHTID                              RAW(16)                       ,
+  SIID                               RAW(16)                       ,
+  TKIID                              RAW(16)                       ,
+  NEXT_POSTED_EVENT                  RAW(16)                       ,
+  LAST_POSTED_EVENT                  RAW(16)                       ,
+  POST_COUNT                         NUMBER(10,0)         NOT NULL ,
+  MESSAGE                            BLOB                          ,
+  REPLY_CONTEXT                      BLOB                          ,
+  POST_TIME                          TIMESTAMP                     ,
+  MAX_NUMBER_OF_POSTS                NUMBER(10,0)         NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.EVENT_INSTANCE_B_T ADD(
+  PRIMARY KEY ( EIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.EI_PIID_PRIM ON __bpcUser__.EVENT_INSTANCE_B_T
+(   
+  PIID, IS_PRIMARY_EVENT_INSTANCE, STATE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.EI_PIID_VTID ON __bpcUser__.EVENT_INSTANCE_B_T
+(   
+  PIID, VTID, IS_PRIMARY_EVENT_INSTANCE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.EI_AIID ON __bpcUser__.EVENT_INSTANCE_B_T
+(   
+  AIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.EI_STATE_VTID ON __bpcUser__.EVENT_INSTANCE_B_T
+(   
+  VTID, STATE, EIID, AIID, PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.REQUEST_INSTANCE_B_T
+(
+  RIID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  VTID                               RAW(16)              NOT NULL ,
+  ATID                               RAW(16)              NOT NULL ,
+  EHIID                              RAW(16)                       ,
+  TKIID                              RAW(16)                       ,
+  FEIID                              RAW(16)                       ,
+  INSTANTIATING                      NUMBER(5,0)          NOT NULL ,
+  REPLY_CONTEXT                      BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.REQUEST_INSTANCE_B_T ADD(
+  PRIMARY KEY ( RIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.RI_PIID_VTID_EHIID ON __bpcUser__.REQUEST_INSTANCE_B_T
+(   
+  PIID, VTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.PARTNER_LINK_INSTANCE_B_T
+(
+  PIID                               RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(220)        NOT NULL ,
+  ENDPOINT_REFERENCE                 BLOB                          ,
+  SERVICE_DEFINITION                 BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.PARTNER_LINK_INSTANCE_B_T ADD(
+  PRIMARY KEY ( PIID, NAME )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.PA_PIID ON __bpcUser__.PARTNER_LINK_INSTANCE_B_T
+(   
+  PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.VARIABLE_SNAPSHOT_B_T
+(
+  SNID                               RAW(16)              NOT NULL ,
+  CTID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  DATA                               BLOB                          ,
+  COPY_VERSION                       NUMBER(5,0)          NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.VARIABLE_SNAPSHOT_B_T ADD(
+  PRIMARY KEY ( SNID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.SN_PIID_CTID ON __bpcUser__.VARIABLE_SNAPSHOT_B_T
+(   
+  PIID, CTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.SUSPENDED_MESSAGE_INSTANCE_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  ENGINE_MESSAGE                     BLOB                 NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.SUSPENDED_MESSAGE_INSTANCE_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.PIID ON __bpcUser__.SUSPENDED_MESSAGE_INSTANCE_B_T
+(   
+  PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.CROSSING_LINK_INSTANCE_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  SOURCE_ATID                        RAW(16)              NOT NULL ,
+  TARGET_ATID                        RAW(16)              NOT NULL ,
+  EHIID                              RAW(16)                       ,
+  FEIID                              RAW(16)                       ,
+  CONDITION_VALUE                    NUMBER(10,0)         NOT NULL ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.CROSSING_LINK_INSTANCE_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CL_PI_TAT_EH_FE_SA ON __bpcUser__.CROSSING_LINK_INSTANCE_B_T
+(   
+  PIID, TARGET_ATID, EHIID, FEIID, SOURCE_ATID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.INVOKE_RESULT_B_T
+(
+  PIID                               RAW(16)              NOT NULL ,
+  ATID                               RAW(16)              NOT NULL ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  INVOKE_RESULT                      BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.INVOKE_RESULT_B_T ADD(
+  PRIMARY KEY ( PIID, ATID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.INVOKE_RESULT2_B_T
+(
+  IRID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  ATID                               RAW(16)              NOT NULL ,
+  EHIID                              RAW(16)                       ,
+  FEIID                              RAW(16)                       ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  INVOKE_RESULT                      BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.INVOKE_RESULT2_B_T ADD(
+  PRIMARY KEY ( IRID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.IR2_PI_AT_EH_FE ON __bpcUser__.INVOKE_RESULT2_B_T
+(   
+  PIID, ATID, EHIID, FEIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.EVENT_HANDLER_INSTANCE_B_T
+(
+  EHIID                              RAW(16)              NOT NULL ,
+  EHTID                              RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  SIID                               RAW(16)              NOT NULL ,
+  PARENT_EHIID                       RAW(16)                       ,
+  FEIID                              RAW(16)                       ,
+  SCHEDULER_TASK_ID                  VARCHAR2(254)                 ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.EVENT_HANDLER_INSTANCE_B_T ADD(
+  PRIMARY KEY ( EHIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.EHI_PIID_EHTID ON __bpcUser__.EVENT_HANDLER_INSTANCE_B_T
+(   
+  PIID, EHTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.EHI_SIID_EHTID ON __bpcUser__.EVENT_HANDLER_INSTANCE_B_T
+(   
+  SIID, EHTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.CORRELATION_SET_INSTANCE_B_T
+(
+  PIID                               RAW(16)              NOT NULL ,
+  COID                               RAW(16)              NOT NULL ,
+  SIID                               RAW(16)              NOT NULL ,
+  PROCESS_NAME                       VARCHAR2(220)        NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  STATUS                             NUMBER(10,0)         NOT NULL ,
+  HASH_CODE                          RAW(16)              NOT NULL ,
+  DATA                               VARCHAR2(3072)                ,
+  DATA_LONG                          CLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING
+  LOB (DATA_LONG) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.CORRELATION_SET_INSTANCE_B_T ADD(
+  PRIMARY KEY ( PIID, COID, SIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE UNIQUE INDEX __bpcUser__.CSIB_HASH_PN ON __bpcUser__.CORRELATION_SET_INSTANCE_B_T
+(   
+  HASH_CODE, PROCESS_NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.CSIB_PIID ON __bpcUser__.CORRELATION_SET_INSTANCE_B_T
+(   
+  PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.CORRELATION_SET_PROPERTIES_B_T
+(
+  PIID                               RAW(16)              NOT NULL ,
+  COID                               RAW(16)              NOT NULL ,
+  SIID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  DATA                               BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.CORRELATION_SET_PROPERTIES_B_T ADD(
+  PRIMARY KEY ( PIID, COID, SIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.UNDO_ACTION_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  ATID                               RAW(16)              NOT NULL ,
+  PARENT_ATID                        RAW(16)                       ,
+  PARENT_PIID                        RAW(16)                       ,
+  PARENT_AIID                        RAW(16)                       ,
+  PARENT_EHIID                       RAW(16)                       ,
+  PARENT_FEIID                       RAW(16)                       ,
+  PROCESS_NAME                       VARCHAR2(220)        NOT NULL ,
+  CSCOPE_ID                          VARCHAR2(100)        NOT NULL ,
+  UUID                               VARCHAR2(100)        NOT NULL ,
+  COMP_CREATION_TIME                 TIMESTAMP            NOT NULL ,
+  DO_OP_WAS_TXNAL                    NUMBER(5,0)          NOT NULL ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  INPUT_DATA                         BLOB                 NOT NULL ,
+  FAULT_DATA                         BLOB                          ,
+  CREATED                            NUMBER(10,0)         NOT NULL ,
+  PROCESS_ADMIN                      VARCHAR2(128)        NOT NULL ,
+  IS_VISIBLE                         NUMBER(5,0)          NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.UNDO_ACTION_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.UA_CSID_DOOP_UUID ON __bpcUser__.UNDO_ACTION_B_T
+(   
+  CSCOPE_ID, DO_OP_WAS_TXNAL, UUID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.UA_CSID_STATE_CCT ON __bpcUser__.UNDO_ACTION_B_T
+(   
+  CSCOPE_ID, STATE, UUID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.UA_STATE_ISV ON __bpcUser__.UNDO_ACTION_B_T
+(   
+  STATE, IS_VISIBLE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.UA_AIID_STATE_UUID ON __bpcUser__.UNDO_ACTION_B_T
+(   
+  PARENT_AIID, STATE, UUID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.UA_PIID ON __bpcUser__.UNDO_ACTION_B_T
+(   
+  PARENT_PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.UA_PT_AT_CS_UU_CCT ON __bpcUser__.UNDO_ACTION_B_T
+(   
+  PTID, ATID, CSCOPE_ID, UUID, COMP_CREATION_TIME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.CUSTOM_STMT_INSTANCE_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  SVIID                              RAW(16)                       ,
+  NAMESPACE                          VARCHAR2(220)        NOT NULL ,
+  LOCALNAME                          VARCHAR2(220)        NOT NULL ,
+  PURPOSE                            VARCHAR2(220)        NOT NULL ,
+  STATEMENT                          BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.CUSTOM_STMT_INSTANCE_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CSI_PIID_NS_LN_P ON __bpcUser__.CUSTOM_STMT_INSTANCE_B_T
+(   
+  PIID, NAMESPACE, LOCALNAME, PURPOSE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.CSI_SVIID_NS_LN_P ON __bpcUser__.CUSTOM_STMT_INSTANCE_B_T
+(   
+  SVIID, NAMESPACE, LOCALNAME, PURPOSE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.COMP_WORK_PENDING_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  PARENT_PIID                        RAW(16)              NOT NULL ,
+  PARENT_ATID                        RAW(16)              NOT NULL ,
+  PARENT_EHIID                       RAW(16)                       ,
+  PARENT_FEIID                       RAW(16)                       ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  CSCOPE_ID                          VARCHAR2(100)        NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.COMP_WORK_PENDING_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CWP_PI_AT_CS_EH_FE ON __bpcUser__.COMP_WORK_PENDING_B_T
+(   
+  PARENT_PIID, PARENT_ATID, CSCOPE_ID, PARENT_EHIID, PARENT_FEIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.CWP_PI_AT_EHI ON __bpcUser__.COMP_WORK_PENDING_B_T
+(   
+  PARENT_PIID, PARENT_ATID, PARENT_EHIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.COMP_PARENT_ACTIVITY_INST_B_T
+(
+  AIID                               RAW(16)              NOT NULL ,
+  SIID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  COMPLETION_NUMBER                  NUMBER(20,0)         NOT NULL ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.COMP_PARENT_ACTIVITY_INST_B_T ADD(
+  PRIMARY KEY ( AIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CPAI_SI_S_CN_AI_PI ON __bpcUser__.COMP_PARENT_ACTIVITY_INST_B_T
+(   
+  SIID, STATE, COMPLETION_NUMBER, AIID, PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.CPAI_PIID ON __bpcUser__.COMP_PARENT_ACTIVITY_INST_B_T
+(   
+  PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.RESTART_EVENT_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  PORT_TYPE                          VARCHAR2(254)        NOT NULL ,
+  OPERATION                          VARCHAR2(254)        NOT NULL ,
+  NAMESPACE                          VARCHAR2(254)        NOT NULL ,
+  INPUT_MESSAGE                      BLOB                          ,
+  REPLY_CTX                          BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.RESTART_EVENT_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.REB_PIID ON __bpcUser__.RESTART_EVENT_B_T
+(   
+  PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.PROGRESS_COUNTER_T
+(
+  PIID                               RAW(16)              NOT NULL ,
+  COUNTER                            NUMBER(20,0)         NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.PROGRESS_COUNTER_T ADD(
+  PRIMARY KEY ( PIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.RELEVANT_SCOPE_ATASK_T
+(
+  SIID                               RAW(16)              NOT NULL ,
+  TKIID                              RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.RELEVANT_SCOPE_ATASK_T ADD(
+  PRIMARY KEY ( SIID, TKIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.CONFIG_INFO_T
+(
+  IDENTIFIER                         VARCHAR2(64)         NOT NULL ,
+  DESCRIPTION                        VARCHAR2(128)                 ,
+  PROPERTY                           NUMBER(10,0)                  ,
+  COUNTER                            NUMBER(20,0)                  ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.CONFIG_INFO_T ADD(
+  PRIMARY KEY ( IDENTIFIER )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.PROCESS_INSTANCE_ATTRIBUTE_T
+(
+  PIID                               RAW(16)              NOT NULL ,
+  ATTR_KEY                           VARCHAR2(220)        NOT NULL ,
+  VALUE                              VARCHAR2(254)                 ,
+  DATA_TYPE                          VARCHAR2(254)                 ,
+  DATA                               BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.PROCESS_INSTANCE_ATTRIBUTE_T ADD(
+  PRIMARY KEY ( PIID, ATTR_KEY )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.PIA_VALUE ON __bpcUser__.PROCESS_INSTANCE_ATTRIBUTE_T
+(   
+  VALUE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.PIA_DATY ON __bpcUser__.PROCESS_INSTANCE_ATTRIBUTE_T
+(   
+  DATA_TYPE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.PROCESS_CONTEXT_T
+(
+  PIID                               RAW(16)              NOT NULL ,
+  REPLY_CONTEXT                      BLOB                          ,
+  SERVICE_CONTEXT                    BLOB                          ,
+  STARTER_EXPIRES                    TIMESTAMP                     ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.PROCESS_CONTEXT_T ADD(
+  PRIMARY KEY ( PIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  ATID                               RAW(16)              NOT NULL ,
+  EHIID                              RAW(16)                       ,
+  FEIID                              RAW(16)                       ,
+  AIID                               RAW(16)                       ,
+  ATTR_KEY                           VARCHAR2(189)        NOT NULL ,
+  ATTR_VALUE                         VARCHAR2(254)                 ,
+  DATA_TYPE                          VARCHAR2(254)                 ,
+  DATA                               BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE UNIQUE INDEX __bpcUser__.AIA_UNIQUE ON __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T
+(   
+  PIID, ATID, EHIID, FEIID, ATTR_KEY
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.AIA_AIID ON __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T
+(   
+  AIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.AIA_VALUE ON __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T
+(   
+  ATTR_VALUE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.AIA_DATY ON __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T
+(   
+  DATA_TYPE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.NAVIGATION_EXCEPTION_T
+(
+  CORRELATION_ID                     RAW(220)             NOT NULL ,
+  EXCEPTION_TYPE                     NUMBER(10,0)         NOT NULL ,
+  OUTPUT_MESSAGE                     BLOB                          ,
+  TYPE_SYSTEM                        VARCHAR2(32)                  ,
+  PROCESS_EXCEPTION                  BLOB                 NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.NAVIGATION_EXCEPTION_T ADD(
+  PRIMARY KEY ( CORRELATION_ID, EXCEPTION_TYPE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.AWAITED_INVOCATION_T
+(
+  CORRELATION_ID                     RAW(254)             NOT NULL ,
+  CORRELATION_INFO                   BLOB                 NOT NULL ,
+  AIID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.AWAITED_INVOCATION_T ADD(
+  PRIMARY KEY ( CORRELATION_ID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.AWI_PIID ON __bpcUser__.AWAITED_INVOCATION_T
+(   
+  PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.AWI_AIID ON __bpcUser__.AWAITED_INVOCATION_T
+(   
+  AIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.STORED_QUERY_T
+(
+  SQID                               RAW(16)              NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  NAME                               VARCHAR2(64)         NOT NULL ,
+  OWNER_ID                           VARCHAR2(128)        NOT NULL ,
+  SELECT_CLAUSE                      CLOB                 NOT NULL ,
+  WHERE_CLAUSE                       CLOB                          ,
+  ORDER_CLAUSE                       VARCHAR2(254)                 ,
+  THRESHOLD                          NUMBER(10,0)                  ,
+  TIMEZONE                           VARCHAR2(63)                  ,
+  CREATOR                            VARCHAR2(128)                 ,
+  TYPE                               VARCHAR2(128)                 ,
+  PROPERTY                           BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING
+  LOB (SELECT_CLAUSE) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  )
+  LOB (WHERE_CLAUSE) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.STORED_QUERY_T ADD(
+  PRIMARY KEY ( SQID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE UNIQUE INDEX __bpcUser__.SQ_NAME ON __bpcUser__.STORED_QUERY_T
+(   
+  KIND, OWNER_ID, NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.FOR_EACH_INSTANCE_B_T
+(
+  FEIID                              RAW(16)              NOT NULL ,
+  PARENT_FEIID                       RAW(16)                       ,
+  PIID                               RAW(16)              NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.FOR_EACH_INSTANCE_B_T ADD(
+  PRIMARY KEY ( FEIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.FEI_PIID ON __bpcUser__.FOR_EACH_INSTANCE_B_T
+(   
+  PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  CTID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)              NOT NULL ,
+  PAID                               RAW(16)              NOT NULL ,
+  VARIABLE_NAME                      VARCHAR2(254)        NOT NULL ,
+  PROPERTY_NAME                      VARCHAR2(255)        NOT NULL ,
+  PROPERTY_NAMESPACE                 VARCHAR2(254)        NOT NULL ,
+  TYPE                               NUMBER(10,0)         NOT NULL ,
+  GENERIC_VALUE                      VARCHAR2(512)                 ,
+  STRING_VALUE                       VARCHAR2(512)                 ,
+  NUMBER_VALUE                       NUMBER(20,0)                  ,
+  DECIMAL_VALUE                      NUMBER                        ,
+  TIMESTAMP_VALUE                    TIMESTAMP                     ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.QVI_PI_CT_PA ON __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T
+(   
+  PIID, CTID, PAID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.QVI_PI_VARNAME ON __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T
+(   
+  PIID, VARIABLE_NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.QVI_PI_PROPNAME ON __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T
+(   
+  PIID, PROPERTY_NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.QVI_PI_NAMESPACE ON __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T
+(   
+  PIID, PROPERTY_NAMESPACE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.QVI_PI_GEN_VALUE ON __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T
+(   
+  PIID, GENERIC_VALUE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.QVI_PI_STR_VALUE ON __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T
+(   
+  PIID, STRING_VALUE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.QVI_PI_NUM ON __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T
+(   
+  PIID, NUMBER_VALUE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.QVI_PI_DEC ON __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T
+(   
+  PIID, DECIMAL_VALUE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.QVI_PI_TIME ON __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T
+(   
+  PIID, TIMESTAMP_VALUE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.SYNC_T
+(
+  IDENTIFIER                         VARCHAR2(254)        NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.SYNC_T ADD(
+  PRIMARY KEY ( IDENTIFIER )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.MV_CTR_T
+(
+  ID                                 NUMBER(10,0)         NOT NULL ,
+  SELECT_CLAUSE                      VARCHAR2(1024)       NOT NULL ,
+  WHERE_CLAUSE                       VARCHAR2(1024)                ,
+  ORDER_CLAUSE                       VARCHAR2(512)                 ,
+  TBL_SPACE                          VARCHAR2(32)         NOT NULL ,
+  UPDATED                            TIMESTAMP            NOT NULL ,
+  UPD_STARTED                        TIMESTAMP                     ,
+  AVG_UPD_TIME                       NUMBER(20,0)                  ,
+  UPD_INTERVAL                       NUMBER(20,0)         NOT NULL ,
+  IS_UPDATING                        NUMBER(5,0)          NOT NULL ,
+  ACTIVE_MV                          NUMBER(5,0)          NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.MV_CTR_T ADD(
+  PRIMARY KEY ( ID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.MV_MODS_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  OID                                RAW(16)              NOT NULL ,
+  MODIFIED                           TIMESTAMP            NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.MV_MODS_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.SAVED_ENGINE_MESSAGE_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)                       ,
+  CREATION_TIME                      TIMESTAMP            NOT NULL ,
+  REASON                             NUMBER(10,0)         NOT NULL ,
+  ENGINE_MESSAGE_S                   RAW(2000)                     ,
+  ENGINE_MESSAGE_L                   BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.SAVED_ENGINE_MESSAGE_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.SEM_PIID ON __bpcUser__.SAVED_ENGINE_MESSAGE_B_T
+(   
+  PIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.SEM_REAS ON __bpcUser__.SAVED_ENGINE_MESSAGE_B_T
+(   
+  REASON
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.NAVIGATION_CLEANUP_TIMER_B_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  SCHEDULED_TIME                     TIMESTAMP            NOT NULL ,
+  SCHEDULER_ID                       VARCHAR2(254)        NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.NAVIGATION_CLEANUP_TIMER_B_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.SCHEDULER_ACTION_T
+(
+  SCHEDULER_ID                       VARCHAR2(254)        NOT NULL ,
+  OID                                RAW(16)              NOT NULL ,
+  ACTION_OBJECT                      BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.SCHEDULER_ACTION_T ADD(
+  PRIMARY KEY ( SCHEDULER_ID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.SCEACT_OID ON __bpcUser__.SCHEDULER_ACTION_T
+(   
+  OID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.QUERY_TABLE_T
+(
+  NAME                               VARCHAR2(32)         NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  TYPE                               NUMBER(10,0)         NOT NULL ,
+  VERSION                            NUMBER(10,0)         NOT NULL ,
+  LAST_UPDATED                       TIMESTAMP            NOT NULL ,
+  PRIMARY_VIEW                       VARCHAR2(32)                  ,
+  DEFINITION                         BLOB                 NOT NULL ,
+  VV_CFG                             BLOB                          ,
+  DV_CFG                             BLOB                          ,
+  MV_CFG                             BLOB                          ,
+  MT_CFG                             BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.QUERY_TABLE_T ADD(
+  PRIMARY KEY ( NAME )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.QT_KI ON __bpcUser__.QUERY_TABLE_T
+(   
+  KIND
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.QT_TY ON __bpcUser__.QUERY_TABLE_T
+(   
+  TYPE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.QUERY_TABLE_REF_T
+(
+  REFEREE                            VARCHAR2(32)         NOT NULL ,
+  SOURCE                             VARCHAR2(32)         NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.QUERY_TABLE_REF_T ADD(
+  PRIMARY KEY ( REFEREE, SOURCE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.QTR_SRC ON __bpcUser__.QUERY_TABLE_REF_T
+(   
+  SOURCE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.AUDIT_LOG_T
+(
+  ALID                               RAW(16)              NOT NULL ,
+  EVENT_TIME                         TIMESTAMP            NOT NULL ,
+  EVENT_TIME_UTC                     TIMESTAMP                     ,
+  AUDIT_EVENT                        NUMBER(10,0)         NOT NULL ,
+  PTID                               RAW(16)              NOT NULL ,
+  PIID                               RAW(16)                       ,
+  AIID                               RAW(16)                       ,
+  SIID                               RAW(16)                       ,
+  VARIABLE_NAME                      VARCHAR2(254)                 ,
+  PROCESS_TEMPL_NAME                 VARCHAR2(254)        NOT NULL ,
+  PROCESS_INST_NAME                  VARCHAR2(254)                 ,
+  TOP_LEVEL_PI_NAME                  VARCHAR2(254)                 ,
+  TOP_LEVEL_PIID                     RAW(16)                       ,
+  PARENT_PI_NAME                     VARCHAR2(254)                 ,
+  PARENT_PIID                        RAW(16)                       ,
+  VALID_FROM                         TIMESTAMP                     ,
+  VALID_FROM_UTC                     TIMESTAMP                     ,
+  ATID                               RAW(16)                       ,
+  ACTIVITY_NAME                      VARCHAR2(254)                 ,
+  ACTIVITY_KIND                      NUMBER(10,0)                  ,
+  ACTIVITY_STATE                     NUMBER(10,0)                  ,
+  CONTROL_LINK_NAME                  VARCHAR2(254)                 ,
+  IMPL_NAME                          VARCHAR2(254)                 ,
+  PRINCIPAL                          VARCHAR2(128)                 ,
+  TERMINAL_NAME                      VARCHAR2(254)                 ,
+  VARIABLE_DATA                      BLOB                          ,
+  EXCEPTION_TEXT                     CLOB                          ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  CORR_SET_INFO                      CLOB                          ,
+  USER_NAME                          VARCHAR2(128)                 ,
+  ADDITIONAL_INFO                    CLOB                          ,
+  OBJECT_META_TYPE                   NUMBER(10,0)                  ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) 
+  LOGGING
+  LOB (EXCEPTION_TEXT) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  )
+  LOB (CORR_SET_INFO) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  )
+  LOB (ADDITIONAL_INFO) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.AUDIT_LOG_T ADD(
+  PRIMARY KEY ( ALID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.WORK_ITEM_T
+(
+  WIID                               RAW(16)              NOT NULL ,
+  PARENT_WIID                        RAW(16)                       ,
+  OWNER_ID                           VARCHAR2(128)                 ,
+  GROUP_NAME                         VARCHAR2(128)                 ,
+  EVERYBODY                          NUMBER(5,0)          NOT NULL ,
+  EXCLUDE                            NUMBER(5,0)          NOT NULL ,
+  QIID                               RAW(16)                       ,
+  OBJECT_TYPE                        NUMBER(10,0)         NOT NULL ,
+  OBJECT_ID                          RAW(16)              NOT NULL ,
+  ASSOCIATED_OBJECT_TYPE             NUMBER(10,0)         NOT NULL ,
+  ASSOCIATED_OID                     RAW(16)                       ,
+  REASON                             NUMBER(10,0)         NOT NULL ,
+  CREATION_TIME                      TIMESTAMP            NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  AUTH_INFO                          NUMBER(10,0)         NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) 
+  LOGGING;
+
+ALTER TABLE __bpcUser__.WORK_ITEM_T ADD(
+  PRIMARY KEY ( WIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.WI_ASSOBJ_REASON ON __bpcUser__.WORK_ITEM_T
+(   
+  ASSOCIATED_OID, ASSOCIATED_OBJECT_TYPE, REASON, PARENT_WIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_OBJID_TYPE_QIID ON __bpcUser__.WORK_ITEM_T
+(   
+  OBJECT_ID, OBJECT_TYPE, QIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_OBJID_TYPE_REAS ON __bpcUser__.WORK_ITEM_T
+(   
+  OBJECT_ID, OBJECT_TYPE, REASON
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_GROUP_NAME ON __bpcUser__.WORK_ITEM_T
+(   
+  GROUP_NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_AUTH_L ON __bpcUser__.WORK_ITEM_T
+(   
+  EVERYBODY, GROUP_NAME, OWNER_ID, QIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_AUTH_U ON __bpcUser__.WORK_ITEM_T
+(   
+  AUTH_INFO, QIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_AUTH_O ON __bpcUser__.WORK_ITEM_T
+(   
+  AUTH_INFO, OWNER_ID DESC
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_AUTH_G ON __bpcUser__.WORK_ITEM_T
+(   
+  AUTH_INFO, GROUP_NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_AUTH_E ON __bpcUser__.WORK_ITEM_T
+(   
+  AUTH_INFO, EVERYBODY
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_AUTH_R ON __bpcUser__.WORK_ITEM_T
+(   
+  AUTH_INFO, REASON DESC
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_REASON ON __bpcUser__.WORK_ITEM_T
+(   
+  REASON
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_OWNER ON __bpcUser__.WORK_ITEM_T
+(   
+  OWNER_ID, OBJECT_ID, REASON, OBJECT_TYPE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_QIID ON __bpcUser__.WORK_ITEM_T
+(   
+  QIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_QRY ON __bpcUser__.WORK_ITEM_T
+(   
+  OBJECT_ID, REASON, EVERYBODY, OWNER_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_QI_OID_RS_OWN ON __bpcUser__.WORK_ITEM_T
+(   
+  QIID, OBJECT_ID, REASON, OWNER_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_QI_OID_OWN ON __bpcUser__.WORK_ITEM_T
+(   
+  QIID, OBJECT_ID, OWNER_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_OT_OID_RS ON __bpcUser__.WORK_ITEM_T
+(   
+  OBJECT_TYPE, OBJECT_ID, REASON
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_WI_QI ON __bpcUser__.WORK_ITEM_T
+(   
+  WIID, QIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_PARENT_WIID ON __bpcUser__.WORK_ITEM_T
+(   
+  PARENT_WIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.WI_AUTH_GR_O_E ON __bpcUser__.WORK_ITEM_T
+(   
+  AUTH_INFO, GROUP_NAME, OWNER_ID, EVERYBODY
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.RETRIEVED_USER_T
+(
+  QIID                               RAW(16)              NOT NULL ,
+  OWNER_ID                           VARCHAR2(128)        NOT NULL ,
+  REASON                             NUMBER(10,0)         NOT NULL ,
+  ASSOCIATED_OID                     RAW(16)                       ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) 
+  LOGGING;
+
+ALTER TABLE __bpcUser__.RETRIEVED_USER_T ADD(
+  PRIMARY KEY ( QIID, OWNER_ID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.RUT_OWN_QIID ON __bpcUser__.RETRIEVED_USER_T
+(   
+  OWNER_ID, QIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.RUT_ASSOC ON __bpcUser__.RETRIEVED_USER_T
+(   
+  ASSOCIATED_OID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.RUT_QIID ON __bpcUser__.RETRIEVED_USER_T
+(   
+  QIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.RUT_OWN_QIDESC ON __bpcUser__.RETRIEVED_USER_T
+(   
+  OWNER_ID, QIID DESC
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.STAFF_QUERY_INSTANCE_T
+(
+  QIID                               RAW(16)              NOT NULL ,
+  QTID                               RAW(16)              NOT NULL ,
+  EVERYBODY                          NUMBER(5,0)          NOT NULL ,
+  NOBODY                             NUMBER(5,0)          NOT NULL ,
+  IS_SHAREABLE                       NUMBER(5,0)          NOT NULL ,
+  IS_TRANSFERRED                     NUMBER(5,0)          NOT NULL ,
+  SR_HASH_CODE                       NUMBER(10,0)                  ,
+  GROUP_NAME                         VARCHAR2(128)                 ,
+  CONTEXT_VALUES                     VARCHAR2(3072)                ,
+  CONTEXT_VALUES_LONG                CLOB                          ,
+  HASH_CODE                          NUMBER(10,0)                  ,
+  EXPIRES                            TIMESTAMP                     ,
+  ASSOCIATED_OBJECT_TYPE             NUMBER(10,0)         NOT NULL ,
+  ASSOCIATED_OID                     RAW(16)              NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE STAFFQRY
+  LOGGING
+  LOB (CONTEXT_VALUES_LONG) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.STAFF_QUERY_INSTANCE_T ADD(
+  PRIMARY KEY ( QIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.SQI_QTID ON __bpcUser__.STAFF_QUERY_INSTANCE_T
+(   
+  QTID, HASH_CODE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.SQI_ASSOCID ON __bpcUser__.STAFF_QUERY_INSTANCE_T
+(   
+  ASSOCIATED_OID, ASSOCIATED_OBJECT_TYPE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.SQI_QIIDGN ON __bpcUser__.STAFF_QUERY_INSTANCE_T
+(   
+  QIID, GROUP_NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.SQI_QIIDTREX ON __bpcUser__.STAFF_QUERY_INSTANCE_T
+(   
+  QIID, IS_TRANSFERRED, EXPIRES
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.STAFF_LOCK_T
+(
+  QTID                               RAW(16)              NOT NULL ,
+  HASH_CODE                          NUMBER(10,0)         NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE STAFFQRY
+  LOGGING;
+
+ALTER TABLE __bpcUser__.STAFF_LOCK_T ADD(
+  PRIMARY KEY ( QTID, HASH_CODE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.APPLICATION_COMPONENT_T
+(
+  ACOID                              RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(64)         NOT NULL ,
+  CALENDAR_NAME                      VARCHAR2(254)                 ,
+  JNDI_NAME_CALENDAR                 VARCHAR2(254)                 ,
+  JNDI_NAME_STAFF_PROVIDER           VARCHAR2(254)        NOT NULL ,
+  DURATION_UNTIL_DELETED             VARCHAR2(254)                 ,
+  EVENT_HANDLER_NAME                 VARCHAR2(64)                  ,
+  INSTANCE_CREATOR_QTID              RAW(16)                       ,
+  SUPPORTS_AUTO_CLAIM                NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_FOLLOW_ON_TASK            NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_CLAIM_SUSPENDED           NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_DELEGATION                NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_SUB_TASK                  NUMBER(5,0)          NOT NULL ,
+  BUSINESS_RELEVANCE                 NUMBER(5,0)          NOT NULL ,
+  SUBSTITUTION_POLICY                NUMBER(10,0)         NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.APPLICATION_COMPONENT_T ADD(
+  PRIMARY KEY ( ACOID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE UNIQUE INDEX __bpcUser__.ACO_NAME ON __bpcUser__.APPLICATION_COMPONENT_T
+(   
+  NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ESCALATION_TEMPLATE_T
+(
+  ESTID                              RAW(16)              NOT NULL ,
+  FIRST_ESTID                        RAW(16)                       ,
+  PREVIOUS_ESTID                     RAW(16)                       ,
+  TKTID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  MNTID                              RAW(16)                       ,
+  NAME                               VARCHAR2(220)                 ,
+  ACTIVATION_STATE                   NUMBER(10,0)         NOT NULL ,
+  AT_LEAST_EXPECTED_STATE            NUMBER(10,0)         NOT NULL ,
+  DURATION_UNTIL_ESCALATION          VARCHAR2(254)                 ,
+  DURATION_UNTIL_REPEATS             VARCHAR2(254)                 ,
+  INCREASE_PRIORITY                  NUMBER(10,0)         NOT NULL ,
+  ACTION                             NUMBER(10,0)         NOT NULL ,
+  ESCALATION_RECEIVER_QTID           RAW(16)                       ,
+  RECEIVER_EMAIL_QTID                RAW(16)                       
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ESCALATION_TEMPLATE_T ADD(
+  PRIMARY KEY ( ESTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.ET_TKTID ON __bpcUser__.ESCALATION_TEMPLATE_T
+(   
+  TKTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ET_CCID ON __bpcUser__.ESCALATION_TEMPLATE_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ESC_TEMPL_CPROP_T
+(
+  ESTID                              RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(220)        NOT NULL ,
+  TKTID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  STRING_VALUE                       VARCHAR2(254)                 ,
+  DATA_TYPE                          VARCHAR2(254)                 ,
+  DATA                               BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ESC_TEMPL_CPROP_T ADD(
+  PRIMARY KEY ( ESTID, NAME )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.ETCP_TKTID ON __bpcUser__.ESC_TEMPL_CPROP_T
+(   
+  TKTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ETCP_CCID ON __bpcUser__.ESC_TEMPL_CPROP_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ESC_TEMPL_LDESC_T
+(
+  ESTID                              RAW(16)              NOT NULL ,
+  LOCALE                             VARCHAR2(32)         NOT NULL ,
+  TKTID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  DISPLAY_NAME                       VARCHAR2(64)                  ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  DOCUMENTATION                      CLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING
+  LOB (DOCUMENTATION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.ESC_TEMPL_LDESC_T ADD(
+  PRIMARY KEY ( ESTID, LOCALE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.ETLD_TKTID ON __bpcUser__.ESC_TEMPL_LDESC_T
+(   
+  TKTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ETLD_CCID ON __bpcUser__.ESC_TEMPL_LDESC_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TTASK_MESSAGE_DEFINITION_T
+(
+  TMTID                              RAW(16)              NOT NULL ,
+  TKTID                              RAW(16)                       ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  FAULT_NAME                         VARCHAR2(254)                 ,
+  MESSAGE_TYPE_NS                    VARCHAR2(220)        NOT NULL ,
+  MESSAGE_TYPE_NAME                  VARCHAR2(220)        NOT NULL ,
+  MESSAGE_DEFINITION                 BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TTASK_MESSAGE_DEFINITION_T ADD(
+  PRIMARY KEY ( TMTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TTMD_TKTID ON __bpcUser__.TTASK_MESSAGE_DEFINITION_T
+(   
+  TKTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TTMD_CCID ON __bpcUser__.TTASK_MESSAGE_DEFINITION_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_TEMPLATE_T
+(
+  TKTID                              RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(220)        NOT NULL ,
+  DEFINITION_NAME                    VARCHAR2(220)        NOT NULL ,
+  NAMESPACE                          VARCHAR2(254)        NOT NULL ,
+  TARGET_NAMESPACE                   VARCHAR2(254)        NOT NULL ,
+  VALID_FROM                         TIMESTAMP            NOT NULL ,
+  APPLICATION_NAME                   VARCHAR2(220)                 ,
+  APPLICATION_DEFAULTS_ID            RAW(16)                       ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)                       ,
+  SVTID                              RAW(16)                       ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  AUTO_DELETE_MODE                   NUMBER(10,0)         NOT NULL ,
+  IS_AD_HOC                          NUMBER(5,0)          NOT NULL ,
+  IS_INLINE                          NUMBER(5,0)          NOT NULL ,
+  IS_SHARED                          NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_CLAIM_SUSPENDED           NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_AUTO_CLAIM                NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_FOLLOW_ON_TASK            NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_DELEGATION                NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_SUB_TASK                  NUMBER(5,0)          NOT NULL ,
+  CONTEXT_AUTHORIZATION              NUMBER(10,0)         NOT NULL ,
+  AUTONOMY                           NUMBER(10,0)         NOT NULL ,
+  ADMIN_QTID                         RAW(16)                       ,
+  EDITOR_QTID                        RAW(16)                       ,
+  INSTANCE_CREATOR_QTID              RAW(16)                       ,
+  POTENTIAL_STARTER_QTID             RAW(16)                       ,
+  POTENTIAL_OWNER_QTID               RAW(16)                       ,
+  READER_QTID                        RAW(16)                       ,
+  DEFAULT_LOCALE                     VARCHAR2(32)                  ,
+  CALENDAR_NAME                      VARCHAR2(254)                 ,
+  DURATION_UNTIL_DELETED             VARCHAR2(254)                 ,
+  DURATION_UNTIL_DUE                 VARCHAR2(254)                 ,
+  DURATION_UNTIL_EXPIRES             VARCHAR2(254)                 ,
+  JNDI_NAME_CALENDAR                 VARCHAR2(254)                 ,
+  JNDI_NAME_STAFF_PROVIDER           VARCHAR2(254)        NOT NULL ,
+  TYPE                               VARCHAR2(254)                 ,
+  EVENT_HANDLER_NAME                 VARCHAR2(64)                  ,
+  PRIORITY                           NUMBER(10,0)                  ,
+  PRIORITY_DEFINITION                VARCHAR2(254)                 ,
+  BUSINESS_RELEVANCE                 NUMBER(5,0)          NOT NULL ,
+  SUBSTITUTION_POLICY                NUMBER(10,0)         NOT NULL ,
+  CONTACTS_QTIDS                     BLOB                          ,
+  UI_SETTINGS                        BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TASK_TEMPLATE_T ADD(
+  PRIMARY KEY ( TKTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE UNIQUE INDEX __bpcUser__.TT_NAME_VF_NS ON __bpcUser__.TASK_TEMPLATE_T
+(   
+  NAME, VALID_FROM, NAMESPACE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TT_CCID_STATE ON __bpcUser__.TASK_TEMPLATE_T
+(   
+  CONTAINMENT_CONTEXT_ID, STATE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TT_KND_INLN_VAL ON __bpcUser__.TASK_TEMPLATE_T
+(   
+  KIND, IS_INLINE, VALID_FROM
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_TEMPL_CPROP_T
+(
+  TKTID                              RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(220)        NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  DATA_TYPE                          VARCHAR2(254)                 ,
+  STRING_VALUE                       VARCHAR2(254)                 ,
+  DATA                               BLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TASK_TEMPL_CPROP_T ADD(
+  PRIMARY KEY ( TKTID, NAME )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TTCP_TKTID ON __bpcUser__.TASK_TEMPL_CPROP_T
+(   
+  TKTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TTCP_CCID ON __bpcUser__.TASK_TEMPL_CPROP_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_TEMPL_LDESC_T
+(
+  TKTID                              RAW(16)              NOT NULL ,
+  LOCALE                             VARCHAR2(32)         NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  DISPLAY_NAME                       VARCHAR2(64)                  ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  DOCUMENTATION                      CLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING
+  LOB (DOCUMENTATION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.TASK_TEMPL_LDESC_T ADD(
+  PRIMARY KEY ( TKTID, LOCALE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TTLD_TKTID ON __bpcUser__.TASK_TEMPL_LDESC_T
+(   
+  TKTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TTLD_CCID ON __bpcUser__.TASK_TEMPL_LDESC_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TTLD_TT_LOC ON __bpcUser__.TASK_TEMPL_LDESC_T
+(   
+  TKTID, LOCALE DESC
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TSERVICE_DESCRIPTION_T
+(
+  SVTID                              RAW(16)              NOT NULL ,
+  TKTID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  IS_ONE_WAY                         NUMBER(5,0)          NOT NULL ,
+  SERVICE_REF_NAME                   VARCHAR2(254)                 ,
+  OPERATION                          VARCHAR2(254)        NOT NULL ,
+  PORT                               VARCHAR2(254)                 ,
+  PORT_TYPE_NS                       VARCHAR2(254)        NOT NULL ,
+  PORT_TYPE_NAME                     VARCHAR2(254)        NOT NULL ,
+  S_BEAN_JNDI_NAME                   VARCHAR2(254)                 ,
+  SERVICE                            VARCHAR2(254)                 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TSERVICE_DESCRIPTION_T ADD(
+  PRIMARY KEY ( SVTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TSD_TKTID ON __bpcUser__.TSERVICE_DESCRIPTION_T
+(   
+  TKTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TSD_CCID ON __bpcUser__.TSERVICE_DESCRIPTION_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_CELL_MAP_T
+(
+  TKTID                              RAW(16)              NOT NULL ,
+  CELL                               VARCHAR2(220)        NOT NULL 
+) TABLESPACE TEMPLATE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TASK_CELL_MAP_T ADD(
+  PRIMARY KEY ( TKTID, CELL )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.TMAIL_T
+(
+  MNTID                              RAW(16)              NOT NULL ,
+  FROM_STATE                         NUMBER(10,0)         NOT NULL ,
+  TO_STATE                           NUMBER(10,0)         NOT NULL ,
+  LOCALE                             VARCHAR2(32)         NOT NULL ,
+  HASH_CODE                          NUMBER(10,0)         NOT NULL ,
+  SUBJECT                            VARCHAR2(254)        NOT NULL ,
+  BODY_TEXT                          CLOB                          
+) TABLESPACE TEMPLATE
+  LOGGING
+  LOB (BODY_TEXT) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.TMAIL_T ADD(
+  PRIMARY KEY ( MNTID, FROM_STATE, TO_STATE, LOCALE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.EMT_HC ON __bpcUser__.TMAIL_T
+(   
+  HASH_CODE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ESCALATION_INSTANCE_T
+(
+  ESIID                              RAW(16)              NOT NULL ,
+  ESTID                              RAW(16)                       ,
+  FIRST_ESIID                        RAW(16)                       ,
+  PREVIOUS_ESIID                     RAW(16)                       ,
+  TKIID                              RAW(16)              NOT NULL ,
+  MNTID                              RAW(16)                       ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(220)                 ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  ACTIVATION_STATE                   NUMBER(10,0)         NOT NULL ,
+  AT_LEAST_EXPECTED_STATE            NUMBER(10,0)         NOT NULL ,
+  ACTIVATION_TIME                    TIMESTAMP                     ,
+  ESCALATION_TIME                    TIMESTAMP                     ,
+  DURATION_UNTIL_ESCALATION          VARCHAR2(254)                 ,
+  DURATION_UNTIL_REPEATS             VARCHAR2(254)                 ,
+  INCREASE_PRIORITY                  NUMBER(10,0)         NOT NULL ,
+  ACTION                             NUMBER(10,0)         NOT NULL ,
+  ESCALATION_RECEIVER_QTID           RAW(16)                       ,
+  RECEIVER_EMAIL_QTID                RAW(16)                       ,
+  SCHEDULER_ID                       VARCHAR2(254)                 ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ESCALATION_INSTANCE_T ADD(
+  PRIMARY KEY ( ESIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.ESI_FIRST ON __bpcUser__.ESCALATION_INSTANCE_T
+(   
+  FIRST_ESIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ESI_TKIID_ASTATE ON __bpcUser__.ESCALATION_INSTANCE_T
+(   
+  TKIID, ACTIVATION_STATE, STATE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ESI_TKIID_STATE ON __bpcUser__.ESCALATION_INSTANCE_T
+(   
+  TKIID, STATE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ESI_PREV ON __bpcUser__.ESCALATION_INSTANCE_T
+(   
+  PREVIOUS_ESIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ESI_ESTID ON __bpcUser__.ESCALATION_INSTANCE_T
+(   
+  ESTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ESI_CCID ON __bpcUser__.ESCALATION_INSTANCE_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ESI_EST_ESI ON __bpcUser__.ESCALATION_INSTANCE_T
+(   
+  ESTID, ESIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ESC_INST_CPROP_T
+(
+  ESIID                              RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(220)        NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  STRING_VALUE                       VARCHAR2(254)                 ,
+  DATA_TYPE                          VARCHAR2(254)                 ,
+  DATA                               BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ESC_INST_CPROP_T ADD(
+  PRIMARY KEY ( ESIID, NAME )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.EICP_CCID ON __bpcUser__.ESC_INST_CPROP_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ESC_INST_LDESC_T
+(
+  ESIID                              RAW(16)              NOT NULL ,
+  LOCALE                             VARCHAR2(32)         NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  DISPLAY_NAME                       VARCHAR2(64)                  ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ESC_INST_LDESC_T ADD(
+  PRIMARY KEY ( ESIID, LOCALE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.EILD_CCID ON __bpcUser__.ESC_INST_LDESC_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.EIDOCUMENTATION_T
+(
+  ESIID                              RAW(16)              NOT NULL ,
+  LOCALE                             VARCHAR2(32)         NOT NULL ,
+  TKIID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  DOCUMENTATION                      CLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING
+  LOB (DOCUMENTATION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.EIDOCUMENTATION_T ADD(
+  PRIMARY KEY ( ESIID, LOCALE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.EIDOC_CCID ON __bpcUser__.EIDOCUMENTATION_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ISERVICE_DESCRIPTION_T
+(
+  SVTID                              RAW(16)              NOT NULL ,
+  TKIID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  IS_ONE_WAY                         NUMBER(5,0)          NOT NULL ,
+  SERVICE_REF_NAME                   VARCHAR2(254)                 ,
+  OPERATION                          VARCHAR2(254)        NOT NULL ,
+  PORT                               VARCHAR2(254)                 ,
+  PORT_TYPE_NS                       VARCHAR2(254)        NOT NULL ,
+  PORT_TYPE_NAME                     VARCHAR2(254)        NOT NULL ,
+  S_BEAN_JNDI_NAME                   VARCHAR2(254)                 ,
+  SERVICE                            VARCHAR2(254)                 ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ISERVICE_DESCRIPTION_T ADD(
+  PRIMARY KEY ( SVTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.ISD_TKIID ON __bpcUser__.ISERVICE_DESCRIPTION_T
+(   
+  TKIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ISD_CCID ON __bpcUser__.ISERVICE_DESCRIPTION_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_INSTANCE_T
+(
+  TKIID                              RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(220)        NOT NULL ,
+  NAMESPACE                          VARCHAR2(254)        NOT NULL ,
+  TKTID                              RAW(16)                       ,
+  TOP_TKIID                          RAW(16)              NOT NULL ,
+  FOLLOW_ON_TKIID                    RAW(16)                       ,
+  APPLICATION_NAME                   VARCHAR2(220)                 ,
+  APPLICATION_DEFAULTS_ID            RAW(16)                       ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)                       ,
+  PARENT_CONTEXT_ID                  RAW(16)                       ,
+  STATE                              NUMBER(10,0)         NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  AUTO_DELETE_MODE                   NUMBER(10,0)         NOT NULL ,
+  HIERARCHY_POSITION                 NUMBER(10,0)         NOT NULL ,
+  TYPE                               VARCHAR2(254)                 ,
+  SVTID                              RAW(16)                       ,
+  SUPPORTS_CLAIM_SUSPENDED           NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_AUTO_CLAIM                NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_FOLLOW_ON_TASK            NUMBER(5,0)          NOT NULL ,
+  IS_AD_HOC                          NUMBER(5,0)          NOT NULL ,
+  IS_ESCALATED                       NUMBER(5,0)          NOT NULL ,
+  IS_INLINE                          NUMBER(5,0)          NOT NULL ,
+  IS_SUSPENDED                       NUMBER(5,0)          NOT NULL ,
+  IS_WAITING_FOR_SUBTASK             NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_DELEGATION                NUMBER(5,0)          NOT NULL ,
+  SUPPORTS_SUB_TASK                  NUMBER(5,0)          NOT NULL ,
+  IS_CHILD                           NUMBER(5,0)          NOT NULL ,
+  HAS_ESCALATIONS                    NUMBER(5,0)                   ,
+  START_TIME                         TIMESTAMP                     ,
+  ACTIVATION_TIME                    TIMESTAMP                     ,
+  LAST_MODIFICATION_TIME             TIMESTAMP                     ,
+  LAST_STATE_CHANGE_TIME             TIMESTAMP                     ,
+  COMPLETION_TIME                    TIMESTAMP                     ,
+  DUE_TIME                           TIMESTAMP                     ,
+  EXPIRATION_TIME                    TIMESTAMP                     ,
+  FIRST_ACTIVATION_TIME              TIMESTAMP                     ,
+  DEFAULT_LOCALE                     VARCHAR2(32)                  ,
+  DURATION_UNTIL_DELETED             VARCHAR2(254)                 ,
+  DURATION_UNTIL_DUE                 VARCHAR2(254)                 ,
+  DURATION_UNTIL_EXPIRES             VARCHAR2(254)                 ,
+  CALENDAR_NAME                      VARCHAR2(254)                 ,
+  JNDI_NAME_CALENDAR                 VARCHAR2(254)                 ,
+  JNDI_NAME_STAFF_PROVIDER           VARCHAR2(254)                 ,
+  CONTEXT_AUTHORIZATION              NUMBER(10,0)         NOT NULL ,
+  ORIGINATOR                         VARCHAR2(128)                 ,
+  STARTER                            VARCHAR2(128)                 ,
+  OWNER                              VARCHAR2(128)                 ,
+  ADMIN_QTID                         RAW(16)                       ,
+  EDITOR_QTID                        RAW(16)                       ,
+  POTENTIAL_OWNER_QTID               RAW(16)                       ,
+  POTENTIAL_STARTER_QTID             RAW(16)                       ,
+  READER_QTID                        RAW(16)                       ,
+  PRIORITY                           NUMBER(10,0)                  ,
+  SCHEDULER_ID                       VARCHAR2(254)                 ,
+  SERVICE_TICKET                     VARCHAR2(254)                 ,
+  EVENT_HANDLER_NAME                 VARCHAR2(64)                  ,
+  BUSINESS_RELEVANCE                 NUMBER(5,0)          NOT NULL ,
+  RESUMES                            TIMESTAMP                     ,
+  SUBSTITUTION_POLICY                NUMBER(10,0)         NOT NULL ,
+  DELETION_TIME                      TIMESTAMP                     ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TASK_INSTANCE_T ADD(
+  PRIMARY KEY ( TKIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TI_PARENT ON __bpcUser__.TASK_INSTANCE_T
+(   
+  PARENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TI_ACOID ON __bpcUser__.TASK_INSTANCE_T
+(   
+  APPLICATION_DEFAULTS_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TI_NAME ON __bpcUser__.TASK_INSTANCE_T
+(   
+  NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TI_STATE ON __bpcUser__.TASK_INSTANCE_T
+(   
+  STATE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TI_SERVICET ON __bpcUser__.TASK_INSTANCE_T
+(   
+  SERVICE_TICKET
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TI_CCID ON __bpcUser__.TASK_INSTANCE_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TI_TK_TOPTK ON __bpcUser__.TASK_INSTANCE_T
+(   
+  TKTID, TKIID, TOP_TKIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TI_TOPTKIID ON __bpcUser__.TASK_INSTANCE_T
+(   
+  TOP_TKIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TI_TI_KND_ST ON __bpcUser__.TASK_INSTANCE_T
+(   
+  TKIID, KIND, STATE
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TI_ST_KND_TI_NAME ON __bpcUser__.TASK_INSTANCE_T
+(   
+  STATE, KIND, TKIID, NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TI_TT_KND ON __bpcUser__.TASK_INSTANCE_T
+(   
+  TKTID, KIND
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_CONTEXT_T
+(
+  TKIID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  SERVICE_CONTEXT                    BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TASK_CONTEXT_T ADD(
+  PRIMARY KEY ( TKIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TC_CCID ON __bpcUser__.TASK_CONTEXT_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.CONTACT_QUERIES_T
+(
+  TKIID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  CONTACTS_QTIDS                     BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.CONTACT_QUERIES_T ADD(
+  PRIMARY KEY ( TKIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.CQ_CCID ON __bpcUser__.CONTACT_QUERIES_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.UISETTINGS_T
+(
+  TKIID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  UI_SETTINGS                        BLOB                 NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.UISETTINGS_T ADD(
+  PRIMARY KEY ( TKIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.UIS_CCID ON __bpcUser__.UISETTINGS_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.REPLY_HANDLER_T
+(
+  TKIID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  REPLY_HANDLER                      BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.REPLY_HANDLER_T ADD(
+  PRIMARY KEY ( TKIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.RH_CCID ON __bpcUser__.REPLY_HANDLER_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_TIMER_T
+(
+  OID                                RAW(16)              NOT NULL ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  SCHEDULER_ID                       VARCHAR2(254)        NOT NULL ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TASK_TIMER_T ADD(
+  PRIMARY KEY ( OID, KIND )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.TASK_INST_CPROP_T
+(
+  TKIID                              RAW(16)              NOT NULL ,
+  NAME                               VARCHAR2(220)        NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  DATA_TYPE                          VARCHAR2(254)                 ,
+  STRING_VALUE                       VARCHAR2(254)                 ,
+  DATA                               BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TASK_INST_CPROP_T ADD(
+  PRIMARY KEY ( TKIID, NAME )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TICP_CCID ON __bpcUser__.TASK_INST_CPROP_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_INST_LDESC_T
+(
+  TKIID                              RAW(16)              NOT NULL ,
+  LOCALE                             VARCHAR2(32)         NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  DISPLAY_NAME                       VARCHAR2(64)                  ,
+  DESCRIPTION                        VARCHAR2(254)                 ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TASK_INST_LDESC_T ADD(
+  PRIMARY KEY ( TKIID, LOCALE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TILD_CCID ON __bpcUser__.TASK_INST_LDESC_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TIDOCUMENTATION_T
+(
+  TKIID                              RAW(16)              NOT NULL ,
+  LOCALE                             VARCHAR2(32)         NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  DOCUMENTATION                      CLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING
+  LOB (DOCUMENTATION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.TIDOCUMENTATION_T ADD(
+  PRIMARY KEY ( TKIID, LOCALE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TIDOC_CCID ON __bpcUser__.TIDOCUMENTATION_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.ITASK_MESSAGE_DEFINITION_T
+(
+  TMTID                              RAW(16)              NOT NULL ,
+  TKIID                              RAW(16)                       ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  FAULT_NAME                         VARCHAR2(254)                 ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  MESSAGE_TYPE_NS                    VARCHAR2(220)        NOT NULL ,
+  MESSAGE_TYPE_NAME                  VARCHAR2(220)        NOT NULL ,
+  MESSAGE_DEFINITION                 BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.ITASK_MESSAGE_DEFINITION_T ADD(
+  PRIMARY KEY ( TMTID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.ITMD_IDKINSTYPE ON __bpcUser__.ITASK_MESSAGE_DEFINITION_T
+(   
+  TKIID, MESSAGE_TYPE_NS, MESSAGE_TYPE_NAME, KIND
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ITMD_TKIIDKINDFN ON __bpcUser__.ITASK_MESSAGE_DEFINITION_T
+(   
+  TKIID, KIND, FAULT_NAME
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.ITMD_CCID ON __bpcUser__.ITASK_MESSAGE_DEFINITION_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_MESSAGE_INSTANCE_T
+(
+  TMIID                              RAW(16)              NOT NULL ,
+  TMTID                              RAW(16)                       ,
+  TKIID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  FAULT_NAME                         VARCHAR2(254)                 ,
+  KIND                               NUMBER(10,0)         NOT NULL ,
+  MESSAGE_TYPE_NS                    VARCHAR2(220)        NOT NULL ,
+  MESSAGE_TYPE_NAME                  VARCHAR2(220)        NOT NULL ,
+  DATA                               BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TASK_MESSAGE_INSTANCE_T ADD(
+  PRIMARY KEY ( TMIID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TMI_TI_K ON __bpcUser__.TASK_MESSAGE_INSTANCE_T
+(   
+  TKIID, KIND
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TMI_TMTID ON __bpcUser__.TASK_MESSAGE_INSTANCE_T
+(   
+  TMTID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TMI_CCID ON __bpcUser__.TASK_MESSAGE_INSTANCE_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_AUDIT_LOG_T
+(
+  ALID                               RAW(16)              NOT NULL ,
+  AUDIT_EVENT                        NUMBER(10,0)         NOT NULL ,
+  TKIID                              RAW(16)                       ,
+  TKTID                              RAW(16)                       ,
+  ESIID                              RAW(16)                       ,
+  ESTID                              RAW(16)                       ,
+  TOP_TKIID                          RAW(16)                       ,
+  FOLLOW_ON_TKIID                    RAW(16)                       ,
+  PARENT_TKIID                       RAW(16)                       ,
+  PARENT_CONTEXT_ID                  RAW(16)                       ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)                       ,
+  WI_REASON                          NUMBER(10,0)                  ,
+  NAME                               VARCHAR2(254)                 ,
+  NAMESPACE                          VARCHAR2(254)                 ,
+  VALID_FROM_UTC                     TIMESTAMP                     ,
+  EVENT_TIME_UTC                     TIMESTAMP                     ,
+  PARENT_TASK_NAME                   VARCHAR2(254)                 ,
+  PARENT_TASK_NAMESPACE              VARCHAR2(254)                 ,
+  TASK_KIND                          NUMBER(10,0)                  ,
+  TASK_STATE                         NUMBER(10,0)                  ,
+  FAULT_TYPE_NAME                    VARCHAR2(220)                 ,
+  FAULT_NAMESPACE                    VARCHAR2(220)                 ,
+  FAULT_NAME                         VARCHAR2(220)                 ,
+  NEW_USER                           VARCHAR2(128)                 ,
+  OLD_USER                           VARCHAR2(128)                 ,
+  PRINCIPAL                          VARCHAR2(128)                 ,
+  USERS                              CLOB                          ,
+  DESCRIPTION                        CLOB                          ,
+  MESSAGE_DATA                       BLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) 
+  LOGGING
+  LOB (USERS) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  )
+  LOB (DESCRIPTION) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.TASK_AUDIT_LOG_T ADD(
+  PRIMARY KEY ( ALID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE TABLE __bpcUser__.IMAIL_T
+(
+  OBJECT_ID                          RAW(16)              NOT NULL ,
+  FROM_STATE                         NUMBER(10,0)         NOT NULL ,
+  TO_STATE                           NUMBER(10,0)         NOT NULL ,
+  LOCALE                             VARCHAR2(32)         NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  SUBJECT                            VARCHAR2(254)        NOT NULL ,
+  URI                                VARCHAR2(254)                 ,
+  BODY_TEXT                          CLOB                          ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING
+  LOB (BODY_TEXT) STORE AS
+  (
+    TABLESPACE LOBTS
+    ENABLE STORAGE IN ROW
+    NOCACHE
+  );
+
+ALTER TABLE __bpcUser__.IMAIL_T ADD(
+  PRIMARY KEY ( OBJECT_ID, FROM_STATE, TO_STATE, LOCALE )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.IMN_CTX ON __bpcUser__.IMAIL_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE TABLE __bpcUser__.TASK_HISTORY_T
+(
+  PKID                               RAW(16)              NOT NULL ,
+  EVENT                              NUMBER(10,0)         NOT NULL ,
+  TKIID                              RAW(16)              NOT NULL ,
+  CONTAINMENT_CONTEXT_ID             RAW(16)              NOT NULL ,
+  PARENT_TKIID                       RAW(16)                       ,
+  ESIID                              RAW(16)                       ,
+  REASON                             NUMBER(10,0)         NOT NULL ,
+  EVENT_TIME                         TIMESTAMP            NOT NULL ,
+  NEXT_TIME                          TIMESTAMP                     ,
+  PRINCIPAL                          VARCHAR2(128)        NOT NULL ,
+  WORK_ITEM_KIND                     NUMBER(10,0)         NOT NULL ,
+  FROM_ID                            VARCHAR2(128)                 ,
+  TO_ID                              VARCHAR2(128)                 ,
+  VERSION_ID                         NUMBER(5,0)          NOT NULL 
+) TABLESPACE INSTANCE
+  LOGGING;
+
+ALTER TABLE __bpcUser__.TASK_HISTORY_T ADD(
+  PRIMARY KEY ( PKID )
+  USING INDEX TABLESPACE INDEXTS
+);
+
+CREATE INDEX __bpcUser__.TH_TKIID ON __bpcUser__.TASK_HISTORY_T
+(   
+  TKIID
+) TABLESPACE INDEXTS
+  LOGGING;
+
+CREATE INDEX __bpcUser__.TH_CTXID ON __bpcUser__.TASK_HISTORY_T
+(   
+  CONTAINMENT_CONTEXT_ID
+) TABLESPACE INDEXTS
+  LOGGING;
+-- set schema version to: 620
+INSERT INTO __bpcUser__.SCHEMA_VERSION (SCHEMA_VERSION, DATA_MIGRATION) VALUES( 620, 0 );
+
+
+-- View: ProcessTemplate
+CREATE VIEW __bpcUser__.PROCESS_TEMPLATE(PTID, NAME, DISPLAY_NAME, VALID_FROM, TARGET_NAMESPACE, APPLICATION_NAME, VERSION, CREATED, STATE, EXECUTION_MODE, DESCRIPTION, CAN_RUN_SYNC, CAN_RUN_INTERRUP, COMP_SPHERE, CONTINUE_ON_ERROR ) AS
+ SELECT __bpcUser__.PROCESS_TEMPLATE_B_T.PTID, __bpcUser__.PROCESS_TEMPLATE_B_T.NAME, __bpcUser__.PROCESS_TEMPLATE_B_T.DISPLAY_NAME, __bpcUser__.PROCESS_TEMPLATE_B_T.VALID_FROM, __bpcUser__.PROCESS_TEMPLATE_B_T.TARGET_NAMESPACE, __bpcUser__.PROCESS_TEMPLATE_B_T.APPLICATION_NAME, __bpcUser__.PROCESS_TEMPLATE_B_T.VERSION, __bpcUser__.PROCESS_TEMPLATE_B_T.CREATED, __bpcUser__.PROCESS_TEMPLATE_B_T.STATE, __bpcUser__.PROCESS_TEMPLATE_B_T.EXECUTION_MODE, __bpcUser__.PROCESS_TEMPLATE_B_T.DESCRIPTION, __bpcUser__.PROCESS_TEMPLATE_B_T.CAN_CALL, __bpcUser__.PROCESS_TEMPLATE_B_T.CAN_INITIATE, __bpcUser__.PROCESS_TEMPLATE_B_T.COMPENSATION_SPHERE, __bpcUser__.PROCESS_TEMPLATE_B_T.CONTINUE_ON_ERROR
+ FROM __bpcUser__.PROCESS_TEMPLATE_B_T;
+
+-- View: ProcessTemplAttr
+CREATE VIEW __bpcUser__.PROCESS_TEMPL_ATTR(PTID, NAME, VALUE ) AS
+ SELECT __bpcUser__.PROCESS_TEMPLATE_ATTRIBUTE_B_T.PTID, __bpcUser__.PROCESS_TEMPLATE_ATTRIBUTE_B_T.ATTR_KEY, __bpcUser__.PROCESS_TEMPLATE_ATTRIBUTE_B_T.VALUE
+ FROM __bpcUser__.PROCESS_TEMPLATE_ATTRIBUTE_B_T;
+
+-- View: ProcessInstance
+CREATE VIEW __bpcUser__.PROCESS_INSTANCE(PTID, PIID, NAME, STATE, CREATED, STARTED, COMPLETED, PARENT_NAME, TOP_LEVEL_NAME, PARENT_PIID, TOP_LEVEL_PIID, STARTER, DESCRIPTION, TEMPLATE_NAME, TEMPLATE_DESCR, RESUMES, CONTINUE_ON_ERROR ) AS
+ SELECT __bpcUser__.PROCESS_INSTANCE_B_T.PTID, __bpcUser__.PROCESS_INSTANCE_B_T.PIID, __bpcUser__.PROCESS_INSTANCE_B_T.NAME, __bpcUser__.PROCESS_INSTANCE_B_T.STATE, __bpcUser__.PROCESS_INSTANCE_B_T.CREATED, __bpcUser__.PROCESS_INSTANCE_B_T.STARTED, __bpcUser__.PROCESS_INSTANCE_B_T.COMPLETED, __bpcUser__.PROCESS_INSTANCE_B_T.PARENT_NAME, __bpcUser__.PROCESS_INSTANCE_B_T.TOP_LEVEL_NAME, __bpcUser__.PROCESS_INSTANCE_B_T.PARENT_PIID, __bpcUser__.PROCESS_INSTANCE_B_T.TOP_LEVEL_PIID, __bpcUser__.PROCESS_INSTANCE_B_T.STARTER, __bpcUser__.PROCESS_INSTANCE_B_T.DESCRIPTION, __bpcUser__.PROCESS_TEMPLATE_B_T.NAME, __bpcUser__.PROCESS_TEMPLATE_B_T.DESCRIPTION, __bpcUser__.PROCESS_INSTANCE_B_T.RESUMES, __bpcUser__.PROCESS_TEMPLATE_B_T.CONTINUE_ON_ERROR
+ FROM __bpcUser__.PROCESS_INSTANCE_B_T, __bpcUser__.PROCESS_TEMPLATE_B_T
+ WHERE __bpcUser__.PROCESS_INSTANCE_B_T.PTID = __bpcUser__.PROCESS_TEMPLATE_B_T.PTID;
+
+-- View: ProcessAttribute
+CREATE VIEW __bpcUser__.PROCESS_ATTRIBUTE(PIID, NAME, VALUE, DATA_TYPE ) AS
+ SELECT __bpcUser__.PROCESS_INSTANCE_ATTRIBUTE_T.PIID, __bpcUser__.PROCESS_INSTANCE_ATTRIBUTE_T.ATTR_KEY, __bpcUser__.PROCESS_INSTANCE_ATTRIBUTE_T.VALUE, __bpcUser__.PROCESS_INSTANCE_ATTRIBUTE_T.DATA_TYPE
+ FROM __bpcUser__.PROCESS_INSTANCE_ATTRIBUTE_T;
+
+-- View: Activity
+CREATE VIEW __bpcUser__.ACTIVITY(PIID, AIID, PTID, ATID, SIID, STID, EHIID, ENCLOSING_FEIID, KIND, COMPLETED, ACTIVATED, FIRST_ACTIVATED, STARTED, STATE, STOP_REASON, OWNER, DESCRIPTION, EXPIRES, TEMPLATE_NAME, TEMPLATE_DESCR, BUSINESS_RELEVANCE, SKIP_REQUESTED, CONTINUE_ON_ERROR, INVOKED_INST_ID, INVOKED_INST_TYPE ) AS
+ SELECT __bpcUser__.ACTIVITY_INSTANCE_B_T.PIID, __bpcUser__.ACTIVITY_INSTANCE_B_T.AIID, __bpcUser__.ACTIVITY_INSTANCE_B_T.PTID, __bpcUser__.ACTIVITY_INSTANCE_B_T.ATID, __bpcUser__.ACTIVITY_INSTANCE_B_T.SIID, __bpcUser__.ACTIVITY_TEMPLATE_B_T.PARENT_STID, __bpcUser__.ACTIVITY_INSTANCE_B_T.EHIID, __bpcUser__.ACTIVITY_INSTANCE_B_T.ENCLOSING_FEIID, __bpcUser__.ACTIVITY_TEMPLATE_B_T.KIND, __bpcUser__.ACTIVITY_INSTANCE_B_T.FINISHED, __bpcUser__.ACTIVITY_INSTANCE_B_T.ACTIVATED, __bpcUser__.ACTIVITY_INSTANCE_B_T.FIRST_ACTIVATED, __bpcUser__.ACTIVITY_INSTANCE_B_T.STARTED, __bpcUser__.ACTIVITY_INSTANCE_B_T.STATE, __bpcUser__.ACTIVITY_INSTANCE_B_T.STOP_REASON, __bpcUser__.ACTIVITY_INSTANCE_B_T.OWNER, __bpcUser__.ACTIVITY_INSTANCE_B_T.DESCRIPTION, __bpcUser__.ACTIVITY_INSTANCE_B_T.EXPIRES, __bpcUser__.ACTIVITY_TEMPLATE_B_T.NAME, __bpcUser__.ACTIVITY_TEMPLATE_B_T.DESCRIPTION, __bpcUser__.ACTIVITY_TEMPLATE_B_T.BUSINESS_RELEVANCE, __bpcUser__.ACTIVITY_INSTANCE_B_T.SKIP_REQUESTED, __bpcUser__.ACTIVITY_INSTANCE_B_T.CONTINUE_ON_ERROR, __bpcUser__.ACTIVITY_INSTANCE_B_T.INVOKED_INSTANCE_ID, __bpcUser__.ACTIVITY_INSTANCE_B_T.INVOKED_INSTANCE_TYPE
+ FROM __bpcUser__.ACTIVITY_INSTANCE_B_T, __bpcUser__.ACTIVITY_TEMPLATE_B_T
+ WHERE __bpcUser__.ACTIVITY_INSTANCE_B_T.ATID = __bpcUser__.ACTIVITY_TEMPLATE_B_T.ATID;
+
+-- View: ActivityAttribute
+CREATE VIEW __bpcUser__.ACTIVITY_ATTRIBUTE(AIID, NAME, VALUE, DATA_TYPE ) AS
+ SELECT __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T.AIID, __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T.ATTR_KEY, __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T.ATTR_VALUE, __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T.DATA_TYPE
+ FROM __bpcUser__.ACTIVITY_INSTANCE_ATTR_B_T;
+
+-- View: Event
+CREATE VIEW __bpcUser__.EVENT(EIID, AIID, PIID, EHTID, SIID, NAME ) AS
+ SELECT __bpcUser__.EVENT_INSTANCE_B_T.EIID, __bpcUser__.EVENT_INSTANCE_B_T.AIID, __bpcUser__.EVENT_INSTANCE_B_T.PIID, __bpcUser__.EVENT_INSTANCE_B_T.EHTID, __bpcUser__.EVENT_INSTANCE_B_T.SIID, __bpcUser__.SERVICE_TEMPLATE_B_T.NAME
+ FROM __bpcUser__.EVENT_INSTANCE_B_T, __bpcUser__.SERVICE_TEMPLATE_B_T
+ WHERE __bpcUser__.EVENT_INSTANCE_B_T.STATE = 2 AND __bpcUser__.EVENT_INSTANCE_B_T.VTID = __bpcUser__.SERVICE_TEMPLATE_B_T.VTID;
+
+-- View: WorkItem
+CREATE VIEW __bpcUser__.WORK_ITEM(WIID, OWNER_ID, GROUP_NAME, EVERYBODY, OBJECT_TYPE, OBJECT_ID, ASSOC_OBJECT_TYPE, ASSOC_OID, REASON, CREATION_TIME, QIID, KIND ) AS
+ SELECT __bpcUser__.WORK_ITEM_T.WIID, __bpcUser__.WORK_ITEM_T.OWNER_ID, __bpcUser__.WORK_ITEM_T.GROUP_NAME, __bpcUser__.WORK_ITEM_T.EVERYBODY, __bpcUser__.WORK_ITEM_T.OBJECT_TYPE, __bpcUser__.WORK_ITEM_T.OBJECT_ID, __bpcUser__.WORK_ITEM_T.ASSOCIATED_OBJECT_TYPE, __bpcUser__.WORK_ITEM_T.ASSOCIATED_OID, __bpcUser__.WORK_ITEM_T.REASON, __bpcUser__.WORK_ITEM_T.CREATION_TIME, __bpcUser__.WORK_ITEM_T.QIID, __bpcUser__.WORK_ITEM_T.KIND
+ FROM __bpcUser__.WORK_ITEM_T
+ WHERE __bpcUser__.WORK_ITEM_T.AUTH_INFO = 1
+ UNION ALL SELECT __bpcUser__.WORK_ITEM_T.WIID, __bpcUser__.WORK_ITEM_T.OWNER_ID, __bpcUser__.WORK_ITEM_T.GROUP_NAME, __bpcUser__.WORK_ITEM_T.EVERYBODY, __bpcUser__.WORK_ITEM_T.OBJECT_TYPE, __bpcUser__.WORK_ITEM_T.OBJECT_ID, __bpcUser__.WORK_ITEM_T.ASSOCIATED_OBJECT_TYPE, __bpcUser__.WORK_ITEM_T.ASSOCIATED_OID, __bpcUser__.WORK_ITEM_T.REASON, __bpcUser__.WORK_ITEM_T.CREATION_TIME, __bpcUser__.WORK_ITEM_T.QIID, __bpcUser__.WORK_ITEM_T.KIND
+ FROM __bpcUser__.WORK_ITEM_T
+ WHERE __bpcUser__.WORK_ITEM_T.AUTH_INFO = 2
+ UNION ALL SELECT __bpcUser__.WORK_ITEM_T.WIID, __bpcUser__.WORK_ITEM_T.OWNER_ID, __bpcUser__.WORK_ITEM_T.GROUP_NAME, __bpcUser__.WORK_ITEM_T.EVERYBODY, __bpcUser__.WORK_ITEM_T.OBJECT_TYPE, __bpcUser__.WORK_ITEM_T.OBJECT_ID, __bpcUser__.WORK_ITEM_T.ASSOCIATED_OBJECT_TYPE, __bpcUser__.WORK_ITEM_T.ASSOCIATED_OID, __bpcUser__.WORK_ITEM_T.REASON, __bpcUser__.WORK_ITEM_T.CREATION_TIME, __bpcUser__.WORK_ITEM_T.QIID, __bpcUser__.WORK_ITEM_T.KIND
+ FROM __bpcUser__.WORK_ITEM_T
+ WHERE __bpcUser__.WORK_ITEM_T.AUTH_INFO = 3
+ UNION ALL SELECT __bpcUser__.WORK_ITEM_T.WIID, __bpcUser__.RETRIEVED_USER_T.OWNER_ID, __bpcUser__.WORK_ITEM_T.GROUP_NAME, __bpcUser__.WORK_ITEM_T.EVERYBODY, __bpcUser__.WORK_ITEM_T.OBJECT_TYPE, __bpcUser__.WORK_ITEM_T.OBJECT_ID, __bpcUser__.WORK_ITEM_T.ASSOCIATED_OBJECT_TYPE, __bpcUser__.WORK_ITEM_T.ASSOCIATED_OID, __bpcUser__.WORK_ITEM_T.REASON, __bpcUser__.WORK_ITEM_T.CREATION_TIME, __bpcUser__.WORK_ITEM_T.QIID, __bpcUser__.WORK_ITEM_T.KIND
+ FROM __bpcUser__.WORK_ITEM_T, __bpcUser__.RETRIEVED_USER_T
+ WHERE __bpcUser__.WORK_ITEM_T.AUTH_INFO = 0 AND __bpcUser__.WORK_ITEM_T.QIID = __bpcUser__.RETRIEVED_USER_T.QIID;
+
+-- View: ActivityService
+CREATE VIEW __bpcUser__.ACTIVITY_SERVICE(EIID, AIID, PIID, VTID, PORT_TYPE, NAME_SPACE_URI, OPERATION ) AS
+ SELECT __bpcUser__.EVENT_INSTANCE_B_T.EIID, __bpcUser__.EVENT_INSTANCE_B_T.AIID, __bpcUser__.EVENT_INSTANCE_B_T.PIID, __bpcUser__.EVENT_INSTANCE_B_T.VTID, __bpcUser__.SERVICE_TEMPLATE_B_T.PORT_TYPE_NAME,__bpcUser__.URI_TEMPLATE_B_T.URI, __bpcUser__.SERVICE_TEMPLATE_B_T.OPERATION_NAME
+ FROM __bpcUser__.EVENT_INSTANCE_B_T, __bpcUser__.SERVICE_TEMPLATE_B_T, __bpcUser__.URI_TEMPLATE_B_T
+ WHERE __bpcUser__.EVENT_INSTANCE_B_T.STATE = 2 AND __bpcUser__.EVENT_INSTANCE_B_T.VTID = __bpcUser__.SERVICE_TEMPLATE_B_T.VTID AND __bpcUser__.SERVICE_TEMPLATE_B_T.PORT_TYPE_UTID = __bpcUser__.URI_TEMPLATE_B_T.UTID;
+
+-- View: QueryProperty
+CREATE VIEW __bpcUser__.QUERY_PROPERTY(PIID, VARIABLE_NAME, NAME, NAMESPACE, GENERIC_VALUE, STRING_VALUE, NUMBER_VALUE, DECIMAL_VALUE, TIMESTAMP_VALUE ) AS
+ SELECT __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T.PIID, __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T.VARIABLE_NAME, __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T.PROPERTY_NAME, __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T.PROPERTY_NAMESPACE, __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T.GENERIC_VALUE, __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T.STRING_VALUE, __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T.NUMBER_VALUE, __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T.DECIMAL_VALUE, __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T.TIMESTAMP_VALUE
+ FROM __bpcUser__.QUERYABLE_VARIABLE_INSTANCE_T;
+
+-- View: QueryPropTempl
+CREATE VIEW __bpcUser__.QUERY_PROP_TEMPL(PTID, NAME, PROPERTY_NAME, URI, QUERY_TYPE, JAVA_TYPE ) AS
+ SELECT __bpcUser__.QUERYABLE_VARIABLE_TEMPLATE_T.PTID, __bpcUser__.VARIABLE_TEMPLATE_B_T.NAME, __bpcUser__.PROPERTY_ALIAS_TEMPLATE_B_T.PROPERTY_NAME, __bpcUser__.URI_TEMPLATE_B_T.URI, __bpcUser__.QUERYABLE_VARIABLE_TEMPLATE_T.QUERY_TYPE, __bpcUser__.PROPERTY_ALIAS_TEMPLATE_B_T.JAVA_TYPE
+ FROM __bpcUser__.QUERYABLE_VARIABLE_TEMPLATE_T, __bpcUser__.VARIABLE_TEMPLATE_B_T, __bpcUser__.PROPERTY_ALIAS_TEMPLATE_B_T, __bpcUser__.URI_TEMPLATE_B_T
+ WHERE __bpcUser__.QUERYABLE_VARIABLE_TEMPLATE_T.CTID = __bpcUser__.VARIABLE_TEMPLATE_B_T.CTID AND __bpcUser__.QUERYABLE_VARIABLE_TEMPLATE_T.PAID = __bpcUser__.PROPERTY_ALIAS_TEMPLATE_B_T.PAID AND __bpcUser__.PROPERTY_ALIAS_TEMPLATE_B_T.PROPERTY_UTID = __bpcUser__.URI_TEMPLATE_B_T.UTID;
+
+-- View: AuditLog
+CREATE VIEW __bpcUser__.AUDIT_LOG(ALID, EVENT_TIME, EVENT_TIME_UTC, AUDIT_EVENT, PTID, PIID, AIID, SIID, SCOPE_NAME, PROCESS_TEMPL_NAME, PROCESS_INST_NAME, TOP_LEVEL_PI_NAME, TOP_LEVEL_PIID, PARENT_PI_NAME, PARENT_PIID, VALID_FROM, VALID_FROM_UTC, ACTIVITY_NAME, ACTIVITY_KIND, ACTIVITY_STATE, CONTROL_LINK_NAME, IMPL_NAME, PRINCIPAL, TERMINAL_NAME, VARIABLE_DATA, EXCEPTION_TEXT, DESCRIPTION, CORR_SET_INFO, USER_NAME, ATID, ADDITIONAL_INFO, OBJECT_META_TYPE ) AS
+ SELECT __bpcUser__.AUDIT_LOG_T.ALID,__bpcUser__.AUDIT_LOG_T.EVENT_TIME,__bpcUser__.AUDIT_LOG_T.EVENT_TIME_UTC,__bpcUser__.AUDIT_LOG_T.AUDIT_EVENT,__bpcUser__.AUDIT_LOG_T.PTID,__bpcUser__.AUDIT_LOG_T.PIID,__bpcUser__.AUDIT_LOG_T.AIID,__bpcUser__.AUDIT_LOG_T.SIID,__bpcUser__.AUDIT_LOG_T.VARIABLE_NAME,__bpcUser__.AUDIT_LOG_T.PROCESS_TEMPL_NAME, __bpcUser__.AUDIT_LOG_T.PROCESS_INST_NAME,__bpcUser__.AUDIT_LOG_T.TOP_LEVEL_PI_NAME,__bpcUser__.AUDIT_LOG_T.TOP_LEVEL_PIID,__bpcUser__.AUDIT_LOG_T.PARENT_PI_NAME,__bpcUser__.AUDIT_LOG_T.PARENT_PIID,__bpcUser__.AUDIT_LOG_T.VALID_FROM,__bpcUser__.AUDIT_LOG_T.VALID_FROM_UTC, __bpcUser__.AUDIT_LOG_T.ACTIVITY_NAME,__bpcUser__.AUDIT_LOG_T.ACTIVITY_KIND,__bpcUser__.AUDIT_LOG_T.ACTIVITY_STATE,__bpcUser__.AUDIT_LOG_T.CONTROL_LINK_NAME,__bpcUser__.AUDIT_LOG_T.IMPL_NAME,__bpcUser__.AUDIT_LOG_T.PRINCIPAL, __bpcUser__.AUDIT_LOG_T.TERMINAL_NAME,__bpcUser__.AUDIT_LOG_T.VARIABLE_DATA,__bpcUser__.AUDIT_LOG_T.EXCEPTION_TEXT,__bpcUser__.AUDIT_LOG_T.DESCRIPTION,__bpcUser__.AUDIT_LOG_T.CORR_SET_INFO,__bpcUser__.AUDIT_LOG_T.USER_NAME, __bpcUser__.AUDIT_LOG_T.ATID, __bpcUser__.AUDIT_LOG_T.ADDITIONAL_INFO, __bpcUser__.AUDIT_LOG_T.OBJECT_META_TYPE
+ FROM __bpcUser__.AUDIT_LOG_T;
+
+-- View: AuditLogB
+CREATE VIEW __bpcUser__.AUDIT_LOG_B(ALID, EVENT_TIME, EVENT_TIME_UTC, AUDIT_EVENT, PTID, PIID, AIID, SIID, VARIABLE_NAME, PROCESS_TEMPL_NAME, TOP_LEVEL_PIID, PARENT_PIID, VALID_FROM, VALID_FROM_UTC, ATID, ACTIVITY_NAME, ACTIVITY_KIND, ACTIVITY_STATE, CONTROL_LINK_NAME, PRINCIPAL, VARIABLE_DATA, EXCEPTION_TEXT, DESCRIPTION, CORR_SET_INFO, USER_NAME, ADDITIONAL_INFO ) AS
+ SELECT __bpcUser__.AUDIT_LOG_T.ALID,__bpcUser__.AUDIT_LOG_T.EVENT_TIME,__bpcUser__.AUDIT_LOG_T.EVENT_TIME_UTC,__bpcUser__.AUDIT_LOG_T.AUDIT_EVENT,__bpcUser__.AUDIT_LOG_T.PTID,__bpcUser__.AUDIT_LOG_T.PIID,__bpcUser__.AUDIT_LOG_T.AIID,__bpcUser__.AUDIT_LOG_T.SIID,__bpcUser__.AUDIT_LOG_T.VARIABLE_NAME,__bpcUser__.AUDIT_LOG_T.PROCESS_TEMPL_NAME, __bpcUser__.AUDIT_LOG_T.TOP_LEVEL_PIID,__bpcUser__.AUDIT_LOG_T.PARENT_PIID,__bpcUser__.AUDIT_LOG_T.VALID_FROM,__bpcUser__.AUDIT_LOG_T.VALID_FROM_UTC,__bpcUser__.AUDIT_LOG_T.ATID, __bpcUser__.AUDIT_LOG_T.ACTIVITY_NAME,__bpcUser__.AUDIT_LOG_T.ACTIVITY_KIND,__bpcUser__.AUDIT_LOG_T.ACTIVITY_STATE,__bpcUser__.AUDIT_LOG_T.CONTROL_LINK_NAME,__bpcUser__.AUDIT_LOG_T.PRINCIPAL, __bpcUser__.AUDIT_LOG_T.VARIABLE_DATA,__bpcUser__.AUDIT_LOG_T.EXCEPTION_TEXT,__bpcUser__.AUDIT_LOG_T.DESCRIPTION,__bpcUser__.AUDIT_LOG_T.CORR_SET_INFO,__bpcUser__.AUDIT_LOG_T.USER_NAME, __bpcUser__.AUDIT_LOG_T.ADDITIONAL_INFO
+ FROM __bpcUser__.AUDIT_LOG_T
+ WHERE __bpcUser__.AUDIT_LOG_T.OBJECT_META_TYPE = 1;
+
+-- View: ApplicationComp
+CREATE VIEW __bpcUser__.APPLICATION_COMP(ACOID, BUSINESS_RELEVANCE, NAME, SUPPORT_AUTOCLAIM, SUPPORT_CLAIM_SUSP, SUPPORT_DELEGATION, SUPPORT_SUB_TASK, SUPPORT_FOLLOW_ON ) AS
+ SELECT __bpcUser__.APPLICATION_COMPONENT_T.ACOID, __bpcUser__.APPLICATION_COMPONENT_T.BUSINESS_RELEVANCE, __bpcUser__.APPLICATION_COMPONENT_T.NAME, __bpcUser__.APPLICATION_COMPONENT_T.SUPPORTS_AUTO_CLAIM, __bpcUser__.APPLICATION_COMPONENT_T.SUPPORTS_CLAIM_SUSPENDED, __bpcUser__.APPLICATION_COMPONENT_T.SUPPORTS_DELEGATION, __bpcUser__.APPLICATION_COMPONENT_T.SUPPORTS_SUB_TASK, __bpcUser__.APPLICATION_COMPONENT_T.SUPPORTS_FOLLOW_ON_TASK
+ FROM __bpcUser__.APPLICATION_COMPONENT_T;
+
+-- View: Task
+CREATE VIEW __bpcUser__.TASK(TKIID, ACTIVATED, APPLIC_DEFAULTS_ID, APPLIC_NAME, BUSINESS_RELEVANCE, COMPLETED, CONTAINMENT_CTX_ID, CTX_AUTHORIZATION, DUE, EXPIRES, FIRST_ACTIVATED, FOLLOW_ON_TKIID, IS_AD_HOC, IS_ESCALATED, IS_INLINE, IS_WAIT_FOR_SUB_TK, KIND, LAST_MODIFIED, LAST_STATE_CHANGE, NAME, NAME_SPACE, ORIGINATOR, OWNER, PARENT_CONTEXT_ID, PRIORITY, STARTED, STARTER, STATE, SUPPORT_AUTOCLAIM, SUPPORT_CLAIM_SUSP, SUPPORT_DELEGATION, SUPPORT_SUB_TASK, SUPPORT_FOLLOW_ON, HIERARCHY_POSITION, IS_CHILD, SUSPENDED, TKTID, TOP_TKIID, TYPE, RESUMES ) AS
+ SELECT __bpcUser__.TASK_INSTANCE_T.TKIID, __bpcUser__.TASK_INSTANCE_T.ACTIVATION_TIME, __bpcUser__.TASK_INSTANCE_T.APPLICATION_DEFAULTS_ID, __bpcUser__.TASK_INSTANCE_T.APPLICATION_NAME, __bpcUser__.TASK_INSTANCE_T.BUSINESS_RELEVANCE, __bpcUser__.TASK_INSTANCE_T.COMPLETION_TIME, __bpcUser__.TASK_INSTANCE_T.CONTAINMENT_CONTEXT_ID, __bpcUser__.TASK_INSTANCE_T.CONTEXT_AUTHORIZATION, __bpcUser__.TASK_INSTANCE_T.DUE_TIME, __bpcUser__.TASK_INSTANCE_T.EXPIRATION_TIME, __bpcUser__.TASK_INSTANCE_T.FIRST_ACTIVATION_TIME, __bpcUser__.TASK_INSTANCE_T.FOLLOW_ON_TKIID, __bpcUser__.TASK_INSTANCE_T.IS_AD_HOC, __bpcUser__.TASK_INSTANCE_T.IS_ESCALATED, __bpcUser__.TASK_INSTANCE_T.IS_INLINE, __bpcUser__.TASK_INSTANCE_T.IS_WAITING_FOR_SUBTASK, __bpcUser__.TASK_INSTANCE_T.KIND, __bpcUser__.TASK_INSTANCE_T.LAST_MODIFICATION_TIME, __bpcUser__.TASK_INSTANCE_T.LAST_STATE_CHANGE_TIME, __bpcUser__.TASK_INSTANCE_T.NAME, __bpcUser__.TASK_INSTANCE_T.NAMESPACE, __bpcUser__.TASK_INSTANCE_T.ORIGINATOR, __bpcUser__.TASK_INSTANCE_T.OWNER, __bpcUser__.TASK_INSTANCE_T.PARENT_CONTEXT_ID, __bpcUser__.TASK_INSTANCE_T.PRIORITY, __bpcUser__.TASK_INSTANCE_T.START_TIME, __bpcUser__.TASK_INSTANCE_T.STARTER, __bpcUser__.TASK_INSTANCE_T.STATE, __bpcUser__.TASK_INSTANCE_T.SUPPORTS_AUTO_CLAIM, __bpcUser__.TASK_INSTANCE_T.SUPPORTS_CLAIM_SUSPENDED, __bpcUser__.TASK_INSTANCE_T.SUPPORTS_DELEGATION, __bpcUser__.TASK_INSTANCE_T.SUPPORTS_SUB_TASK, __bpcUser__.TASK_INSTANCE_T.SUPPORTS_FOLLOW_ON_TASK, __bpcUser__.TASK_INSTANCE_T.HIERARCHY_POSITION, __bpcUser__.TASK_INSTANCE_T.IS_CHILD, __bpcUser__.TASK_INSTANCE_T.IS_SUSPENDED, __bpcUser__.TASK_INSTANCE_T.TKTID, __bpcUser__.TASK_INSTANCE_T.TOP_TKIID, __bpcUser__.TASK_INSTANCE_T.TYPE, __bpcUser__.TASK_INSTANCE_T.RESUMES
+ FROM __bpcUser__.TASK_INSTANCE_T;
+
+-- View: TaskTempl
+CREATE VIEW __bpcUser__.TASK_TEMPL(TKTID, APPLIC_DEFAULTS_ID, APPLIC_NAME, BUSINESS_RELEVANCE, CONTAINMENT_CTX_ID, CTX_AUTHORIZATION, DEFINITION_NAME, DEFINITION_NS, IS_AD_HOC, IS_INLINE, KIND, NAME, NAMESPACE, PRIORITY, STATE, SUPPORT_AUTOCLAIM, SUPPORT_CLAIM_SUSP, SUPPORT_DELEGATION, SUPPORT_SUB_TASK, SUPPORT_FOLLOW_ON, TYPE, VALID_FROM, AUTONOMY ) AS
+ SELECT __bpcUser__.TASK_TEMPLATE_T.TKTID, __bpcUser__.TASK_TEMPLATE_T.APPLICATION_DEFAULTS_ID, __bpcUser__.TASK_TEMPLATE_T.APPLICATION_NAME, __bpcUser__.TASK_TEMPLATE_T.BUSINESS_RELEVANCE, __bpcUser__.TASK_TEMPLATE_T.CONTAINMENT_CONTEXT_ID, __bpcUser__.TASK_TEMPLATE_T.CONTEXT_AUTHORIZATION, __bpcUser__.TASK_TEMPLATE_T.DEFINITION_NAME, __bpcUser__.TASK_TEMPLATE_T.TARGET_NAMESPACE, __bpcUser__.TASK_TEMPLATE_T.IS_AD_HOC, __bpcUser__.TASK_TEMPLATE_T.IS_INLINE, __bpcUser__.TASK_TEMPLATE_T.KIND, __bpcUser__.TASK_TEMPLATE_T.NAME, __bpcUser__.TASK_TEMPLATE_T.NAMESPACE, __bpcUser__.TASK_TEMPLATE_T.PRIORITY, __bpcUser__.TASK_TEMPLATE_T.STATE, __bpcUser__.TASK_TEMPLATE_T.SUPPORTS_AUTO_CLAIM, __bpcUser__.TASK_TEMPLATE_T.SUPPORTS_CLAIM_SUSPENDED, __bpcUser__.TASK_TEMPLATE_T.SUPPORTS_DELEGATION, __bpcUser__.TASK_TEMPLATE_T.SUPPORTS_SUB_TASK, __bpcUser__.TASK_TEMPLATE_T.SUPPORTS_FOLLOW_ON_TASK, __bpcUser__.TASK_TEMPLATE_T.TYPE, __bpcUser__.TASK_TEMPLATE_T.VALID_FROM, __bpcUser__.TASK_TEMPLATE_T.AUTONOMY
+ FROM __bpcUser__.TASK_TEMPLATE_T;
+
+-- View: Escalation
+CREATE VIEW __bpcUser__.ESCALATION(ESIID, ACTION, ACTIVATION_STATE, ACTIVATION_TIME, ESCALATION_TIME, AT_LEAST_EXP_STATE, ESTID, FIRST_ESIID, INCREASE_PRIORITY, NAME, STATE, TKIID ) AS
+ SELECT __bpcUser__.ESCALATION_INSTANCE_T.ESIID, __bpcUser__.ESCALATION_INSTANCE_T.ACTION, __bpcUser__.ESCALATION_INSTANCE_T.ACTIVATION_STATE, __bpcUser__.ESCALATION_INSTANCE_T.ACTIVATION_TIME, __bpcUser__.ESCALATION_INSTANCE_T.ESCALATION_TIME, __bpcUser__.ESCALATION_INSTANCE_T.AT_LEAST_EXPECTED_STATE, __bpcUser__.ESCALATION_INSTANCE_T.ESTID, __bpcUser__.ESCALATION_INSTANCE_T.FIRST_ESIID, __bpcUser__.ESCALATION_INSTANCE_T.INCREASE_PRIORITY, __bpcUser__.ESCALATION_INSTANCE_T.NAME, __bpcUser__.ESCALATION_INSTANCE_T.STATE, __bpcUser__.ESCALATION_INSTANCE_T.TKIID
+ FROM __bpcUser__.ESCALATION_INSTANCE_T;
+
+-- View: EscTempl
+CREATE VIEW __bpcUser__.ESC_TEMPL(ESTID, FIRST_ESTID, PREVIOUS_ESTID, TKTID, CONTAINMENT_CTX_ID, NAME, ACTIVATION_STATE, AT_LEAST_EXP_STATE, INCREASE_PRIORITY, ACTION ) AS
+ SELECT __bpcUser__.ESCALATION_TEMPLATE_T.ESTID, __bpcUser__.ESCALATION_TEMPLATE_T.FIRST_ESTID, __bpcUser__.ESCALATION_TEMPLATE_T.PREVIOUS_ESTID, __bpcUser__.ESCALATION_TEMPLATE_T.TKTID, __bpcUser__.ESCALATION_TEMPLATE_T.CONTAINMENT_CONTEXT_ID, __bpcUser__.ESCALATION_TEMPLATE_T.NAME, __bpcUser__.ESCALATION_TEMPLATE_T.ACTIVATION_STATE, __bpcUser__.ESCALATION_TEMPLATE_T.AT_LEAST_EXPECTED_STATE, __bpcUser__.ESCALATION_TEMPLATE_T.INCREASE_PRIORITY, __bpcUser__.ESCALATION_TEMPLATE_T.ACTION
+ FROM __bpcUser__.ESCALATION_TEMPLATE_T;
+
+-- View: EscTemplDesc
+CREATE VIEW __bpcUser__.ESC_TEMPL_DESC(ESTID, LOCALE, TKTID, DISPLAY_NAME, DESCRIPTION ) AS
+ SELECT __bpcUser__.ESC_TEMPL_LDESC_T.ESTID, __bpcUser__.ESC_TEMPL_LDESC_T.LOCALE, __bpcUser__.ESC_TEMPL_LDESC_T.TKTID, __bpcUser__.ESC_TEMPL_LDESC_T.DISPLAY_NAME, __bpcUser__.ESC_TEMPL_LDESC_T.DESCRIPTION
+ FROM __bpcUser__.ESC_TEMPL_LDESC_T;
+
+-- View: TaskTemplCProp
+CREATE VIEW __bpcUser__.TASK_TEMPL_CPROP(TKTID, NAME, DATA_TYPE, STRING_VALUE ) AS
+ SELECT __bpcUser__.TASK_TEMPL_CPROP_T.TKTID, __bpcUser__.TASK_TEMPL_CPROP_T.NAME, __bpcUser__.TASK_TEMPL_CPROP_T.DATA_TYPE, __bpcUser__.TASK_TEMPL_CPROP_T.STRING_VALUE
+ FROM __bpcUser__.TASK_TEMPL_CPROP_T;
+
+-- View: EscTemplCProp
+CREATE VIEW __bpcUser__.ESC_TEMPL_CPROP(ESTID, NAME, TKTID, DATA_TYPE, VALUE ) AS
+ SELECT __bpcUser__.ESC_TEMPL_CPROP_T.ESTID, __bpcUser__.ESC_TEMPL_CPROP_T.NAME, __bpcUser__.ESC_TEMPL_CPROP_T.TKTID, __bpcUser__.ESC_TEMPL_CPROP_T.DATA_TYPE, __bpcUser__.ESC_TEMPL_CPROP_T.STRING_VALUE
+ FROM __bpcUser__.ESC_TEMPL_CPROP_T;
+
+-- View: TaskTemplDesc
+CREATE VIEW __bpcUser__.TASK_TEMPL_DESC(TKTID, LOCALE, DESCRIPTION, DISPLAY_NAME ) AS
+ SELECT __bpcUser__.TASK_TEMPL_LDESC_T.TKTID, __bpcUser__.TASK_TEMPL_LDESC_T.LOCALE, __bpcUser__.TASK_TEMPL_LDESC_T.DESCRIPTION, __bpcUser__.TASK_TEMPL_LDESC_T.DISPLAY_NAME
+ FROM __bpcUser__.TASK_TEMPL_LDESC_T;
+
+-- View: TaskCProp
+CREATE VIEW __bpcUser__.TASK_CPROP(TKIID, NAME, DATA_TYPE, STRING_VALUE ) AS
+ SELECT __bpcUser__.TASK_INST_CPROP_T.TKIID, __bpcUser__.TASK_INST_CPROP_T.NAME, __bpcUser__.TASK_INST_CPROP_T.DATA_TYPE, __bpcUser__.TASK_INST_CPROP_T.STRING_VALUE
+ FROM __bpcUser__.TASK_INST_CPROP_T;
+
+-- View: TaskDesc
+CREATE VIEW __bpcUser__.TASK_DESC(TKIID, LOCALE, DESCRIPTION, DISPLAY_NAME ) AS
+ SELECT __bpcUser__.TASK_INST_LDESC_T.TKIID, __bpcUser__.TASK_INST_LDESC_T.LOCALE, __bpcUser__.TASK_INST_LDESC_T.DESCRIPTION, __bpcUser__.TASK_INST_LDESC_T.DISPLAY_NAME
+ FROM __bpcUser__.TASK_INST_LDESC_T;
+
+-- View: EscalationCProp
+CREATE VIEW __bpcUser__.ESCALATION_CPROP(ESIID, NAME, DATA_TYPE, STRING_VALUE ) AS
+ SELECT __bpcUser__.ESC_INST_CPROP_T.ESIID, __bpcUser__.ESC_INST_CPROP_T.NAME, __bpcUser__.ESC_INST_CPROP_T.DATA_TYPE, __bpcUser__.ESC_INST_CPROP_T.STRING_VALUE
+ FROM __bpcUser__.ESC_INST_CPROP_T;
+
+-- View: TaskHistory
+CREATE VIEW __bpcUser__.TASK_HISTORY(TKIID, ESIID, PARENT_TKIID, EVENT, REASON, EVENT_TIME, NEXT_TIME, PRINCIPAL, WORK_ITEM_KIND, FROM_ID, TO_ID ) AS
+ SELECT __bpcUser__.TASK_HISTORY_T.TKIID, __bpcUser__.TASK_HISTORY_T.ESIID, __bpcUser__.TASK_HISTORY_T.PARENT_TKIID, __bpcUser__.TASK_HISTORY_T.EVENT, __bpcUser__.TASK_HISTORY_T.REASON, __bpcUser__.TASK_HISTORY_T.EVENT_TIME, __bpcUser__.TASK_HISTORY_T.NEXT_TIME, __bpcUser__.TASK_HISTORY_T.PRINCIPAL, __bpcUser__.TASK_HISTORY_T.WORK_ITEM_KIND, __bpcUser__.TASK_HISTORY_T.FROM_ID, __bpcUser__.TASK_HISTORY_T.TO_ID
+ FROM __bpcUser__.TASK_HISTORY_T;
+
+-- View: EscalationDesc
+CREATE VIEW __bpcUser__.ESCALATION_DESC(ESIID, LOCALE, DESCRIPTION, DISPLAY_NAME ) AS
+ SELECT __bpcUser__.ESC_INST_LDESC_T.ESIID, __bpcUser__.ESC_INST_LDESC_T.LOCALE, __bpcUser__.ESC_INST_LDESC_T.DESCRIPTION, __bpcUser__.ESC_INST_LDESC_T.DISPLAY_NAME
+ FROM __bpcUser__.ESC_INST_LDESC_T;
+
+-- View: TaskAuditLog
+CREATE VIEW __bpcUser__.TASK_AUDIT_LOG(ALID, AUDIT_EVENT, CONTAINMENT_CTX_ID, ESIID, ESTID, EVENT_TIME, FAULT_NAME, FAULT_TYPE_NAME, FAULT_NAME_SPACE, FOLLOW_ON_TKIID, NAME, NAMESPACE, NEW_USER, OLD_USER, PARENT_CONTEXT_ID, PARENT_TASK_NAME, PARENT_TASK_NAMESP, PARENT_TKIID, PRINCIPAL, TASK_KIND, TASK_STATE, TKIID, TKTID, TOP_TKIID, VAILD_FROM, WORK_ITEM_REASON, USERS, DESCRIPTION, MESSAGE_DATA ) AS
+ SELECT __bpcUser__.TASK_AUDIT_LOG_T.ALID, __bpcUser__.TASK_AUDIT_LOG_T.AUDIT_EVENT, __bpcUser__.TASK_AUDIT_LOG_T.CONTAINMENT_CONTEXT_ID, __bpcUser__.TASK_AUDIT_LOG_T.ESIID, __bpcUser__.TASK_AUDIT_LOG_T.ESTID, __bpcUser__.TASK_AUDIT_LOG_T.EVENT_TIME_UTC, __bpcUser__.TASK_AUDIT_LOG_T.FAULT_NAME, __bpcUser__.TASK_AUDIT_LOG_T.FAULT_TYPE_NAME, __bpcUser__.TASK_AUDIT_LOG_T.FAULT_NAMESPACE, __bpcUser__.TASK_AUDIT_LOG_T.FOLLOW_ON_TKIID, __bpcUser__.TASK_AUDIT_LOG_T.NAME, __bpcUser__.TASK_AUDIT_LOG_T.NAMESPACE, __bpcUser__.TASK_AUDIT_LOG_T.NEW_USER, __bpcUser__.TASK_AUDIT_LOG_T.OLD_USER, __bpcUser__.TASK_AUDIT_LOG_T.PARENT_CONTEXT_ID, __bpcUser__.TASK_AUDIT_LOG_T.PARENT_TASK_NAME, __bpcUser__.TASK_AUDIT_LOG_T.PARENT_TASK_NAMESPACE, __bpcUser__.TASK_AUDIT_LOG_T.PARENT_TKIID, __bpcUser__.TASK_AUDIT_LOG_T.PRINCIPAL, __bpcUser__.TASK_AUDIT_LOG_T.TASK_KIND, __bpcUser__.TASK_AUDIT_LOG_T.TASK_STATE, __bpcUser__.TASK_AUDIT_LOG_T.TKIID, __bpcUser__.TASK_AUDIT_LOG_T.TKTID, __bpcUser__.TASK_AUDIT_LOG_T.TOP_TKIID, __bpcUser__.TASK_AUDIT_LOG_T.VALID_FROM_UTC, __bpcUser__.TASK_AUDIT_LOG_T.WI_REASON, __bpcUser__.TASK_AUDIT_LOG_T.USERS, __bpcUser__.TASK_AUDIT_LOG_T.DESCRIPTION, __bpcUser__.TASK_AUDIT_LOG_T.MESSAGE_DATA
+ FROM __bpcUser__.TASK_AUDIT_LOG_T;
+
+
+-- start import scheduler DDL: createSchemaOracle.ddl
+
+
+
+CREATE TABLE __bpcUser__."SCHED_TASK"("TASKID" NUMBER(19) NOT NULL,
+               "VERSION" VARCHAR2(5) NOT NULL,
+               "ROW_VERSION" NUMBER(10) NOT NULL,
+               "TASKTYPE" NUMBER(10) NOT NULL,
+               "TASKSUSPENDED" NUMBER(1) NOT NULL,
+               "CANCELLED" NUMBER(1) NOT NULL,
+               "NEXTFIRETIME" NUMBER(19) NOT NULL,
+               "STARTBYINTERVAL" VARCHAR2(254),
+               "STARTBYTIME" NUMBER(19),
+               "VALIDFROMTIME" NUMBER(19),
+               "VALIDTOTIME" NUMBER(19),
+               "REPEATINTERVAL" VARCHAR2(254),
+               "MAXREPEATS" NUMBER(10) NOT NULL,
+               "REPEATSLEFT" NUMBER(10) NOT NULL,
+               "TASKINFO" BLOB,
+               "NAME" VARCHAR2(254),
+               "AUTOPURGE" NUMBER(10) NOT NULL,
+               "FAILUREACTION" NUMBER(10),
+               "MAXATTEMPTS" NUMBER(10),
+               "QOS" NUMBER(10),
+               "PARTITIONID" NUMBER(10),
+               "OWNERTOKEN" VARCHAR2(200) NOT NULL,
+               "CREATETIME" NUMBER(19) NOT NULL,
+               PRIMARY KEY ("TASKID") ) TABLESPACE "SCHEDTS";
+
+CREATE INDEX __bpcUser__."SCHED_TASK_IDX1" ON __bpcUser__."SCHED_TASK" ("TASKID",
+              "OWNERTOKEN") ;
+
+CREATE INDEX __bpcUser__."SCHED_TASK_IDX2" ON __bpcUser__."SCHED_TASK" ("NEXTFIRETIME" ASC,
+               "REPEATSLEFT",
+               "PARTITIONID") ;
+
+CREATE TABLE __bpcUser__."SCHED_TREG" ("REGKEY" VARCHAR2(254) NOT NULL ,
+               "REGVALUE" VARCHAR2(254) ,
+               PRIMARY KEY ( "REGKEY" )) TABLESPACE "SCHEDTS";
+
+CREATE TABLE __bpcUser__."SCHED_LMGR" ("LEASENAME" VARCHAR2(254) NOT NULL,
+               "LEASEOWNER" VARCHAR2(254),
+               "LEASE_EXPIRE_TIME" NUMBER(19),
+               "DISABLED" VARCHAR2(254),
+               PRIMARY KEY ( "LEASENAME" )) TABLESPACE "SCHEDTS";
+
+CREATE TABLE __bpcUser__."SCHED_LMPR" ("LEASENAME" VARCHAR2(254) NOT NULL,
+               "NAME" VARCHAR2(254) NOT NULL,
+               "VALUE" VARCHAR2(254) NOT NULL ) TABLESPACE "SCHEDTS";
+
+CREATE INDEX __bpcUser__."SCHED_LMPR_IDX1" ON __bpcUser__."SCHED_LMPR" ("LEASENAME",
+               "NAME") ;
+
+COMMIT;
+
+EXIT;

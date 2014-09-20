@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent-input>
+<server>
+	<repository location='__wasPatchDir__'/>
+</server>
+
+<profile installLocation='__wasInstallDir__' id='__wasProfile__'>
+	<data key='eclipseLocation' value='__wasInstallDir__' />
+	<data key="cic.selector.nl" value="en" />
+	<data key='user.import.profile' value='false'/>
+	<data key='user.select.64bit.image.__wasImage__' value='__is64bit__'/>
+</profile>
+
+<install>
+	<offering profile='__wasProfile__' id='__wasImage__' version='__wasPatchVersion__' features='core.feature,ejbdeploy,thinclient,embeddablecontainer,samples,com.ibm.sdk.6_32bit' installFixes='none'/>
+</install>
+
+<preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='__installDir__/eclipsecache'/>
+<preference value="30" name="com.ibm.cic.common.core.preferences.connectTimeout" /> 
+<preference value="30" name="com.ibm.cic.common.core.preferences.readTimeout" /> 
+<preference value="1" name="com.ibm.cic.common.core.preferences.downloadAutoRetryCount" /> 
+<preference value="false" name="offering.service.repositories.areUsed" /> 
+<preference value="false" name="com.ibm.cic.common.core.preferences.ssl.nonsecureMode" /> 
+<preference value="false" name="com.ibm.cic.common.core.preferences.http.disablePreemptiveAuthentication" /> 
+<preference value="true" name="com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts" /> 
+<preference value="false" name="PassportAdvantageIsEnabled" /> 
+<preference value="false" name="com.ibm.cic.common.core.preferences.searchForUpdates" /> 
+<preference value="true" name="com.ibm.cic.common.core.preferences.import.enabled" /> 
+</agent-input>
