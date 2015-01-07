@@ -1,4 +1,0 @@
-automation
-==========
-
-Websphere automation
