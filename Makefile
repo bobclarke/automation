@@ -234,30 +234,6 @@ vhost:
 	@echo "Configuring Virtual Host Aliases"
 	@${WSACMD} -f vhost.py
 
-enablejdk7:
-	-@bash ./installProduct.sh $@
-
-deploysalsa:
-	-@bash ./installProduct.sh $@
-
-deployivt:
-	-@bash ./installProduct.sh $@
-
-configsalsalibs:
-	-@bash ./installProduct.sh $@
-
-im:
-	-@bash ./installProduct.sh $@
-
-basenode:
-	-@bash ./installProduct.sh $@
-
-node:
-	-@bash ./installProduct.sh $@
-
-dmgr:
-	-@bash ./installProduct.sh $@
-
 wasliberty:
 	@echo "Defining liberty profile in WAS - node is ${nodeName} and name is ${libertyProf}"
 	-@${WSACMD} -f createLibertyProfile.py ${nodeName} ${libertyProf}
@@ -292,9 +268,6 @@ nodewps6:node_wps_v6.resp
 	@${wasInstallDir}/bin/manageprofiles.sh -response node_wps_v6.resp
 	@[ -s ${profilePath}/${nodeProf} ]  || echo "ERROR: Node profile has not been created, exiting!"
 
-was:
-	-@bash ./installProduct.sh $@
-
 waspatch:
 	echo "Installing WAS patches"
 	${installDir}/im/eclipse/IBMIM -acceptLicense -input waspatch.resp -silent -nosplash
@@ -314,11 +287,6 @@ wps6:
 	cp was6.resp ${was6SrcDir}
 	${was6SrcDir}/install -options was6.resp -silent
 
-addnode:
-	-@bash ./installProduct.sh $@
-
-cluster:
-	-@bash ./installProduct.sh $@
 
 cluster6:
 	@echo "Creating Cluster (V6)"
@@ -376,22 +344,10 @@ setportswps:
 	@${WSACMD} -f setPorts.py ${envName} ${messBasePort} ${MessagingClusterName}
 	@${WSACMD} -f setPorts.py ${envName} ${suppBasePort} ${SupportClusterName}
 
-commondb:
-	-@bash ./installProduct.sh $@
-
-bpcdb:
-	-@bash ./installProduct.sh $@
-
 uninstalljee: stopall
 	@echo "Uninstalling..."
 	-@rm -r ${UNINST_DIRS} > /dev/null 2>&1
 	@echo "Uninstall complete."
-
-message:
-	-@bash ./installProduct.sh $@
-
-confrpc:
-	-@bash ./installProduct.sh $@
 
 clean:
 	-@rm -f *.resp *.xml *.ports
@@ -413,8 +369,4 @@ createjndient:
 	@${WSACMD} -f createJndiEntry.py salsaRep fuse.service.url ${fuse.service.url}
 	@${WSACMD} -f createJndiEntry.py salsaRep slr.service.timeout ${slr.service.timeout}
 	@${WSACMD} -f createJndiEntry.py salsaRep slr.max.connections ${slr.max.connections}
-
-
-
-
 
